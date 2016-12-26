@@ -57,8 +57,19 @@ myrrs2.each {
  print  ' and Amazon is a ' 
  println it.getClass()
 }
+com.amazonaws.internal.SdkInternalList z = 
+ new com.amazonaws.internal.SdkInternalList()
+myrrs2.each {
+ if (it.getValue() == '10.11.12.13') {
+  it.setValue('13.14.15.16')
+ }
+ z.add(it)
+}
 
+//This is simply setting it to what it already is.
+myrrs.setResourceRecords(z)
 
+/*I can't get homegrown to work
 println "Assembling my homegrown now..."
 
 def ec2wPublicIpAddress = '[33.44.55.66]'
@@ -73,7 +84,7 @@ resourceRecords.each {
 }
 def rrs = new ResourceRecordSet('earn.redf4rth.net.', 'A')
 rrs.setResourceRecords(resourceRecords)
-
+*/
 
 def c = new Change('UPSERT', myrrs)
 def changes = [] //List<Change>
