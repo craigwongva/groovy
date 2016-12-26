@@ -12,7 +12,7 @@ Region usWest2 = Region.getRegion(Regions.US_WEST_2);
 
 def ec2Client = new com.amazonaws.services.ec2.AmazonEC2Client()
 ec2Client.setRegion(usWest2);
-/* this works:
+
 DescribeInstancesRequest request = new DescribeInstancesRequest();
 
 List<String> valuesT1 = new ArrayList<String>();
@@ -31,74 +31,39 @@ for (Reservation reservation : reservations) {
  }
 }
 
-String upsertJson = "{\"Comment\":\"\",\"Changes\":[{\"Action\":\"UPSERT\",\"ResourceRecordSet\":{\"Name\":\"trac.redf4rth.net\",\"Type\":\"A\",\"TTL\":300,\"ResourceRecords\":[{\"Value\":\"$ec2wPublicIpAddress\"}]}}]}" 
-println upsertJson
-*/
-def route53Client = new com.amazonaws.services.route53.AmazonRoute53Client()
 
-println "Reading from Route 53 now..."
+def route53Client = new com.amazonaws.services.route53.AmazonRoute53Client()
 
 def hostedZoneId = 'Z14MX2BF8JTF7J'
 def lrrsReq = new ListResourceRecordSetsRequest(hostedZoneId)
 def lrrsRes = route53Client.listResourceRecordSets(lrrsReq)
 def lrrs = lrrsRes.getResourceRecordSets()
 ResourceRecordSet myrrs
-lrrs.each {
- if (it.getName() == 'earn.redf4rth.net.') {
-  println "I see test: " + it.getClass() + ' ' + it.getResourceRecords()
+lrrs.grep{it.getName() == 'test.redf4rth.net.'}.each {
   myrrs = it
- }
 }
-println "myrrs is a " + myrrs.getClass()
+def z = new com.amazonaws.internal.SdkInternalList()
 def myrrs2 = myrrs.getResourceRecords()
-println "myrrs2 is a " + myrrs2.getClass()
 myrrs2.each {
- print it 
- print  ' and Amazon is a ' 
- println it.getClass()
-}
-com.amazonaws.internal.SdkInternalList z = 
- new com.amazonaws.internal.SdkInternalList()
-myrrs2.each {
- if (it.getValue() == '10.11.12.13') {
-  it.setValue('13.14.15.16')
- }
+ it.setValue(ec2wPublicIpAddress)
  z.add(it)
 }
-
-//This is simply setting it to what it already is.
 myrrs.setResourceRecords(z)
 
-/*I can't get homegrown to work
-println "Assembling my homegrown now..."
 
-def ec2wPublicIpAddress = '[33.44.55.66]'
-def rr = new ResourceRecord(ec2wPublicIpAddress)
-com.amazonaws.internal.SdkInternalList resourceRecords = new com.amazonaws.internal.SdkInternalList()
-resourceRecords.add(rr)
-println "resourceRecords is a " + resourceRecords.getClass()
-resourceRecords.each {
- print it
- print  ' AND Craig IS A '
- println it.getClass()
-}
-def rrs = new ResourceRecordSet('earn.redf4rth.net.', 'A')
-rrs.setResourceRecords(resourceRecords)
+
+/* 
+   I couldn't build a homegrown ResourceRecordSet.
+   So I'm reading and updating the existing one. 
 */
 
 def c = new Change('UPSERT', myrrs)
-def changes = [] //List<Change>
+def changes = [] 
 changes.add(c)
 def cb = new ChangeBatch()
 cb.setChanges(changes)
 
-//def hostedZoneId = 'Z14MX2BF8JTF7J'
 def crrsReq = 
  new ChangeResourceRecordSetsRequest(hostedZoneId, cb)
 def crrsRes = 
  route53Client.changeResourceRecordSets(crrsReq)
-
-
-/*
-sudo -u ec2-user bash -c 'aws route53 change-resource-record-sets --hosted-zone-id Z14MX2BF8JTF7J --change-batch file://upsert-route53.json.tmp'
-*/
