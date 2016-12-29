@@ -16,14 +16,15 @@ class Hello {
 
 String myHandler(data, Context context) {
 Region usWest2 = Region.getRegion(Regions.US_WEST_2);
+Region usEast1 = Region.getRegion(Regions.US_EAST_1);
 
 def ec2Client = new com.amazonaws.services.ec2.AmazonEC2Client()
-ec2Client.setRegion(usWest2);
+ec2Client.setRegion(usEast1);
 
 DescribeInstancesRequest request = new DescribeInstancesRequest();
 
 List<String> valuesT1 = new ArrayList<String>();
-valuesT1.add("trac");
+valuesT1.add("ec2w");
 Filter filter1 = new Filter("tag:Name", valuesT1);
 
 DescribeInstancesResult result = 
@@ -46,7 +47,7 @@ def lrrsReq = new ListResourceRecordSetsRequest(hostedZoneId)
 def lrrsRes = route53Client.listResourceRecordSets(lrrsReq)
 def lrrs = lrrsRes.getResourceRecordSets()
 ResourceRecordSet myrrs
-lrrs.grep{it.getName() == 'test.redf4rth.net.'}.each {
+lrrs.grep{it.getName() == 'ec2w.redf4rth.net.'}.each {
   myrrs = it
 }
 def z = new com.amazonaws.internal.SdkInternalList()

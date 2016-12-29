@@ -17,12 +17,12 @@
 #Its role is basic_lambda_execution WITH EC2READACCESS and ROUTE53FULLACCESS.
 
 #wget http://repo1.maven.org/maven2/com/amazonaws/aws-lambda-java-core/1.0.0/aws-lambda-java-core-1.0.0.jar
-#/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp aws-lambda-java-core-1.0.0.jar:aws-java-sdk-1.10.50.jar Hello.groovy
-#mkdir lambdaroute54
-#mv example lambdaroute54
-#mkdir lambdaroute54/lib
-#cp *.jar lambdaroute54/lib
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp aws-lambda-java-core-1.0.0.jar:aws-java-sdk-1.10.50.jar Hello.groovy
+mkdir lambdaroute54
+mv example lambdaroute54
+mkdir lambdaroute54/lib
+cp *.jar lambdaroute54/lib
 cd lambdaroute54
 zip -r lambdaroute54.zip .
 aws s3 cp lambdaroute54.zip s3://redf4rth-lambdaroute
-aws lambda create-function --function-name lambdaroute54 --runtime java8 --role arn:aws:iam::994238729631:role/lambda_basic_execution --handler example.Hello::myHandler --timeout 15 --memory-size 512 --zip-file fileb://lambdaroute54/lambdaroute54.zip --region us-west-2
+aws lambda create-function --function-name lambdaroute54 --runtime java8 --role arn:aws:iam::994238729631:role/lambda_basic_execution --handler example.Hello::myHandler --timeout 15 --memory-size 512 --zip-file fileb://lambdaroute54/lambdaroute54.zip --region us-east-1
