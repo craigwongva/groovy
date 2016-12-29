@@ -25,4 +25,4 @@ cp *.jar lambdaroute54/lib
 cd lambdaroute54
 zip -r lambdaroute54.zip .
 aws s3 cp lambdaroute54.zip s3://redf4rth-lambdaroute
-aws lambda create-function --function-name lambdaroute54 --runtime java8 --role arn:aws:iam::994238729631:role/lambda_basic_execution --handler example.Hello::myHandler --timeout 15 --memory-size 512 --zip-file fileb://lambdaroute54/lambdaroute54.zip --region us-east-1
+aws lambda create-function --function-name lambdaroute54 --runtime java8 --role arn:aws:iam::994238729631:role/lambda_basic_execution --handler example.Hello::myHandler --timeout 15 --memory-size 512 --zip-file fileb://lambdaroute54.zip --region us-east-1
