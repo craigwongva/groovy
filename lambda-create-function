@@ -1,0 +1,28 @@
+#cd ~/groovy
+#vi Hello.groovy
+##Make sure the "package" statement says "package example"
+##Make sure there is a "Class Hello { String myHandler(parm1, parm2) { }}"
+## where parm1 and parm2 include a Context and something else I've forgotten
+#groovyc
+##The results (four *.class files) go into example/
+#cp example/*.class ~/lambdaroute53/lib
+##Manually populate all the libs you need, including aws and lambda (Im not sure why the lambda jar content isn't automatically included in the aws jar)
+#cd ~/lambdaroute53
+##The contents are /example and /lib
+#zip -r lambdaroute53.zip .
+#aws s3 cp lambdaroute53.zip s3://redf4rth-lambdaroute
+
+#My Lambda function in us-west-2 is called lambdaroute53.
+#Its handler is "example.Hello::myHandler"
+#Its role is basic_lambda_execution WITH EC2READACCESS and ROUTE53FULLACCESS.
+
+#wget http://repo1.maven.org/maven2/com/amazonaws/aws-lambda-java-core/1.0.0/aws-lambda-java-core-1.0.0.jar
+#/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp aws-lambda-java-core-1.0.0.jar:aws-java-sdk-1.10.50.jar Hello.groovy
+#mkdir lambdaroute54
+#mv example lambdaroute54
+#mkdir lambdaroute54/lib
+#cp *.jar lambdaroute54/lib
+cd lambdaroute54
+zip -r lambdaroute54.zip .
+aws s3 cp lambdaroute54.zip s3://redf4rth-lambdaroute
+aws lambda create-function --function-name lambdaroute54 --runtime java8 --role arn:aws:iam::994238729631:role/lambda_basic_execution --handler example.Hello::myHandler --timeout 15 --memory-size 512 --zip-file fileb://lambdaroute54/lambdaroute54.zip --region us-west-2
