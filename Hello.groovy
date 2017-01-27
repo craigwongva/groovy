@@ -15,7 +15,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 class Hello {
 
 String myHandler(data, Context context) {
-Region usWest2 = Region.getRegion(Regions.US_WEST_2);
+Region usWest2 = Region.getRegion(Regions.US_WEST_4);
 Region usEast1 = Region.getRegion(Regions.US_EAST_1);
 
 def ec2Client = new com.amazonaws.services.ec2.AmazonEC2Client()
