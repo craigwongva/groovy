@@ -4,7 +4,12 @@ java -cp .:./groovy-2.4.7.jar:./groovy-json-2.4.7.jar:aws-java-sdk-1.10.50.jar:c
 
 --
 
-/usr/bin/java -cp .:./groovy-2.4.7.jar example/describe
-
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar describe.groovy
 
+/usr/bin/java -cp .:./groovy-2.4.7.jar example/describe
+
+--
+
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar analyze.groovy
+
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar example/analyze
