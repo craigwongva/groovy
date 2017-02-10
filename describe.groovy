@@ -38,11 +38,15 @@ class Hello {
     ec2wPublicIpAddress = instance.getPublicIpAddress();
    }
   }
-  //println ec2wPublicIpAddress
-  //println reservations[0]
-//  def s = "aws ec2 describe-instances --region us-west-2".execute().text
-//  def f = new File('deleteme1')
-//  f.write(s)
+
+  def s = "aws ec2 describe-instances --region us-west-2".execute().text
+  def timestamp = 'date +"%Y_%m_%d_%H_%M_%S"'.execute().text
+   .replaceAll('"','')
+   .replaceAll('\n','')
+
+  def f = new File("captured/${timestamp}.json")
+  f.write(s)
+/*
   def g = new File('deleteme1')
   def s = ''
   g.eachLine { line ->
@@ -51,6 +55,7 @@ class Hello {
 def jsonSlurper = new JsonSlurper()
 def object = jsonSlurper.parseText(s)
 println object.Reservations
+*/
 /*
   def route53Client = new com.amazonaws.services.route53.AmazonRoute53Client()
 
@@ -89,7 +94,17 @@ println object.Reservations
    route53Client.changeResourceRecordSets(crrsReq)
 */
  }
+ void capture() {
+  def s = "aws ec2 describe-instances --region us-west-2".execute().text
+  def timestamp = 'date +"%Y_%m_%d_%H_%M_%S"'.execute().text
+   .replaceAll('"','')
+   .replaceAll('\n','')
+
+  def f = new File("captured/${timestamp}.json")
+  f.write(s)
+ }
 }
 println "hi craig"
 def h = new Hello()
-h.myHandler()
+//h.myHandler()
+h.capture()
