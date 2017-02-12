@@ -7,8 +7,8 @@ import groovy.io.FileType
 
 class Hello {
 
- void capture() {
-  def s = "aws ec2 describe-instances --region us-west-2".execute().text
+ void capture(region) {
+  def s = "aws ec2 describe-instances --region $region".execute().text
   def timestamp = 'date +"%Y_%m_%d_%H_%M_%S"'.execute().text
    .replaceAll('"','')
    .replaceAll('\n','')
@@ -24,7 +24,7 @@ class Hello {
   dir.eachFileRecurse (FileType.FILES) { file ->
    files << file
   }
-  def sortedfiles = [files[0]] //s/m: undo this comment: files.sort()
+  def sortedfiles = files.sort() //[files[0]] //s/m: undo this comment: files.sort()
   //println sortedfiles
 
   def snapshot = [:]
@@ -35,7 +35,7 @@ class Hello {
     t += it
    }
    snapshot[s.toString()] = t
-   println s.toString()
+   //println s.toString()
   }
 
   snapshot.each { ss ->
