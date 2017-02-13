@@ -22,3 +22,11 @@ cd /home/ec2-user/groovy
 ./userdata-h2
 
 http://35.36.37.38:8082
+
+--
+
+#The following aren't optimized, i.e. there might be unnecessary jars included.
+
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar relational.groovy
+
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/relational
