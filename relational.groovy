@@ -55,7 +55,7 @@ class Relational {
   def previousinstanceid = 'i-00000000'
   def previousxtimestamp = 'n/a'
   def savepreviousxtimestamp
-  while(rs4.next() && i++ <= 200){
+  while(rs4.next() && i++ <= 200000){
    String region       = rs4.getString("region");
    String xtimestamp   = rs4.getString("xtimestamp");
    String instanceid   = rs4.getString("instanceid");
@@ -89,7 +89,7 @@ class Relational {
    else {
     costperthisline = 0
    }
-   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status|$costperthisline"
+   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status,$costperthisline"
 
    previousinstanceid = instanceid
    previousxtimestamp = xtimestamp 
