@@ -8,6 +8,38 @@ import groovy.io.FileType
 import java.sql.*
 
 class Relational {
+ int secondsInto2017(timestamp) {
+
+   if (timestamp == 'n/a') {
+    return -1
+   }
+
+   def timestampYear = timestamp[0..3]
+   def timestampMonth = timestamp[5..6]
+   def timestampDay = timestamp[8..9]
+   def timestampHour = timestamp[11..12]
+   def timestampMinute = timestamp[14..15]
+   def timestampSecond = timestamp[17..18]
+   def secondsInPreviousMonthsIn2017 = [
+    '01':  0*(24*60*60),
+    '02': 31*(24*60*60),
+    '03': 59*(24*60*60),
+    '04': 90*(24*60*60),
+    '05':120*(24*60*60),
+    '06':151*(24*60*60),
+    '07':181*(24*60*60),
+    '08':212*(24*60*60),
+    '09':243*(24*60*60),
+    '10':273*(24*60*60),
+    '11':304*(24*60*60),
+    '12':334*(24*60*60)
+   ]
+   def timestampSecondsInto2017 = 
+    timestampDay.toInteger()*24*60*60 + 
+    timestampHour.toInteger()*60*60 + 
+    timestampMinute.toInteger()*60 + 
+    timestampSecond.toInteger()
+ }
 
  void foo() {
   Class.forName("org.h2.Driver");
@@ -52,7 +84,10 @@ class Relational {
 
   //STEP 5: Extract data from result set
   def i=0
-  while(rs4.next() && i++ <= 20){
+  def previousinstanceid = 'i-00000000'
+  def previousxtimestamp = 'n/a'
+  def savepreviousxtimestamp
+  while(rs4.next() && i++ <= 200){
    String region       = rs4.getString("region");
    String xtimestamp   = rs4.getString("xtimestamp");
    String instanceid   = rs4.getString("instanceid");
@@ -60,7 +95,27 @@ class Relational {
    String secgrp       = rs4.getString("secgrp");
    String status       = rs4.getString("status");
 
-   println "$region,$xtimestamp,$instanceid,$type,$secgrp,$status"
+   if (instanceid != previousinstanceid) {
+    savepreviousxtimestamp = 'n/a' //s/m: this savexxx name isn't really helpful
+   }
+   else {
+    savepreviousxtimestamp = previousxtimestamp
+   }
+
+   def xtimestampSecondsInto2017 = secondsInto2017(xtimestamp)
+   def xsavepreviousxtimestampSecondsInto2017 = secondsInto2017(savepreviousxtimestamp)
+   int secondsPassed
+   if (xsavepreviousxtimestampSecondsInto2017 == -1) {
+    secondsPassed = 0
+   }
+   else {
+    secondsPassed = xtimestampSecondsInto2017 - xsavepreviousxtimestampSecondsInto2017
+   }
+  
+   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status"
+
+   previousinstanceid = instanceid
+   previousxtimestamp = xtimestamp 
   }
 
   //rs.close();
