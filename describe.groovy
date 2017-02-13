@@ -20,5 +20,5 @@ def h = new Hello()
 while (1 > 0) {
  h.capture('us-west-2')
  h.capture('us-east-1')
- sleep 1000*(1*60)
+ sleep 1000*(5*60)
 }

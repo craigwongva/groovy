@@ -10,23 +10,61 @@ import java.sql.*
 class Relational {
 
  void foo() {
-        Class.forName("org.h2.Driver");
-        Connection conn = DriverManager.
-            getConnection("jdbc:h2:~/test", "sa", "");
-      //STEP 4: Execute a query
-      def stmt = conn.createStatement();
+  Class.forName("org.h2.Driver");
+  Connection conn = DriverManager.
+  getConnection("jdbc:h2:~/cat", "sa", "");
+/*
+  //STEP 4: Execute a query
+  def stmt = conn.createStatement();
 
-      String sql = "SELECT name, age FROM foo";
-      ResultSet rs = stmt.executeQuery(sql);
-      //STEP 5: Extract data from result set
-      while(rs.next()){
-         String name  = rs.getString("name");
-         int age = rs.getInt("age");
+  String sql = "SELECT table_catalog, table_schema, table_name FROM information_schema.tables";
+  ResultSet rs = stmt.executeQuery(sql);
 
-	 println "$name $age"
-      }
-      rs.close();
-        conn.close();
+  //STEP 5: Extract data from result set
+  while(rs.next()){
+   String table_catalog  = rs.getString("table_catalog");
+   String table_schema   = rs.getString("table_schema");
+   String table_name     = rs.getString("table_name");
+   //int age = rs.getInt("age");
+
+   println "$table_catalog $table_schema $table_name "
+  }
+  rs.close();
+*/
+/* works great 11:15am
+  def stmt2 = conn.createStatement()
+  String sql2 = "drop TABLE CAT.PUBLIC.QZ"
+  def x2 = stmt2.execute(sql2)
+  //println "x2 is $x2"
+
+
+  def stmt3 = conn.createStatement()
+  //String sql3 = "CREATE TABLE CAT.PUBLIC.QZ (ID INT PRIMARY KEY, NAME VARCHAR(255)) AS SELECT * FROM CSVREAD('foo2.csv')"
+  String sql3 = "create table cat.public.qz (region varchar(100),xtimestamp varchar(100),xseconds2017 varchar(100),xyear varchar(100),xmonth varchar(100),xday varchar(100),xhour varchar(100),xminute varchar(100),xsecond varchar(100),instanceid varchar(100),type varchar(100),secgrp varchar(100),status varchar(100)) as select * from CSVREAD('deleteme4')"
+  def x3 = stmt3.execute(sql3)
+  println "x3 is $x3"
+*/
+
+  println "I'm starting the select order by"
+  def stmt4 = conn.createStatement();
+  String sql4 = "select * from qz order by instanceid, xtimestamp"
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  //STEP 5: Extract data from result set
+  def i=0
+  while(rs4.next() && i++ <= 20){
+   String region       = rs4.getString("region");
+   String xtimestamp   = rs4.getString("xtimestamp");
+   String instanceid   = rs4.getString("instanceid");
+   String type         = rs4.getString("type");
+   String secgrp       = rs4.getString("secgrp");
+   String status       = rs4.getString("status");
+
+   println "$region,$xtimestamp,$instanceid,$type,$secgrp,$status"
+  }
+
+  //rs.close();
+  conn.close();
  }
 
  void capture(region) {
