@@ -20,34 +20,22 @@ class Hello {
  void analyze() {
   def files = []
 
-  println "I'm getting file list from /captured"
+  //println "I'm getting file list from /captured"
   def dir = new File("captured")
   dir.eachFileRecurse (FileType.FILES) { file ->
    files << file
   }
-  def sortedfiles = files.sort() //[files[0]] //s/m: undo this comment: files.sort()
-  //println sortedfiles
+  def sortedfiles = files.sort()
 
-  println "I'm building hash table of form [filename:json]"
+  //println "I'm building hash table of form [filename:json]"
   def snapshot = [:]
   sortedfiles.each { s ->
-   //println s
-/*
-   def f = new File(s.toString())
-   def t = ''
-   def line = 0
-   f.eachLine {
-    if (line++ % 1000 == 0) print '.'
-    t += it
-   }
-   println ""
-*/
    def t = new File(s.toString()).text
    snapshot[s.toString()] = t
    //println s.toString()
   }
 
-  println "I'm visiting each json:"
+  //println "I'm visiting each json:"
   snapshot.each { ss ->
    def region = ss.key['captured/'.size()..'captured/us-east-1'.size()-1]
    def timestamp = ss.key[
