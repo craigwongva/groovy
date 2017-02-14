@@ -56,23 +56,23 @@ class Relational {
   }
 
   def stmt3 = conn.createStatement()
-  String sql3 = """
-create table cat.public.qz (
- region varchar(100),
- xtimestamp varchar(100),
- xseconds2017 varchar(100),
- xyear varchar(100),
- xmonth varchar(100),
- xday varchar(100),
- xhour varchar(100),
- xminute varchar(100),
- xsecond varchar(100),
- instanceid varchar(100),
- type varchar(100),
- secgrp varchar(100),
- status varchar(100)) 
- as select * from CSVREAD('deleteme4')
-""".replaceAll('deleteme4',inputfilename)
+  String sql3 = '' +
+   'create table cat.public.qz (' +
+   ' region varchar(100),' +
+   ' xtimestamp varchar(100),' + 
+   ' xseconds2017 varchar(100),' +
+   ' xyear varchar(100),' +
+   ' xmonth varchar(100),' +
+   ' xday varchar(100),' +
+   ' xhour varchar(100),' +
+   ' xminute varchar(100),' +
+   ' xsecond varchar(100),' +
+   ' instanceid varchar(100),' +
+   ' type varchar(100),' +
+   ' secgrp varchar(100),' +
+   ' status varchar(100))' +
+   " as select * from CSVREAD('deleteme4')"
+   .replaceAll('deleteme4',inputfilename)
 
    def x3 = stmt3.execute(sql3)
 
@@ -80,13 +80,21 @@ create table cat.public.qz (
   String sql4 = "select * from qz order by instanceid, xtimestamp"
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
+  println "region,instanceid,xtimestamp,savepreviousxtimestamp,xtimestampSecondsInto2017,xyear,xmonth,xday,xhour,xminute,xsecond,xsavepreviousxtimestampSecondsInto2017,secondsPassed,type,secgrp,status,costperthisline"
+
   def i=0
   def previousinstanceid = 'i-00000000'
   def previousxtimestamp = 'n/a'
   def savepreviousxtimestamp
-  while(rs4.next() && i++ <= 200000){
+  while(rs4.next() && i++ <= 2000000){
    String region       = rs4.getString("region");
    String xtimestamp   = rs4.getString("xtimestamp");
+   String xyear        = rs4.getString("xyear")
+   String xmonth       = rs4.getString("xmonth")
+   String xday         = rs4.getString("xday")
+   String xhour        = rs4.getString("xhour")
+   String xminute      = rs4.getString("xminute")
+   String xsecond      = rs4.getString("xsecond")
    String instanceid   = rs4.getString("instanceid");
    String type         = rs4.getString("type");
    String secgrp       = rs4.getString("secgrp");
@@ -118,7 +126,7 @@ create table cat.public.qz (
    else {
     costperthisline = 0
    }
-   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status,$costperthisline"
+   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xyear,$xmonth,$xday,$xhour,$xminute,$xsecond,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status,$costperthisline"
 
    previousinstanceid = instanceid
    previousxtimestamp = xtimestamp 
