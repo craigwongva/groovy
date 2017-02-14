@@ -67,7 +67,7 @@ class Hello {
    def instanceType = object.Reservations[i].Instances[0].InstanceType
    def keyName      = object.Reservations[i].Instances[0].KeyName
    def state        = object.Reservations[i].Instances[0].State.Name
-   println "$region|$timestamp|$timestampSecondsInto2017|$timestampYear|$timestampMonth|$timestampDay|$timestampHour|$timestampMinute|$timestampSecond|$instanceId|$instanceType|$keyName|$state"
+   println "$region,$timestamp,$timestampSecondsInto2017,$timestampYear,$timestampMonth,$timestampDay,$timestampHour,$timestampMinute,$timestampSecond,$instanceId,$instanceType,$keyName,$state"
   }
   }
  }

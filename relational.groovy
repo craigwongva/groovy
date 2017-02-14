@@ -42,14 +42,18 @@ class Relational {
     timestampSecond.toInteger()
  }
 
- void foo() {
+ void foo(inputfilename) {
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
   getConnection("jdbc:h2:~/cat", "sa", "");
 
   def stmt2 = conn.createStatement()
-  String sql2 = "drop TABLE CAT.PUBLIC.QZ"
-  def x2 = stmt2.execute(sql2)
+  try {
+   String sql2 = "drop TABLE CAT.PUBLIC.QZ"
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+  }
 
   def stmt3 = conn.createStatement()
   String sql3 = """
@@ -68,7 +72,7 @@ create table cat.public.qz (
  secgrp varchar(100),
  status varchar(100)) 
  as select * from CSVREAD('deleteme4')
-""".replaceAll('deleteme4',args[0])
+""".replaceAll('deleteme4',inputfilename)
 
    def x3 = stmt3.execute(sql3)
 
@@ -150,4 +154,4 @@ create table cat.public.qz (
 }
 
 def h = new Relational()
-h.foo()
+h.foo(args[0])
