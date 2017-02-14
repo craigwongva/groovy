@@ -47,6 +47,31 @@ class Relational {
   Connection conn = DriverManager.
   getConnection("jdbc:h2:~/cat", "sa", "");
 
+  def stmt2 = conn.createStatement()
+  String sql2 = "drop TABLE CAT.PUBLIC.QZ"
+  def x2 = stmt2.execute(sql2)
+
+  def stmt3 = conn.createStatement()
+  String sql3 = """
+create table cat.public.qz (
+ region varchar(100),
+ xtimestamp varchar(100),
+ xseconds2017 varchar(100),
+ xyear varchar(100),
+ xmonth varchar(100),
+ xday varchar(100),
+ xhour varchar(100),
+ xminute varchar(100),
+ xsecond varchar(100),
+ instanceid varchar(100),
+ type varchar(100),
+ secgrp varchar(100),
+ status varchar(100)) 
+ as select * from CSVREAD('deleteme4')
+""".replaceAll('deleteme4',args[0])
+
+   def x3 = stmt3.execute(sql3)
+
   def stmt4 = conn.createStatement();
   String sql4 = "select * from qz order by instanceid, xtimestamp"
   ResultSet rs4 = stmt4.executeQuery(sql4);
