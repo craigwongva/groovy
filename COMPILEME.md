@@ -12,7 +12,7 @@ java -cp .:./groovy-2.4.7.jar:./groovy-json-2.4.7.jar:aws-java-sdk-1.10.50.jar:c
 
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar analyze.groovy
 
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar example/analyze > 20170213-1420-step1.csv
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar example/analyze > derived/20170213-1420-step1.csv
 
 --
 
@@ -29,6 +29,6 @@ http://35.36.37.38:8082
 
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar relational.groovy
 
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/relational 20170213-1420-step1.csv > 20170213-1420-step2.csv
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/relational derived/20170213-1420-step1.csv > derived/20170213-1420-step2.csv
 
-aws s3 cp 20170213-1420-step2.csv s3://venicegeo-devops-dev-analyze-project/
+aws s3 cp derived/20170213-1420-step2.csv s3://venicegeo-devops-dev-analyze-project/
