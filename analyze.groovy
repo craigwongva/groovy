@@ -20,25 +20,17 @@ class Hello {
  void analyze() {
   def files = []
 
-  //println "I'm getting file list from /captured"
   def dir = new File("captured")
   dir.eachFileRecurse (FileType.FILES) { file ->
    files << file
   }
   def sortedfiles = files.sort()
 
-  //println "I'm building hash table of form [filename:json]"
-  def snapshot = [:]
   sortedfiles.each { s ->
    def t = new File(s.toString()).text
-   snapshot[s.toString()] = t
-   //println s.toString()
-  }
-
-  //println "I'm visiting each json:"
-  snapshot.each { ss ->
-   def region = ss.key['captured/'.size()..'captured/us-east-1'.size()-1]
-   def timestamp = ss.key[
+   def sskey = s.toString()
+   def region = sskey['captured/'.size()..'captured/us-east-1'.size()-1] 
+   def timestamp = sskey[
     'captured/us-east-1/'.size()..
     'captured/us-east-1/'.size()+
      '2017_02_10_08_01_01'.size()-1]
@@ -68,10 +60,8 @@ class Hello {
     timestampMinute.toInteger()*60 + 
     timestampSecond.toInteger()
 
-  def snap = snapshot[ss.key]
-
   def jsonSlurper = new JsonSlurper()
-  def object = jsonSlurper.parseText(snap)
+  def object = jsonSlurper.parseText(t) 
   for (def i = 0; i < object.Reservations.size(); i++) {
    def instanceId   = object.Reservations[i].Instances[0].InstanceId
    def instanceType = object.Reservations[i].Instances[0].InstanceType
