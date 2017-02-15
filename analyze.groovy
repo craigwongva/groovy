@@ -67,10 +67,29 @@ class Hello {
    def instanceType = object.Reservations[i].Instances[0].InstanceType
    def keyName      = object.Reservations[i].Instances[0].KeyName
    def state        = object.Reservations[i].Instances[0].State.Name
-   println "$region,$timestamp,$timestampSecondsInto2017,$timestampYear,$timestampMonth,$timestampDay,$timestampHour,$timestampMinute,$timestampSecond,$instanceId,$instanceType,$keyName,$state"
+   def nameValue    = getTagNameValue(object.Reservations[i].Instances[0].Tags)
+   //println "$instanceId $nameValue"
+   println "$region,$timestamp,$timestampSecondsInto2017,$timestampYear,$timestampMonth,$timestampDay,$timestampHour,$timestampMinute,$timestampSecond,$instanceId,$instanceType,$keyName,$state,$tags"
   }
   }
  }
+
+ String getTagNameValue(tag) {
+  def namevalue = 'squash'
+
+  if (tag) {
+   for (int i=0; i<tag.size(); i++) {
+    if (tag[i].Key) {
+     namevalue = tag[i].Key
+    }
+   }
+  }
+  else {
+   namevalue = 'pumpkin'
+  }
+  namevalue
+ }
+
 }
 
 def h = new Hello()
