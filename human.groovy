@@ -1,19 +1,31 @@
 package example
 
-import groovy.json.*
-import groovyx.net.http.*
-
-import groovy.io.FileType
-
 import java.sql.*
+
+/**
+* Usage:
+*  <this file> 20150217-0700-step2.csv
+* where the csv file is the csv with derived costs per line
+*/
 
 class Human {
 
- void foo(inputfilename) {
+ void upload(inputfilename) {
+
+  /**
+  * cat is an arbitrary name
+  */
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
-  getConnection("jdbc:h2:~/cat", "sa", "");
 
+  // Use the default username/password:
+  //  - the data is not sensitive
+  //  - the h2 console is restricted by IP
+  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+
+  /**
+  * Only one table is used for ad hoc analysis
+  */
   def stmt2 = conn.createStatement()
   try {
    String sql2 = "drop TABLE CAT.PUBLIC.HUMAN"
@@ -22,6 +34,9 @@ class Human {
   catch (e) {
   }
 
+  /**
+  * Use h2's CSVREAD
+  */
   def stmt3 = conn.createStatement()
   String sql3 = '' +
    'create table cat.public.human (' +
@@ -53,4 +68,4 @@ class Human {
 }
 
 def h = new Human()
-h.foo(args[0])
+h.upload(args[0])
