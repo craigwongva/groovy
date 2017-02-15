@@ -32,3 +32,9 @@ http://35.36.37.38:8082
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/relational derived/20170213-1420-step1.csv > derived/20170213-1420-step2.csv
 
 aws s3 cp derived/20170213-1420-step2.csv s3://venicegeo-devops-dev-analyze-project/
+
+--
+
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar human.groovy
+
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/human derived/20170213-1420-step2.csv
