@@ -7,16 +7,6 @@ import groovy.io.FileType
 
 class Hello {
 
- void capture(region) {
-  def s = "aws ec2 describe-instances --region $region".execute().text
-  def timestamp = 'date +"%Y_%m_%d_%H_%M_%S"'.execute().text
-   .replaceAll('"','')
-   .replaceAll('\n','')
-
-  def f = new File("captured/${timestamp}.json")
-  f.write(s)
- }
-
  void analyze() {
   def files = []
 
@@ -60,34 +50,35 @@ class Hello {
     timestampMinute.toInteger()*60 + 
     timestampSecond.toInteger()
 
-  def jsonSlurper = new JsonSlurper()
-  def object = jsonSlurper.parseText(t) 
-  for (def i = 0; i < object.Reservations.size(); i++) {
-   def instanceId   = object.Reservations[i].Instances[0].InstanceId
-   def instanceType = object.Reservations[i].Instances[0].InstanceType
-   def keyName      = object.Reservations[i].Instances[0].KeyName
-   def state        = object.Reservations[i].Instances[0].State.Name
-   def nameValue    = getTagNameValue(object.Reservations[i].Instances[0].Tags)
-   //println "$instanceId $nameValue"
-   println "$region,$timestamp,$timestampSecondsInto2017,$timestampYear,$timestampMonth,$timestampDay,$timestampHour,$timestampMinute,$timestampSecond,$instanceId,$instanceType,$keyName,$state,$tags"
-  }
+   def jsonSlurper = new JsonSlurper()
+   def object = jsonSlurper.parseText(t) 
+   for (def i = 0; i < object.Reservations.size(); i++) {
+    def instanceId   = object.Reservations[i].Instances[0].InstanceId
+    def instanceType = object.Reservations[i].Instances[0].InstanceType
+    def keyName      = object.Reservations[i].Instances[0].KeyName
+    def state        = object.Reservations[i].Instances[0].State.Name
+    def projectValue = getTagProjectValue(object.Reservations[i].Instances[0].Tags)
+
+    print   "$region,$timestamp,$timestampSecondsInto2017,"
+    print   "$timestampYear,$timestampMonth,$timestampDay,"
+    print   "$timestampHour,$timestampMinute,$timestampSecond,"
+    println "$instanceId,$instanceType,$keyName,$state,$projectValue"
+   }
   }
  }
 
- String getTagNameValue(tag) {
-  def namevalue = 'squash'
+ String getTagProjectValue(tag) {
+  def projectvalue = 'untagged'
 
   if (tag) {
    for (int i=0; i<tag.size(); i++) {
-    if (tag[i].Key) {
-     namevalue = tag[i].Key
+    if (tag[i].Key == 'Project') {
+     projectvalue = tag[i].Value
     }
    }
   }
-  else {
-   namevalue = 'pumpkin'
-  }
-  namevalue
+
+  projectvalue
  }
 
 }
