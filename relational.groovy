@@ -70,7 +70,8 @@ class Relational {
    ' instanceid varchar(100),' +
    ' type varchar(100),' +
    ' secgrp varchar(100),' +
-   ' status varchar(100))' +
+   ' status varchar(100),' +
+   ' projectValue varchar(100))' +
    " as select * from CSVREAD('deleteme4')"
    .replaceAll('deleteme4',inputfilename)
 
@@ -80,7 +81,7 @@ class Relational {
   String sql4 = "select * from qz order by instanceid, xtimestamp"
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
-  println "region,instanceid,xtimestamp,savepreviousxtimestamp,xtimestampSecondsInto2017,xyear,xmonth,xday,xhour,xminute,xsecond,xsavepreviousxtimestampSecondsInto2017,secondsPassed,type,secgrp,status,costperthisline"
+  println "region,instanceid,xtimestamp,savepreviousxtimestamp,xtimestampSecondsInto2017,xyear,xmonth,xday,xhour,xminute,xsecond,xsavepreviousxtimestampSecondsInto2017,secondsPassed,type,secgrp,status,projectValue,costperthisline"
 
   def i=0
   def previousinstanceid = 'i-00000000'
@@ -99,6 +100,7 @@ class Relational {
    String type         = rs4.getString("type");
    String secgrp       = rs4.getString("secgrp");
    String status       = rs4.getString("status");
+   String projectValue = rs4.getString("projectValue");
 
    if (instanceid != previousinstanceid) {
     savepreviousxtimestamp = 'n/a' //s/m: this savexxx name isn't really helpful
@@ -126,13 +128,12 @@ class Relational {
    else {
     costperthisline = 0
    }
-   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xyear,$xmonth,$xday,$xhour,$xminute,$xsecond,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status,$costperthisline"
+   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xyear,$xmonth,$xday,$xhour,$xminute,$xsecond,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status,$projectValue,$costperthisline"
 
    previousinstanceid = instanceid
    previousxtimestamp = xtimestamp 
   }
 
-  //rs.close();
   conn.close();
  }
 

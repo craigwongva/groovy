@@ -21,7 +21,8 @@ class Human {
   // Use the default username/password:
   //  - the data is not sensitive
   //  - the h2 console is restricted by IP
-  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  //getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  getConnection("jdbc:h2:~/cat", "sa", "");
 
   /**
   * Only one table is used for ad hoc analysis
@@ -56,6 +57,7 @@ class Human {
    ' type varchar(100),' +
    ' secgrp varchar(100),' +
    ' status varchar(100),' +
+   ' projectValue varchar(100),' +
    ' costperthisline decimal)' +
    " as select * from CSVREAD('deleteme4')"
    .replaceAll('deleteme4',inputfilename)
