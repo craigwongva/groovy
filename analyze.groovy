@@ -124,7 +124,7 @@ class Hello {
 
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop TABLE CAT.PUBLIC.QZ"
+   String sql2 = "drop table cat.public.step1"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
@@ -132,7 +132,7 @@ class Hello {
 
   def stmt3 = conn.createStatement()
   String sql3 = '' +
-   'create table cat.public.qz (' +
+   'create table cat.public.step1 (' +
    ' region varchar(100),' +
    ' xtimestamp varchar(100),' + 
    ' xseconds2017 varchar(100),' +
@@ -153,10 +153,13 @@ class Hello {
    def x3 = stmt3.execute(sql3)
 
   def stmt4 = conn.createStatement();
-  String sql4 = "select * from qz order by instanceid, xtimestamp"
+  String sql4 = "select * from step1 order by instanceid, xtimestamp"
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
-  println "region,instanceid,xtimestamp,savepreviousxtimestamp,xtimestampSecondsInto2017,xyear,xmonth,xday,xhour,xminute,xsecond,xsavepreviousxtimestampSecondsInto2017,secondsPassed,type,secgrp,status,projectValue,costperthisline"
+  print   "region,instanceid,xtimestamp,savepreviousxtimestamp,"
+  print   "xtimestampSecondsInto2017,xyear,xmonth,xday,xhour,xminute,xsecond,"
+  print   "xsavepreviousxtimestampSecondsInto2017,secondsPassed,type,"
+  println "secgrp,status,projectValue,costperthisline"
 
   def i=0
   def previousinstanceid = 'i-00000000'
@@ -203,7 +206,11 @@ class Hello {
    else {
     costperthisline = 0
    }
-   println "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,$xtimestampSecondsInto2017,$xyear,$xmonth,$xday,$xhour,$xminute,$xsecond,$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,$secgrp,$status,$projectValue,$costperthisline"
+
+   print   "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,"
+   print   "$xtimestampSecondsInto2017,$xyear,$xmonth,$xday,$xhour,$xminute,$xsecond,"
+   print   "$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,"
+   println "$secgrp,$status,$projectValue,$costperthisline"
 
    previousinstanceid = instanceid
    previousxtimestamp = xtimestamp 
@@ -255,7 +262,7 @@ class Hello {
   */
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop TABLE cat.public.step3"
+   String sql2 = "drop table cat.public.step3"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
