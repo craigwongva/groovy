@@ -1,0 +1,20 @@
+##
+# Usage:
+#  <this file> timestamp
+# where timestamp is like 20170216-0800
+##
+
+JARPATH=".:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar"
+ANALYZECMD="/usr/bin/java -cp $JARPATH example/analyze"
+
+echo "Starting step1 (reading json files and writing as rows)"
+$ANALYZECMD step1                      > derived/$1-step1.csv
+
+echo "Starting step2 (deriving row costs from row durations)"
+$ANALYZECMD step2 derived/$1-step1.csv > derived/$1-step2.csv
+
+echo "Starting step2a (writing to S3)"
+#aws s3 cp derived/$2-step2.csv s3://venicegeo-devops-dev-analyze-project
+
+echo "Starting step3 (writing to h2)"
+$ANALYZECMD step3 derived/$1-step2.csv

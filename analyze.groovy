@@ -299,11 +299,15 @@ class Hello {
 def h = new Hello()
 if ((args[0]) == 'step1') {
  h.step1()
+ //step1 writes to stdout
 }
 if ((args[0]) == 'step2') {
- h.step2(args[1])
+ def inputfilename = args[1]
+ h.step2(inputfilename)
+ //step2 writes to stdout
 }
 if ((args[0]) == 'step3') {
- println "main sees step3 request"
- h.step3(args[1])
+ def inputfilename = args[1]
+ h.step3(inputfilename)
+ //step3 writes to h2
 }
