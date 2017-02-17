@@ -8,30 +8,48 @@ import groovy.io.FileType
 import java.sql.*
 
 class Hello {
+ def jsonSlurper
 
- void step1() {
+ Hello() {
+  jsonSlurper = new JsonSlurper()
+ }
+
+/**
+* From a Google page found via keywords "ec2 pricing"
+* for on-demand instances
+**/
+ def instancecostperhour = [
+'c3.large':     0.1,
+'c4.xlarge':    0.2,
+'c4.2xlarge':   0.4,
+'g2.8xlarge':   2.6,
+'m3.medium':    0.11,
+'m3.large':     0.11,
+'m3.xlarge':    0.21,
+'m4.large':     0.11,
+'m4.xlarge':    0.21,
+'m4.2xlarge':   0.43, //week=0.43*24*7=72
+'m4.4xlarge':   0.86,
+'r3.2xlarge':   0.53,
+'r3.xlarge':    0.33,
+'t2.micro':     0.01,
+'t2.small':     0.02,
+'t2.medium':    0.05,
+'t2.large':     0.09
+]
+
+ ArrayList getNamesOfCapturedFiles(dirname) {
+  //dirname is a directory with subdirectories
+  //the subdirectories are 'us-east-1' and 'us-west-2'
   def files = []
-
-  def dir = new File("captured")
+  def dir = new File(dirname)
   dir.eachFileRecurse (FileType.FILES) { file ->
    files << file
   }
   def sortedfiles = files.sort()
+ }
 
-  sortedfiles.each { s ->
-   def t = new File(s.toString()).text
-   def sskey = s.toString()
-   def region = sskey['captured/'.size()..'captured/us-east-1'.size()-1] 
-   def timestamp = sskey[
-    'captured/us-east-1/'.size()..
-    'captured/us-east-1/'.size()+
-     '2017_02_10_08_01_01'.size()-1]
-   def timestampYear = timestamp[0..3]
-   def timestampMonth = timestamp[5..6]
-   def timestampDay = timestamp[8..9]
-   def timestampHour = timestamp[11..12]
-   def timestampMinute = timestamp[14..15]
-   def timestampSecond = timestamp[17..18]
+ def interpretNameOfCapturedFile(dirname, s) {
    def secondsInPreviousMonthsIn2017 = [
     '01':  0*(24*60*60),
     '02': 31*(24*60*60),
@@ -46,13 +64,42 @@ class Hello {
     '11':304*(24*60*60),
     '12':334*(24*60*60)
    ]
+
+   def sskey = s.toString()
+   def region = sskey["$dirname/".size().."$dirname/us-east-1".size()-1] 
+   def timestamp = sskey[
+    "$dirname/us-east-1/".size()..
+    "$dirname/us-east-1/".size()+
+     '2017_02_10_08_01_01'.size()-1]
+   def timestampYear = timestamp[0..3]
+   def timestampMonth = timestamp[5..6]
+   def timestampDay = timestamp[8..9]
+   def timestampHour = timestamp[11..12]
+   def timestampMinute = timestamp[14..15]
+   def timestampSecond = timestamp[17..18]
+
    def timestampSecondsInto2017 = 
+    secondsInPreviousMonthsIn2017[timestampMonth]+
     timestampDay.toInteger()*24*60*60 + 
     timestampHour.toInteger()*60*60 + 
     timestampMinute.toInteger()*60 + 
     timestampSecond.toInteger()
+   [
+    region: region,
+    timestamp: timestamp,
+    timestampYear: timestampYear,
+    timestampMonth: timestampMonth,
+    timestampDay: timestampDay,
+    timestampHour: timestampHour,
+    timestampMinute: timestampMinute,
+    timestampSecond: timestampSecond,
+    timestampSecondsInto2017: timestampSecondsInto2017
+   ]
+ }
 
-   def jsonSlurper = new JsonSlurper()
+ void interpretEC2jsonAndPrint(f, t) {
+   //The interpreted json values are printed here as a convenience
+   // rather than returning them within an array.
    def object = jsonSlurper.parseText(t) 
    for (def i = 0; i < object.Reservations.size(); i++) {
     def instanceId   = object.Reservations[i].Instances[0].InstanceId
@@ -61,11 +108,20 @@ class Hello {
     def state        = object.Reservations[i].Instances[0].State.Name
     def projectValue = getTagProjectValue(object.Reservations[i].Instances[0].Tags)
 
-    print   "$region,$timestamp,$timestampSecondsInto2017,"
-    print   "$timestampYear,$timestampMonth,$timestampDay,"
-    print   "$timestampHour,$timestampMinute,$timestampSecond,"
+    print   "${f.region},${f.timestamp},${f.timestampSecondsInto2017},"
+    print   "${f.timestampYear},${f.timestampMonth},${f.timestampDay},"
+    print   "${f.timestampHour},${f.timestampMinute},${f.timestampSecond},"
     println "$instanceId,$instanceType,$keyName,$state,$projectValue"
    }
+ }
+
+ void step1() {
+  def sortedfiles = getNamesOfCapturedFiles('captured')
+
+  sortedfiles.each { s ->
+   HashMap f = interpretNameOfCapturedFile('captured', s)
+   String t = new File(s.toString()).text
+   interpretEC2jsonAndPrint(f, t)
   }
  }
 
@@ -218,30 +274,6 @@ class Hello {
 
   conn.close();
  }
-
-/**
-* From a Google page found via keywords "ec2 pricing"
-* for on-demand instances
-**/
- def instancecostperhour = [
-'c3.large':     0.1,
-'c4.xlarge':    0.2,
-'c4.2xlarge':   0.4,
-'g2.8xlarge':   2.6,
-'m3.medium':    0.11,
-'m3.large':     0.11,
-'m3.xlarge':    0.21,
-'m4.large':     0.11,
-'m4.xlarge':    0.21,
-'m4.2xlarge':   0.43,
-'m4.4xlarge':   0.86,
-'r3.2xlarge':   0.53,
-'r3.xlarge':    0.33,
-'t2.micro':     0.01,
-'t2.small':     0.02,
-'t2.medium':    0.05,
-'t2.large':     0.09
-]
 
  void step3(inputfilename) {
 
