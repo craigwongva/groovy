@@ -106,12 +106,13 @@ class Hello {
     def instanceType = object.Reservations[i].Instances[0].InstanceType
     def keyName      = object.Reservations[i].Instances[0].KeyName
     def state        = object.Reservations[i].Instances[0].State.Name
-    def projectValue = getTagProjectValue(object.Reservations[i].Instances[0].Tags)
+    def projectValue = getTagValue(object.Reservations[i].Instances[0].Tags, 'Project')
+    def nameValue    = getTagValue(object.Reservations[i].Instances[0].Tags, 'Name')
 
     print   "${f.region},${f.timestamp},${f.timestampSecondsInto2017},"
     print   "${f.timestampYear},${f.timestampMonth},${f.timestampDay},"
     print   "${f.timestampHour},${f.timestampMinute},${f.timestampSecond},"
-    println "$instanceId,$instanceType,$keyName,$state,$projectValue"
+    println "$instanceId,$instanceType,$keyName,$state,$projectValue,$nameValue"
    }
  }
 
@@ -125,18 +126,18 @@ class Hello {
   }
  }
 
- String getTagProjectValue(tag) {
-  def projectvalue = 'untagged'
+ String getTagValue(tags, tag) {
+  def tagvalue = "no${tag}tag"
 
-  if (tag) {
-   for (int i=0; i<tag.size(); i++) {
-    if (tag[i].Key == 'Project') {
-     projectvalue = tag[i].Value
+  if (tags) {
+   for (int i=0; i<tags.size(); i++) {
+    if (tags[i].Key == tag) {
+     tagvalue = tags[i].Value
     }
    }
   }
 
-  projectvalue
+  tagvalue
  }
 
  int secondsInto2017(timestamp) {
@@ -176,7 +177,8 @@ class Hello {
  void step2(inputfilename) {
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
-  getConnection("jdbc:h2:~/cat", "sa", "");
+  //getConnection("jdbc:h2:~/cat", "sa", "");
+  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
 
   def stmt2 = conn.createStatement()
   try {
@@ -202,7 +204,8 @@ class Hello {
    ' type varchar(100),' +
    ' secgrp varchar(100),' +
    ' status varchar(100),' +
-   ' projectValue varchar(100))' +
+   ' projectValue varchar(100),' +
+   ' nameValue varchar(100))' +
    " as select * from CSVREAD('deleteme4')"
    .replaceAll('deleteme4',inputfilename)
 
@@ -215,7 +218,7 @@ class Hello {
   print   "region,instanceid,xtimestamp,savepreviousxtimestamp,"
   print   "xtimestampSecondsInto2017,xyear,xmonth,xday,xhour,xminute,xsecond,"
   print   "xsavepreviousxtimestampSecondsInto2017,secondsPassed,type,"
-  println "secgrp,status,projectValue,costperthisline"
+  println "secgrp,status,projectValue,nameValue,costperthisline"
 
   def i=0
   def previousinstanceid = 'i-00000000'
@@ -235,6 +238,7 @@ class Hello {
    String secgrp       = rs4.getString("secgrp");
    String status       = rs4.getString("status");
    String projectValue = rs4.getString("projectValue");
+   String nameValue    = rs4.getString("nameValue");
 
    if (instanceid != previousinstanceid) {
     savepreviousxtimestamp = 'n/a' //s/m: this savexxx name isn't really helpful
@@ -266,7 +270,7 @@ class Hello {
    print   "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,"
    print   "$xtimestampSecondsInto2017,$xyear,$xmonth,$xday,$xhour,$xminute,$xsecond,"
    print   "$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,"
-   println "$secgrp,$status,$projectValue,$costperthisline"
+   println "$secgrp,$status,$projectValue,$nameValue,$costperthisline"
 
    previousinstanceid = instanceid
    previousxtimestamp = xtimestamp 
@@ -324,6 +328,7 @@ class Hello {
    ' secgrp varchar(100),' +
    ' status varchar(100),' +
    ' projectValue varchar(100),' +
+   ' nameValue varchar(100),' +
    ' costperthisline decimal)' +
    " as select * from CSVREAD('deleteme4')"
    .replaceAll('deleteme4',inputfilename)
