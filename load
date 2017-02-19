@@ -57,9 +57,34 @@ select id, 'has-root-poder'
 from sentences s
 where s.s regexp 'poder'
 or s.s regexp 'puedo'
-or s.s regexp 'puede'
 or s.s regexp 'puedes'
+or s.s regexp 'puede'
+or s.s regexp 'podemos'
 or s.s regexp 'pueden'
+
+delete from labels where l = 'has-root-decorar';
+insert into labels (sid, l)
+select id, 'has-root-decorar'
+from sentences s
+where s.s regexp 'decorar'
+or s.s regexp 'decoro'
+or s.s regexp 'decoras'
+or s.s regexp 'decora'
+or s.s regexp 'decoramos'
+or s.s regexp 'decoran'
+
+delete from labels where l = 'has-root-frasco';
+insert into labels (sid, l)
+select id, 'has-root-frasco'
+from sentences s
+where s.s regexp 'frasco'
+
+delete from labels where l = 'has-word-cumpleanos';
+insert into labels (sid, l)
+select id, 'has-word-cumpleanos'
+from sentences s
+where s.s regexp 'cumpleanos'
+
 
 --Find sentences with a certain label
 select s.*
@@ -97,3 +122,24 @@ select l.l
 from labels l
 where sid = 3
 )
+
+--Return one row. Not an optimized query!
+select * from (
+select rownum r, s.*, l.id lid, l.sid, l.l
+from sentences s
+join labels l
+on s.id = l.sid
+where s.id <> 3
+--and s.s regexp 'faltar'
+and l in (
+select l.l
+from labels l
+where sid = 3
+)
+)
+order by rand()
+limit 1
+--s.id=7 'No deseches tus frascos'
+--s.id=9 Aprende a decorar tus frascos ahora y reutilizalos
+--8 Mira como decorarlos para que sirvan de adornos en tu hogar
+
