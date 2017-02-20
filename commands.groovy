@@ -8,9 +8,15 @@ import groovy.io.FileType
 import java.sql.*
 
 class Hello {
+ Connection conn
  def jsonSlurper
 
  Hello() {
+  Class.forName("org.h2.Driver");
+  conn = DriverManager.
+   getConnection("jdbc:h2:tcp://localhost/~/univision", "sa", "");
+   //getConnection("jdbc:h2:~/univision", "sa", "");
+
   jsonSlurper = new JsonSlurper()
  }
 
@@ -339,37 +345,8 @@ class Hello {
  }
 
  void step11(inputfilename) {
-
-  /**
-  * cat is an arbitrary name
-  */
-  Class.forName("org.h2.Driver");
-  Connection conn = DriverManager.
-
-  // Use the default username/password:
-  //  - the data is not sensitive
-  //  - the h2 console is restricted by IP
-  getConnection("jdbc:h2:tcp://localhost/~/univision", "sa", "");
-  //getConnection("jdbc:h2:~/univision", "sa", "");
-
-  /**
-  * Only one table is used for ad hoc analysis
-  */
   def stmt2 = conn.createStatement()
   try {
-/*
-   String s = ''
-   s += "insert into labels(sid, l) values(1, 'has-word-siempre');"
-   s += "insert into labels(sid, l) values(1, 'has-word-hay');"
-   s += "insert into labels(sid, l) values(1, 'has-word-una');"
-   s += "insert into labels(sid, l) values(1, 'has-word-manera');"
-   s += "insert into labels(sid, l) values(1, 'has-word-positiva');"
-   s += "insert into labels(sid, l) values(1, 'has-word-de');"
-   s += "insert into labels(sid, l) values(1, 'has-word-ver');"
-   s += "insert into labels(sid, l) values(1, 'has-word-las');"
-   s += "insert into labels(sid, l) values(1, 'has-word-cosas');"
-   s += "insert into labels(sid, l) values(1, 'has-word-buscala');"
-*/
    String sql2 = convertWordListToInsertStatements(
     'siempre hay una manera positiva de ver last cosas buscala')
 
