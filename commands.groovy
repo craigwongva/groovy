@@ -197,65 +197,11 @@ class Hello {
   String sql4 = "select * from step1 order by instanceid, xtimestamp"
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
-  print   "region,instanceid,xtimestamp,savepreviousxtimestamp,"
-  print   "xtimestampSecondsInto2017,xyear,xmonth,xday,xhour,xminute,xsecond,"
-  print   "xsavepreviousxtimestampSecondsInto2017,secondsPassed,type,"
-  println "secgrp,status,projectValue,nameValue,costperthisline"
-
   def i=0
-  def previousinstanceid = 'i-00000000'
-  def previousxtimestamp = 'n/a'
-  def savepreviousxtimestamp
-  while(rs4.next() && i++ <= 2000000){
+  while(rs4.next() && i++ <= 2000000) {
    String region       = rs4.getString("region");
-   String xtimestamp   = rs4.getString("xtimestamp");
-   String xyear        = rs4.getString("xyear")
-   String xmonth       = rs4.getString("xmonth")
-   String xday         = rs4.getString("xday")
-   String xhour        = rs4.getString("xhour")
-   String xminute      = rs4.getString("xminute")
-   String xsecond      = rs4.getString("xsecond")
-   String instanceid   = rs4.getString("instanceid");
-   String type         = rs4.getString("type");
-   String secgrp       = rs4.getString("secgrp");
-   String status       = rs4.getString("status");
-   String projectValue = rs4.getString("projectValue");
-   String nameValue    = rs4.getString("nameValue");
-
-   if (instanceid != previousinstanceid) {
-    savepreviousxtimestamp = 'n/a' //s/m: this savexxx name isn't really helpful
-   }
-   else {
-    savepreviousxtimestamp = previousxtimestamp
-   }
-
-   def xtimestampSecondsInto2017 = secondsInto2017(xtimestamp)
-   def xsavepreviousxtimestampSecondsInto2017 = secondsInto2017(savepreviousxtimestamp)
-   int secondsPassed
-   if (xsavepreviousxtimestampSecondsInto2017 == -1) {
-    secondsPassed = 0
-   }
-   else {
-    secondsPassed = xtimestampSecondsInto2017 - xsavepreviousxtimestampSecondsInto2017
-   }
-  
-   def costperhour  = instancecostperhour[type]
-   def costpersecond = costperhour/(60*60)
-   def costperthisline
-   if (status == 'running') {
-    costperthisline = secondsPassed * costpersecond
-   }
-   else {
-    costperthisline = 0
-   }
 
    print   "$region,$instanceid,$xtimestamp,$savepreviousxtimestamp,"
-   print   "$xtimestampSecondsInto2017,$xyear,$xmonth,$xday,$xhour,$xminute,$xsecond,"
-   print   "$xsavepreviousxtimestampSecondsInto2017,$secondsPassed,$type,"
-   println "$secgrp,$status,$projectValue,$nameValue,$costperthisline"
-
-   previousinstanceid = instanceid
-   previousxtimestamp = xtimestamp 
   }
 
   conn.close();
@@ -341,44 +287,73 @@ class Hello {
   t
  }
 
+ void step12() {
+   def stmt4 = conn.createStatement();
+  String sql4 = """
+--Find sentences with a certain label
+select s.*
+from sentences s
+join labels l
+on s.id = l.sid
+where l = 'has-root-poder'
+"""
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String s = rs4.getString("s");
+
+   println "$s"
+  }
+ }
+
 }
 
 def h = new Hello()
 if ((args[0]) == 'step11') {
- println "Executing step11 now"
+ def temp = [
+ 'Siempre hay una manera positiva de ver las cosas, buscala',
+ 'Domingo para reflexionar en las bendiciones que se te han dado',
+ 'No puedo parar de mirarlo',
+ 'Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia',
+ 'Si quieres cenar algo ligera. Intenta esta Ensalada Griega',
+ 'Este comercial te hara querer abrazar a tu perrito',
+ 'Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo',
+ 'En tu closet no puede faltar un vestido negro',
+ 'No deseches tus frascos',
+ 'Mira como decorarlos para que sirvan de adornos en tu hogar',
+ 'Aprende a decorar tus frascos ahora y reutilizalos',
+ 'Tu pareja gasta mas dinero que tu?',
+ 'Aprende como evitar problemas',
+ 'Este miercoles te damos los trucos para lucir bien elegante en shorts',
+ 'Manana voy a estar contestando sus preguntas sobre moda y estilo, a tiempo para el verano',
+ 'Envien sus preguntas usando #AskThalia',
+ 'Hoy es su cumpleanos',
+ 'Hoy cumpleanos la periodista hondurena y copresentadora de @despiertamerica',
+ 'Todos abrazaron a @satchapretto en un dia muy especial',
+ 'Si te preguntabas que es #PanamaPapers, aqui te compartimos un resumen',
+ 'Feliz inicio de semana',
+ 'Conoce ahora a la hija de @CristianCastro',
+ 'Tiene dos anitos y es una estrella de las redes sociales',
+ 'Si quieres que tus hijos tengan una vida adulta emocional saludable',
+ 'Mira que puedes hacer',
+ 'Enterate como hacer que la cama de tu mascota sea parte integral del diseno de casa',
+ 'Que felicidad regresar a mi universidad',
+ 'Por que Playboy esta apunto de morir',
+ 'Nosotros tambien felices de tenerte con nosotros',
+ 'Es viernes y mi cuerpo lo sabe',
+ 'Gracias por ver @despiertamerica hoy Lunes',
+ 'Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow',
+ 'Alguna vez has espiado a tu pareja',
+ 'Manana la @dranancyalvarez te dice como acabar con esta mania',
+ ]
+ println "Executing step11 now (load sample sentences)"
+ temp.each {
+  h.step11(it)
+ }
+}
 
- h.step11('Siempre hay una manera positiva de ver las cosas, buscala')
- h.step11('Domingo para reflexionar en las bendiciones que se te han dado')
- h.step11('No puedo parar de mirarlo')
- h.step11('Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia')
- h.step11('Si quieres cenar algo ligera. Intenta esta Ensalada Griega')
- h.step11('Este comercial te hara querer abrazar a tu perrito')
- h.step11('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo')
- h.step11('En tu closet no puede faltar un vestido negro')
- h.step11('No deseches tus frascos')
- h.step11('Mira como decorarlos para que sirvan de adornos en tu hogar')
- h.step11('Aprende a decorar tus frascos ahora y reutilizalos')
- h.step11('Tu pareja gasta mas dinero que tu?')
- h.step11('Aprende como evitar problemas')
- h.step11('Este miercoles te damos los trucos para lucir bien elegante en shorts')
- h.step11('Manana voy a estar contestando sus preguntas sobre moda y estilo, a tiempo para el verano')
- h.step11('Envien sus preguntas usando #AskThalia')
- h.step11('Hoy es su cumpleanos')
- h.step11('Hoy cumpleanos la periodista hondurena y copresentadora de @despiertamerica')
- h.step11('Todos abrazaron a @satchapretto en un dia muy especial')
- h.step11('Si te preguntabas que es #PanamaPapers, aqui te compartimos un resumen')
- h.step11('Gracias por ver @despiertamerica hoy Lunes')
- h.step11('Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow')
- h.step11('Feliz inicio de semana')
- h.step11('Conoce ahora a la hija de @CristianCastro')
- h.step11('Tiene dos anitos y es una estrella de las redes sociales')
- h.step11('Si quieres que tus hijos tengan una vida adulta emocional saludable')
- h.step11('Mira que puedes hacer')
- h.step11('Enterate como hacer que la cama de tu mascota sea parte integral del diseno de casa')
- h.step11('Que felicidad regresar a mi universidad')
- h.step11('Por que Playboy esta apunto de morir')
- h.step11('Nosotros tambien felices de tenerte con nosotros')
- h.step11('Es viernes y mi cuerpo lo sabe')
- h.step11('Alguna vez has espiado a tu pareja')
- h.step11('Manana la @dranancyalvarez te dice como acabar con esta mania')
+if ((args[0]) == 'step12') {
+ println "Executing step12 (query has-root-poder)"
+ h.step12()
 }

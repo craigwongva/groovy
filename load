@@ -46,14 +46,6 @@ select id, 'has-word-cumpleanos'
 from sentences s
 where s.s regexp 'cumpleanos'
 
-
---Find sentences with a certain label
-select s.*
-from sentences s
-join labels l
-on s.id = l.sid
-where l = 'has-root-poder'
-
 --Find labels in a certain sentence
 select l.l
 from labels l
