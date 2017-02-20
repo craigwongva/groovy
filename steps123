@@ -1,7 +1,8 @@
 ##
 # Usage:
-#  <this file> 
+#  <this file>
 ##
 
 JARPATH=".:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar"
 ANALYZECMD="/usr/bin/java -cp $JARPATH example/commands"
+$ANALYZECMD step11

@@ -349,34 +349,50 @@ class Hello {
   // Use the default username/password:
   //  - the data is not sensitive
   //  - the h2 console is restricted by IP
-  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
-  //getConnection("jdbc:h2:~/cat", "sa", "");
+  getConnection("jdbc:h2:tcp://localhost/~/univision", "sa", "");
+  //getConnection("jdbc:h2:~/univision", "sa", "");
 
   /**
   * Only one table is used for ad hoc analysis
   */
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.step3"
+/*
+   String s = ''
+   s += "insert into labels(sid, l) values(1, 'has-word-siempre');"
+   s += "insert into labels(sid, l) values(1, 'has-word-hay');"
+   s += "insert into labels(sid, l) values(1, 'has-word-una');"
+   s += "insert into labels(sid, l) values(1, 'has-word-manera');"
+   s += "insert into labels(sid, l) values(1, 'has-word-positiva');"
+   s += "insert into labels(sid, l) values(1, 'has-word-de');"
+   s += "insert into labels(sid, l) values(1, 'has-word-ver');"
+   s += "insert into labels(sid, l) values(1, 'has-word-las');"
+   s += "insert into labels(sid, l) values(1, 'has-word-cosas');"
+   s += "insert into labels(sid, l) values(1, 'has-word-buscala');"
+*/
+   String sql2 = convertWordListToInsertStatements(
+    'siempre hay una manera positiva de ver last cosas buscala')
+
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
-   println "no table cat.public.step3 is available to drop"
+   println "insert failed"
+   println e
   }
+ }
+
+ String convertWordListToInsertStatements(String s) {
+  String t = ''
+  s.split(' ').each {
+   t += "insert into labels(sid, l) values(1, 'has-word-$it');"
+  }
+  t
+ }
+
 }
 
 def h = new Hello()
-if ((args[0]) == 'step1') {
- h.step1()
- //step1 writes to stdout
-}
-if ((args[0]) == 'step2') {
- def inputfilename = args[1]
- h.step2(inputfilename)
- //step2 writes to stdout
-}
-if ((args[0]) == 'step3') {
- def inputfilename = args[1]
- h.step3(inputfilename)
- //step3 writes to h2
+if ((args[0]) == 'step11') {
+ println "Executing step11 now"
+ h.step11()
 }
