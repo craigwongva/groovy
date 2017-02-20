@@ -4,46 +4,7 @@ create table sentences (
  s varchar(200));
 
 insert into sentences(s) values('Siempre hay una manera positiva de ver las cosas, buscala');
-insert into sentences(s) values('Domingo para reflexionar en las bendiciones que se te han dado');
-insert into sentences(s) values('No puedo parar de mirarlo');
-insert into sentences(s) values('Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia');
-insert into sentences(s) values('Si quieres cenar algo ligera. Intenta esta Ensalada Griega');
-insert into sentences(s) values('Este comercial te hara querer abrazar a tu perrito', 
-insert into sentences(s) values('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo');
-insert into sentences(s) values('En tu closet no puede faltar un vestido negro');
-insert into sentences(s) values('No deseches tus frascos');
-insert into sentences(s) values('Mira como decorarlos para que sirvan de adornos en tu hogar');
-insert into sentences(s) values('Aprende a decorar tus frascos ahora y reutilizalos');
-insert into sentences(s) values('Tu pareja gasta mas dinero que tu?');
-insert into sentences(s) values('Aprende como evitar problemas');
 
-insert into sentences(s) values('Este miercoles te damos los trucos para lucir bien elegante en shorts');
-insert into sentences(s) values('Manana voy a estar contestando sus preguntas sobre moda y estilo, a tiempo para el verano');
-insert into sentences(s) values('Envien sus preguntas usando #AskThalia');
-
-insert into sentences(s) values('Hoy es su cumpleanos');
-insert into sentences(s) values('Hoy cumpleanos la periodista hondurena y copresentadora de @despiertamerica');
-insert into sentences(s) values('Todos abrazaron a @satchapretto en un dia muy especial');
-
-insert into sentences(s) values('Si te preguntabas que es #PanamaPapers, aqui te compartimos un resumen');
-insert into sentences(s) values('Gracias por ver @despiertamerica hoy Lunes');
-insert into sentences(s) values('Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow');
-
-insert into sentences(s) values('Feliz inicio de semana');
-insert into sentences(s) values('Conoce ahora a la hija de @CristianCastro');
-insert into sentences(s) values('Tiene dos anitos y es una estrella de las redes sociales');
-
-insert into sentences(s) values('Si quieres que tus hijos tengan una vida adulta emocional saludable');
-insert into sentences(s) values('Mira que puedes hacer');
-insert into sentences(s) values('Enterate como hacer que la cama de tu mascota sea parte integral del diseno de casa');
-
-insert into sentences(s) values('Que felicidad regresar a mi universidad');
-insert into sentences(s) values('Por que Playboy esta apunto de morir');
-insert into sentences(s) values('Nosotros tambien felices de tenerte con nosotros');
-
-insert into sentences(s) values('Es viernes y mi cuerpo lo sabe');
-insert into sentences(s) values('Alguna vez has espiado a tu pareja');
-insert into sentences(s) values('Manana la @dranancyalvarez te dice como acabar con esta mania');
 drop table labels;
 create table labels (
  id bigint auto_increment,

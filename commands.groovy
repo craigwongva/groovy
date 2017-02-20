@@ -20,30 +20,6 @@ class Hello {
   jsonSlurper = new JsonSlurper()
  }
 
-/**
-* From a Google page found via keywords "ec2 pricing"
-* for on-demand instances
-**/
- def instancecostperhour = [
-'c3.large':     0.1,
-'c4.xlarge':    0.2,
-'c4.2xlarge':   0.4,
-'g2.8xlarge':   2.6,
-'m3.medium':    0.11,
-'m3.large':     0.11,
-'m3.xlarge':    0.21,
-'m4.large':     0.11,
-'m4.xlarge':    0.21,
-'m4.2xlarge':   0.43, //week=0.43*24*7=72
-'m4.4xlarge':   0.86,
-'r3.2xlarge':   0.53,
-'r3.xlarge':    0.33,
-'t2.micro':     0.01,
-'t2.small':     0.02,
-'t2.medium':    0.05,
-'t2.large':     0.09
-]
-
  ArrayList getNamesOfCapturedFiles(dirname) {
   //dirname is a directory with subdirectories
   //the subdirectories are 'us-east-1' and 'us-west-2'
@@ -344,11 +320,10 @@ class Hello {
   conn.close();
  }
 
- void step11(inputfilename) {
+ void step11(sentence) {
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = convertWordListToInsertStatements(
-    'siempre hay una manera positiva de ver last cosas buscala')
+   String sql2 = convertWordListToInsertStatements(sentence)
 
    def x2 = stmt2.execute(sql2)
   }
@@ -371,5 +346,39 @@ class Hello {
 def h = new Hello()
 if ((args[0]) == 'step11') {
  println "Executing step11 now"
- h.step11()
+
+ h.step11('Siempre hay una manera positiva de ver las cosas, buscala')
+ h.step11('Domingo para reflexionar en las bendiciones que se te han dado')
+ h.step11('No puedo parar de mirarlo')
+ h.step11('Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia')
+ h.step11('Si quieres cenar algo ligera. Intenta esta Ensalada Griega')
+ h.step11('Este comercial te hara querer abrazar a tu perrito')
+ h.step11('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo')
+ h.step11('En tu closet no puede faltar un vestido negro')
+ h.step11('No deseches tus frascos')
+ h.step11('Mira como decorarlos para que sirvan de adornos en tu hogar')
+ h.step11('Aprende a decorar tus frascos ahora y reutilizalos')
+ h.step11('Tu pareja gasta mas dinero que tu?')
+ h.step11('Aprende como evitar problemas')
+ h.step11('Este miercoles te damos los trucos para lucir bien elegante en shorts')
+ h.step11('Manana voy a estar contestando sus preguntas sobre moda y estilo, a tiempo para el verano')
+ h.step11('Envien sus preguntas usando #AskThalia')
+ h.step11('Hoy es su cumpleanos')
+ h.step11('Hoy cumpleanos la periodista hondurena y copresentadora de @despiertamerica')
+ h.step11('Todos abrazaron a @satchapretto en un dia muy especial')
+ h.step11('Si te preguntabas que es #PanamaPapers, aqui te compartimos un resumen')
+ h.step11('Gracias por ver @despiertamerica hoy Lunes')
+ h.step11('Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow')
+ h.step11('Feliz inicio de semana')
+ h.step11('Conoce ahora a la hija de @CristianCastro')
+ h.step11('Tiene dos anitos y es una estrella de las redes sociales')
+ h.step11('Si quieres que tus hijos tengan una vida adulta emocional saludable')
+ h.step11('Mira que puedes hacer')
+ h.step11('Enterate como hacer que la cama de tu mascota sea parte integral del diseno de casa')
+ h.step11('Que felicidad regresar a mi universidad')
+ h.step11('Por que Playboy esta apunto de morir')
+ h.step11('Nosotros tambien felices de tenerte con nosotros')
+ h.step11('Es viernes y mi cuerpo lo sabe')
+ h.step11('Alguna vez has espiado a tu pareja')
+ h.step11('Manana la @dranancyalvarez te dice como acabar con esta mania')
 }
