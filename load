@@ -34,6 +34,7 @@ or s.s regexp 'decora'
 or s.s regexp 'decoramos'
 or s.s regexp 'decoran'
 
+/* These two blocks have been groovified.
 delete from labels where l = 'has-root-frasco';
 insert into labels (sid, l)
 select id, 'has-root-frasco'
@@ -45,6 +46,7 @@ insert into labels (sid, l)
 select id, 'has-word-cumpleanos'
 from sentences s
 where s.s regexp 'cumpleanos'
+*/
 
 --Find labels in a certain sentence
 select l.l

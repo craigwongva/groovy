@@ -207,65 +207,6 @@ class Hello {
   conn.close();
  }
 
- void step3(inputfilename) {
-
-  /**
-  * cat is an arbitrary name
-  */
-  Class.forName("org.h2.Driver");
-  Connection conn = DriverManager.
-
-  // Use the default username/password:
-  //  - the data is not sensitive
-  //  - the h2 console is restricted by IP
-  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
-  //getConnection("jdbc:h2:~/cat", "sa", "");
-
-  /**
-  * Only one table is used for ad hoc analysis
-  */
-  def stmt2 = conn.createStatement()
-  try {
-   String sql2 = "drop table cat.public.step3"
-   def x2 = stmt2.execute(sql2)
-  }
-  catch (e) {
-   println "no table cat.public.step3 is available to drop"
-  }
-
-  /**
-  * Use h2's CSVREAD
-  */
-  def stmt3 = conn.createStatement()
-  String sql3 = '' +
-   'create table cat.public.step3 (' +
-   ' region varchar(100),' +
-   ' instanceid varchar(100),' +
-   ' xtimestamp varchar(100),' + 
-   ' savepreviousxtimestamp varchar(100),' + 
-   ' xtimestampSecondsInto2017 varchar(100),' +
-   ' xyear int,' +
-   ' xmonth int,' +
-   ' xday int,' +
-   ' xhour int,' +
-   ' xminute int,' +
-   ' xsecond int,' +
-   ' xsavepreviousxtimestampSecondsInto2017 int,' +
-   ' secondsPassed int,' +
-   ' type varchar(100),' +
-   ' secgrp varchar(100),' +
-   ' status varchar(100),' +
-   ' projectValue varchar(100),' +
-   ' nameValue varchar(100),' +
-   ' costperthisline decimal)' +
-   " as select * from CSVREAD('deleteme4')"
-   .replaceAll('deleteme4',inputfilename)
-
-   def x3 = stmt3.execute(sql3)
-
-  conn.close();
- }
-
  void step11(sentence) {
   def stmt2 = conn.createStatement()
   try {
@@ -287,16 +228,36 @@ class Hello {
   t
  }
 
- void step12() {
-   def stmt4 = conn.createStatement();
-  String sql4 = """
---Find sentences with a certain label
-select s.*
-from sentences s
-join labels l
-on s.id = l.sid
-where l = 'has-root-poder'
-"""
+ String getWordInHyphenedLabel(hyphenedLabel) {
+  hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
+ }
+
+ void step13(hyphenedLabel) {
+  String wordInHyphenedLabel =
+   getWordInHyphenedLabel(hyphenedLabel)
+
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+
+  sql4 += "delete from labels where l = '$hyphenedLabel'; "
+  sql4 += 'insert into labels (sid, l) '
+  sql4 += "select id, '$hyphenedLabel' "
+  sql4 += 'from sentences s '
+  sql4 += "where s.s regexp '$wordInHyphenedLabel' "
+
+  stmt4.execute(sql4);
+ }
+
+ void step12(String hyphenedLabel) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //Find sentences with a certain label
+   sql4 += 'select s.* '
+   sql4 += 'from sentences s '
+   sql4 += 'join labels l '
+   sql4 += 'on s.id = l.sid '
+   sql4 += "where l = '$hyphenedLabel' "
+
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   def i=0
@@ -347,13 +308,22 @@ if ((args[0]) == 'step11') {
  'Alguna vez has espiado a tu pareja',
  'Manana la @dranancyalvarez te dice como acabar con esta mania',
  ]
- println "Executing step11 now (load sample sentences)"
+ println "Executing step11 now (insert sample sentences and insert has-word labels)"
  temp.each {
   h.step11(it)
  }
 }
 
 if ((args[0]) == 'step12') {
- println "Executing step12 (query has-root-poder)"
- h.step12()
+ println "Executing step12 (select labels like has-root-poder)"
+ h.step12('has-root-poder')
+ println ""
+ h.step12('has-word-cumpleanos')
+}
+
+if ((args[0]) == 'step13') {
+ println "Executing step13 (insert labels like has-word-cumpleanos)"
+ h.step13('has-word-cumpleanos')
+ println ""
+ h.step13('has-root-frasco')
 }
