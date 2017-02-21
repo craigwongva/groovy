@@ -15,3 +15,7 @@ http://35.36.37.38:8082
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar analyze.groovy
 
 ./steps123 20170216-0910
+
+--
+
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovy -l 8888 monitor.groovy
