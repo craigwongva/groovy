@@ -224,7 +224,6 @@ if(returnLastInsertId) {
   ResultSet rs1 = stmt1.getGeneratedKeys()
   rs1.next()
   def rs1key = rs1.getInt(1) 
-  println "$rs1key: $sentence"
 
   String sql2 = convertWordListToInsertStatements(rs1key, sentence)
   println sql2
@@ -248,6 +247,37 @@ if(returnLastInsertId) {
 
  String getWordInHyphenedLabel(hyphenedLabel) {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
+ }
+
+/*
+delete from labels where l = 'has-root-decorar';
+insert into labels (sid, l)
+select id, 'has-root-decorar'
+from sentences s
+where s.s regexp 'decorar'
+or s.s regexp 'decoro'
+or s.s regexp 'decoras'
+or s.s regexp 'decora'
+or s.s regexp 'decoramos'
+or s.s regexp 'decoran'
+*/
+ void step14(String hyphenedLabel, ArrayList words) {
+  String wordInHyphenedLabel =
+   getWordInHyphenedLabel(hyphenedLabel)
+
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+
+  sql4 += "delete from labels where l = '$hyphenedLabel'; "
+  sql4 += 'insert into labels (sid, l) '
+  sql4 += "select id, '$hyphenedLabel' "
+  sql4 += 'from sentences s '
+  sql4 += "where s.s regexp '$wordInHyphenedLabel' "
+  words.each {
+   sql4 += "or s.s regexp '$it' "
+  }
+  println sql4
+  stmt4.execute(sql4);
  }
 
  void step13(hyphenedLabel) {
@@ -329,7 +359,7 @@ if ((args[0]) == 'step11') {
  println "Executing step11 now (insert sample sentences and insert has-word labels)"
  int i = 0
  temp.each {
-  if (i++ == 1) {
+  if (i++ <= 1000) {
    h.step11(it)
   }
  }
@@ -347,4 +377,10 @@ if ((args[0]) == 'step13') {
  h.step13('has-word-cumpleanos')
  println ""
  h.step13('has-root-frasco')
+}
+
+if ((args[0]) == 'step14') {
+ println "Executing step14 (insert labels like has-root-decorar)"
+ h.step14('has-root-decorar',
+  ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
 }
