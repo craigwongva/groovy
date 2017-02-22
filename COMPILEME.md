@@ -22,7 +22,9 @@ http://35.36.37.38:8082
 
 --
 
-/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:aws-java-sdk-1.10.50.jar ses.groovy
+#/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:aws-java-sdk-1.10.50.jar ses.groovy
 
-/usr/bin/java -cp .:./groovy-2.4.7.jar:aws-java-sdk-1.10.50.jar:commons-codec-1.6.jar:commons-logging-1.1.3.jar:httpclient-4.3.6.jar:httpcore-4.3.3.jar:jackson-annotations-2.5.0.jar:jackson-core-2.5.3.jar:jackson-databind-2.5.3.jar:joda-time-2.8.1.jar ses
+#/usr/bin/java -cp .:./groovy-2.4.7.jar:aws-java-sdk-1.10.50.jar:commons-codec-1.6.jar:commons-logging-1.1.3.jar:httpclient-4.3.6.jar:httpcore-4.3.3.jar:jackson-annotations-2.5.0.jar:jackson-core-2.5.3.jar:jackson-databind-2.5.3.jar:joda-time-2.8.1.jar ses
+
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovy -cp .:./groovy-2.4.7.jar:aws-java-sdk-1.10.50.jar:commons-codec-1.6.jar:commons-logging-1.1.3.jar:httpclient-4.3.6.jar:httpcore-4.3.3.jar:jackson-annotations-2.5.0.jar:jackson-core-2.5.3.jar:jackson-databind-2.5.3.jar:joda-time-2.8.1.jar groovyses.groovy
 
