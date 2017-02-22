@@ -206,12 +206,30 @@ class Hello {
 
   conn.close();
  }
+/*
+String sql = "INSERT INTO table (column1, column2) values(?, ?)";
+stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
+stmt.executeUpdate();
+if(returnLastInsertId) {
+   ResultSet rs = stmt.getGeneratedKeys();
+    rs.next();
+   auto_id = rs.getInt(1);
+}
+*/
  void step11(sentence) {
+  String sql1 = "insert into sentences(s) values('$sentence')"
+  def stmt1 = conn.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS)
+  def x1 = stmt1.execute()
+  ResultSet rs1 = stmt1.getGeneratedKeys()
+  rs1.next()
+  def rs1key = rs1.getInt(1) 
+  println "$rs1key: $sentence"
+
+  String sql2 = convertWordListToInsertStatements(rs1key, sentence)
+  println sql2
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = convertWordListToInsertStatements(sentence)
-
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
@@ -220,10 +238,10 @@ class Hello {
   }
  }
 
- String convertWordListToInsertStatements(String s) {
+ String convertWordListToInsertStatements(rs1key, String s) {
   String t = ''
   s.split(' ').each {
-   t += "insert into labels(sid, l) values(1, 'has-word-$it');"
+   t += "insert into labels(sid, l) values($rs1key, 'has-word-$it');"
   }
   t
  }
@@ -309,8 +327,11 @@ if ((args[0]) == 'step11') {
  'Manana la @dranancyalvarez te dice como acabar con esta mania',
  ]
  println "Executing step11 now (insert sample sentences and insert has-word labels)"
+ int i = 0
  temp.each {
-  h.step11(it)
+  if (i++ == 1) {
+   h.step11(it)
+  }
  }
 }
 

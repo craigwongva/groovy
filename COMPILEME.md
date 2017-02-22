@@ -3,6 +3,9 @@
 ./steps123 
 
 --
+
+java -jar h2/bin/h2-1.4.193.jar -webAllowOthers &
+
 http://52.41.5.134:8082
 
 The database name is 'univision'.

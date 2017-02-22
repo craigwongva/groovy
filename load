@@ -98,8 +98,3 @@ limit 1
 --s.id=9 Aprende a decorar tus frascos ahora y reutilizalos
 --8 Mira como decorarlos para que sirvan de adornos en tu hogar
 
-insert into labels(sid, l) values(1, 'has-word-siempre');
-insert into labels(sid, l) values(1, 'has-word-hay');
-insert into labels(sid, l) values(1, 'has-word-una');
-insert into labels(sid, l) values(1, 'has-word-manera');
-
