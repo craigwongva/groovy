@@ -7,6 +7,8 @@ Region usWest2 = Region.getRegion(Regions.US_WEST_2)
 AmazonSimpleEmailService client = new AmazonSimpleEmailServiceClient();
 client.setRegion(usWest2);
 
+while (1 > 0) {
+
 def env = System.getenv()
 String monitorIP = env['MONITOR_IP']
 String monitorEmail = env['MONITOR_EMAIL']
@@ -15,7 +17,7 @@ def process = [ "curl", "-s", monitorIP ].execute()
 process.waitFor()
 def ptext = process.text
 
-if (ptext =~ 'status green') {
+if (ptext =~ 'status red') {
  String msg = 
   ptext[
    ptext.indexOf('captured')..
@@ -25,6 +27,8 @@ if (ptext =~ 'status green') {
 else {
 }
 
+ sleep 1000*(1*60)
+}
 
 def sendEmail(client, String monitorEmail, String subject, String body) {
 //http://docs.aws.amazon.com/AWSJavaSDK/latest/
