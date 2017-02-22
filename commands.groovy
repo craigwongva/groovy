@@ -206,17 +206,7 @@ class Hello {
 
   conn.close();
  }
-/*
-String sql = "INSERT INTO table (column1, column2) values(?, ?)";
-stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-stmt.executeUpdate();
-if(returnLastInsertId) {
-   ResultSet rs = stmt.getGeneratedKeys();
-    rs.next();
-   auto_id = rs.getInt(1);
-}
-*/
  void step11(sentence) {
   String sql1 = "insert into sentences(s) values('$sentence')"
   def stmt1 = conn.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS)
@@ -249,18 +239,24 @@ if(returnLastInsertId) {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
-/*
-delete from labels where l = 'has-root-decorar';
-insert into labels (sid, l)
-select id, 'has-root-decorar'
-from sentences s
-where s.s regexp 'decorar'
-or s.s regexp 'decoro'
-or s.s regexp 'decoras'
-or s.s regexp 'decora'
-or s.s regexp 'decoramos'
-or s.s regexp 'decoran'
-*/
+ void step15(int n) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //Find labels in a certain sentence
+   sql4 += 'select l.l '
+   sql4 += 'from labels l '
+   sql4 += "where sid = $n "
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String l = rs4.getString("l");
+
+   println "$l"
+  }
+ }
+
  void step14(String hyphenedLabel, ArrayList words) {
   String wordInHyphenedLabel =
    getWordInHyphenedLabel(hyphenedLabel)
@@ -384,3 +380,10 @@ if ((args[0]) == 'step14') {
  h.step14('has-root-decorar',
   ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
 }
+
+if ((args[0]) == 'step15') {
+ println "Executing step15 (select labels for a certain sentence)"
+ h.step15(43)
+}
+
+
