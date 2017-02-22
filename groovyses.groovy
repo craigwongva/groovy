@@ -7,8 +7,11 @@ Region usWest2 = Region.getRegion(Regions.US_WEST_2)
 AmazonSimpleEmailService client = new AmazonSimpleEmailServiceClient();
 client.setRegion(usWest2);
 
+def env = System.getenv()
+String monitorIP = env['MONITOR_IP']
+String monitorEmail = env['MONITOR_EMAIL']
 
-def process = [ "curl", "-s", "http://localhost:8888" ].execute()
+def process = [ "curl", "-s", monitorIP ].execute()
 process.waitFor()
 def ptext = process.text
 
@@ -17,16 +20,13 @@ if (ptext =~ 'status green') {
   ptext[
    ptext.indexOf('captured')..
    ptext.indexOf('json')+'son'.size() ]
- //def x = "python ses.py $msg".execute().waitFor()
- sendEmail(client, 'hello', msg)
- println "I sent an email"
+ sendEmail(client, monitorEmail, 'latest snapshot', msg)
 }
 else {
- println "No need to send an email"
 }
 
 
-def sendEmail(client, String subject, String body) {
+def sendEmail(client, String monitorEmail, String subject, String body) {
 //http://docs.aws.amazon.com/AWSJavaSDK/latest/
 // javadoc/com/amazonaws/services/simpleemail/
 // AmazonSimpleEmailServiceClient.html#
@@ -35,7 +35,7 @@ def sendEmail(client, String subject, String body) {
 SendEmailRequest request = new SendEmailRequest()
  .withDestination(
   new Destination()
-   .withToAddresses("craigjk@cox.net"))
+   .withToAddresses(monitorEmail))
    .withMessage(
     new Message()
      .withBody(
@@ -48,7 +48,7 @@ SendEmailRequest request = new SendEmailRequest()
       new Content()
        .withCharset("UTF-8")
        .withData(subject)))
-       .withSource("EC2 Snapshot <craigjk@cox.net>")
+       .withSource("EC2 Snapshot <${monitorEmail}>")
 
 SendEmailResult response = client.sendEmail(request)
 }
