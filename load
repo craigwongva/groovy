@@ -10,19 +10,6 @@ create table labels (
  l varchar(60)
 );
 
---Find sentences matching a certain sentence and user's input
-select s.*, l.*
-from sentences s
-join labels l
-on s.id = l.sid
-where s.id <> 3
-and s.s regexp 'faltar'
-and l in (
-select l.l
-from labels l
-where sid = 3
-)
-
 --Return one row. Not an optimized query!
 select * from (
 select rownum r, s.*, l.id lid, l.sid, l.l
