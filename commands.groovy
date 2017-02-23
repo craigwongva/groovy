@@ -239,6 +239,35 @@ class Hello {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
+ void step16(int n) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //Find sentences matching a certain sentence
+   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
+   sql4 += 'from sentences s '
+   sql4 += 'join labels l '
+   sql4 += 'on s.id = l.sid '
+   sql4 += "where s.id <> $n "
+   sql4 += 'and l in ( '
+   sql4 += 'select l.l '
+   sql4 += 'from labels l '
+   sql4 += "where sid = $n "
+   sql4 += ') '
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String ids = rs4.getString("ids");
+   String s   = rs4.getString("s");
+   String idl = rs4.getString("idl");
+   String sid = rs4.getString("sid");
+   String l   = rs4.getString("l");
+
+   println "$ids,$s,$idl,$sid,$l"
+  }
+ }
+
  void step15(int n) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
@@ -386,4 +415,8 @@ if ((args[0]) == 'step15') {
  h.step15(43)
 }
 
+if ((args[0]) == 'step16') {
+ println "Executing step16 (select sentences matching a certain sentence)"
+ h.step16(34)
+}
 

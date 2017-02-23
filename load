@@ -3,67 +3,12 @@ create table sentences (
  id bigint auto_increment,
  s varchar(200));
 
-insert into sentences(s) values('Siempre hay una manera positiva de ver las cosas, buscala');
-
 drop table labels;
 create table labels (
  id bigint auto_increment,
  sid bigint,
  l varchar(60)
 );
-
-delete from labels where l = 'has-root-poder';
-insert into labels (sid, l)
-select id, 'has-root-poder'
-from sentences s
-where s.s regexp 'poder'
-or s.s regexp 'puedo'
-or s.s regexp 'puedes'
-or s.s regexp 'puede'
-or s.s regexp 'podemos'
-or s.s regexp 'pueden'
-
-delete from labels where l = 'has-root-decorar';
-insert into labels (sid, l)
-select id, 'has-root-decorar'
-from sentences s
-where s.s regexp 'decorar'
-or s.s regexp 'decoro'
-or s.s regexp 'decoras'
-or s.s regexp 'decora'
-or s.s regexp 'decoramos'
-or s.s regexp 'decoran'
-
-/* These two blocks have been groovified.
-delete from labels where l = 'has-root-frasco';
-insert into labels (sid, l)
-select id, 'has-root-frasco'
-from sentences s
-where s.s regexp 'frasco'
-
-delete from labels where l = 'has-word-cumpleanos';
-insert into labels (sid, l)
-select id, 'has-word-cumpleanos'
-from sentences s
-where s.s regexp 'cumpleanos'
-*/
-
---Find labels in a certain sentence
-select l.l
-from labels l
-where sid = 3
-
---Find sentences matching a certain sentence
-select s.*, l.*
-from sentences s
-join labels l
-on s.id = l.sid
-where s.id <> 3
-and l in (
-select l.l
-from labels l
-where sid = 3
-)
 
 --Find sentences matching a certain sentence and user's input
 select s.*, l.*
