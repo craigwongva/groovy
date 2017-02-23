@@ -238,6 +238,59 @@ class Hello {
  String getWordInHyphenedLabel(hyphenedLabel) {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
+/*
+--Return one row. Not an optimized query!
+select * from (
+select rownum r, s.*, l.id lid, l.sid, l.l
+from sentences s
+join labels l
+on s.id = l.sid
+where s.id <> 3
+--and s.s regexp 'faltar'
+and l in (
+select l.l
+from labels l
+where sid = 3
+)
+)
+order by rand()
+limit 1
+*/
+ void step17oneline(int n, String regexp) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //Find sentences matching a certain sentence
+   //Return one row. Not an optimized query!
+   sql4 += 'select * from ( '
+   sql4 += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l '
+   sql4 += 'from sentences s '
+   sql4 += 'join labels l '
+   sql4 += 'on s.id = l.sid '
+   sql4 += "where s.id <> $n "
+   sql4 += "and s.s regexp '$regexp' "
+   sql4 += 'and l in ( '
+   sql4 += 'select l.l '
+   sql4 += 'from labels l '
+   sql4 += "where sid = $n "
+   sql4 += ') '
+   sql4 += ') '
+   sql4 += 'order by rand() '
+   sql4 += 'limit 1 '
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String r   = rs4.getString("r");
+   String ids = rs4.getString("ids");
+   String s   = rs4.getString("s");
+   String idl = rs4.getString("idl");
+   String sid = rs4.getString("sid");
+   String l   = rs4.getString("l");
+
+   println "$i $r,$ids,$s,$idl,$sid,$l"
+  }
+ }
 
  void step17(int n, String regexp) {
   def stmt4 = conn.createStatement();
@@ -374,9 +427,7 @@ class Hello {
 
 }
 
-println "Here is args: $args"
 def h = new Hello()
-println "Here is args: $args"
 if ((args[0]) == 'step11') {
  def temp = [
  'Siempre hay una manera positiva de ver las cosas, buscala',
@@ -456,5 +507,10 @@ if ((args[0]) == 'step16') {
 if ((args[0]) == 'step17') {
  println "Executing step17 (select sentences matching a certain sentence with user input)"
  h.step17(34, args[1])
+}
+
+if ((args[0]) == 'step17oneline') {
+ println "Executing step17 (select sentences matching a certain sentence with user input one line)"
+ h.step17oneline(34, args[1])
 }
 

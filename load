@@ -9,24 +9,3 @@ create table labels (
  sid bigint,
  l varchar(60)
 );
-
---Return one row. Not an optimized query!
-select * from (
-select rownum r, s.*, l.id lid, l.sid, l.l
-from sentences s
-join labels l
-on s.id = l.sid
-where s.id <> 3
---and s.s regexp 'faltar'
-and l in (
-select l.l
-from labels l
-where sid = 3
-)
-)
-order by rand()
-limit 1
---s.id=7 'No deseches tus frascos'
---s.id=9 Aprende a decorar tus frascos ahora y reutilizalos
---8 Mira como decorarlos para que sirvan de adornos en tu hogar
-
