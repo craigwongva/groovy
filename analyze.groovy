@@ -23,6 +23,7 @@ class Hello {
 'c4.xlarge':    0.2,
 'c4.2xlarge':   0.4,
 'd2.8xlarge':   5.52,
+'g2.2xlarge':   0.65,
 'g2.8xlarge':   2.6,
 'm3.medium':    0.11,
 'm3.large':     0.11,
