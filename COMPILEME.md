@@ -16,6 +16,12 @@ http://35.36.37.38:8082
 
 ./steps123 20170216-0910
 
+java -jar h2/bin/h2-1.4.193.jar -webAllowOthers &
+
+--
+
+aws s3 cp derived/20170223-0720-step2.csv s3://venicegeo-devops-dev-analyze-project/
+
 --
 
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovy -l 8888 monitor.groovy
