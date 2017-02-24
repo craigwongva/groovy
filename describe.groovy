@@ -3,7 +3,7 @@ package example
 import groovy.json.*
 import groovyx.net.http.*
 
-class Hello {
+class Hello2 {
 
  void capture(String region) {
   def s = "aws ec2 describe-instances --region $region".execute().text
@@ -16,7 +16,7 @@ class Hello {
  }
 }
 
-def h = new Hello()
+def h = new Hello2()
 while (1 > 0) {
  h.capture('us-west-2')
  h.capture('us-east-1')
