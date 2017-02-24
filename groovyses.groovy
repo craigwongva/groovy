@@ -17,14 +17,18 @@ def process = [ "curl", "-s", monitorIP ].execute()
 process.waitFor()
 def ptext = process.text
 
-if (ptext =~ 'status red') {
- String msg = 
+if (!(ptext =~ 'status green')) {
+ String msg 
+ if (ptext == '') {
+  msg = 'The monitor is not running!'
+ }
+ else { 
+  msg =
   ptext[
    ptext.indexOf('captured')..
    ptext.indexOf('json')+'son'.size() ]
+ }
  sendEmail(client, monitorEmail, 'latest snapshot', msg)
-}
-else {
 }
 
  sleep 1000*(1*60)
