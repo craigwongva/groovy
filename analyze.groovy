@@ -102,19 +102,21 @@ class Hello {
  void interpretEC2jsonAndPrint(f, t) {
    //The interpreted json values are printed here as a convenience
    // rather than returning them within an array.
-   def object = jsonSlurper.parseText(t) 
+   def object = jsonSlurper.parseText(t)
    for (def i = 0; i < object.Reservations.size(); i++) {
-    def instanceId   = object.Reservations[i].Instances[0].InstanceId
-    def instanceType = object.Reservations[i].Instances[0].InstanceType
-    def keyName      = object.Reservations[i].Instances[0].KeyName
-    def state        = object.Reservations[i].Instances[0].State.Name
-    def projectValue = getTagValue(object.Reservations[i].Instances[0].Tags, 'Project')
-    def nameValue    = getTagValue(object.Reservations[i].Instances[0].Tags, 'Name')
+   for (def j = 0; j < object.Reservations[i].Instances.size(); j++) {
+    def instanceId   = object.Reservations[i].Instances[j].InstanceId
+    def instanceType = object.Reservations[i].Instances[j].InstanceType
+    def keyName      = object.Reservations[i].Instances[j].KeyName
+    def state        = object.Reservations[i].Instances[j].State.Name
+    def projectValue = getTagValue(object.Reservations[i].Instances[j].Tags, 'Project')
+    def nameValue    = getTagValue(object.Reservations[i].Instances[j].Tags, 'Name')
 
     print   "${f.region},${f.timestamp},${f.timestampSecondsInto2017},"
     print   "${f.timestampYear},${f.timestampMonth},${f.timestampDay},"
     print   "${f.timestampHour},${f.timestampMinute},${f.timestampSecond},"
     println "$instanceId,$instanceType,$keyName,$state,$projectValue,$nameValue"
+   }
    }
  }
 
