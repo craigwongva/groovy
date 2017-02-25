@@ -346,7 +346,7 @@ class Hello {
   return ids
  }
 
- void step17(int n, String regexp) {
+ void step17(int idOfSentenceJustSeen, String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //Find sentences matching a certain sentence
@@ -354,12 +354,12 @@ class Hello {
    sql4 += 'from sentences s '
    sql4 += 'join labels l '
    sql4 += 'on s.id = l.sid '
-   sql4 += "where s.id <> $n "
+   sql4 += "where s.id <> $idOfSentenceJustSeen "
    sql4 += "and s.s regexp '$regexp' "
    sql4 += 'and l in ( '
    sql4 += 'select l.l '
    sql4 += 'from labels l '
-   sql4 += "where sid = $n "
+   sql4 += "where sid = $idOfSentenceJustSeen "
    sql4 += ') '
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
@@ -376,20 +376,19 @@ class Hello {
   }
  }
 
- void step16(int n) {
+ void step16b(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
-   //Find sentences matching a certain sentence
+   //select S where s limit 1
    sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
    sql4 += 'from sentences s '
    sql4 += 'join labels l '
    sql4 += 'on s.id = l.sid '
-   sql4 += "where s.id <> $n "
-//and s.s regexp 'faltar'
+   sql4 += "where s.id <> $idOfSentenceJustSeen "
    sql4 += 'and l in ( '
    sql4 += 'select l.l '
    sql4 += 'from labels l '
-   sql4 += "where sid = $n "
+   sql4 += "where sid = $idOfSentenceJustSeen "
    sql4 += ') '
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
@@ -406,13 +405,42 @@ class Hello {
   }
  }
 
- void step15(int n) {
+ void step16(int idOfSentenceJustSeen) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //select S where s
+   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
+   sql4 += 'from sentences s '
+   sql4 += 'join labels l '
+   sql4 += 'on s.id = l.sid '
+   sql4 += "where s.id <> $idOfSentenceJustSeen "
+   sql4 += 'and l in ( '
+   sql4 += 'select l.l '
+   sql4 += 'from labels l '
+   sql4 += "where sid = $idOfSentenceJustSeen "
+   sql4 += ') '
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String ids = rs4.getString("ids");
+   String s   = rs4.getString("s");
+   String idl = rs4.getString("idl");
+   String sid = rs4.getString("sid");
+   String l   = rs4.getString("l");
+
+   println "$ids,$s,$idl,$sid,$l"
+  }
+ }
+
+ void step15(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //Find labels in a certain sentence
    sql4 += 'select l.l '
    sql4 += 'from labels l '
-   sql4 += "where sid = $n "
+   sql4 += "where sid = $idOfSentenceJustSeen "
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
@@ -532,54 +560,59 @@ if ((argx[0]) == '11') {
 }
 
 if ((argx[0]) == '12') {
- println "Executing step12 (select labels like has-root-poder)"
+ println "12: select L where 'has-root-poder' //or 'has-word-cumpleanos' "
  h.step12('has-root-poder')
  println ""
  h.step12('has-word-cumpleanos')
 }
 
 if ((argx[0]) == '13') {
- println "Executing step13 (insert labels like has-word-cumpleanos)"
+ println "13: insert l ('has-word-cumpleanos') //or 'has-root-frasco'"
  h.step13('has-word-cumpleanos')
  println ""
  h.step13('has-root-frasco')
 }
 
 if ((argx[0]) == '14') {
- println "Executing step14 (insert labels like has-root-decorar)"
+ println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
  h.step14('has-root-decorar',
   ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
 }
 
 if ((argx[0]) == '15') {
- println "Executing step15 (select labels for a certain sentence)"
+ println "15: select L where s"
  h.step15(idOfSentenceJustSeen)
 }
 
+if ((argx[0]) == '16b') {
+ println "16b: select S where s limit 1"
+ h.step16b(idOfSentenceJustSeen)
+}
+
 if ((argx[0]) == '16') {
- println "Executing step16 (select sentences matching a certain sentence)"
+ println "16: select S where s"
  h.step16(idOfSentenceJustSeen)
 }
 
 if ((argx[0]) == '17') {
- println "Executing step17 (select sentences matching a certain sentence with user input)"
+ println "17: select S where s and r"
  h.step17(idOfSentenceJustSeen, argx[1])
 }
 
 if ((argx[0]) == '18') {
- println "Executing step18 (select sentences matching a certain sentence with user input one line)"
+ println "18: select S where s and r limit 1"
  def temp = h.step18(idOfSentenceJustSeen, argx[1])
  idOfSentenceJustSeen = temp
 }
 
 if ((argx[0]) == '19') {
- println "Executing step19 (select S where R)"
+ println "19: select S where r"
  def temp = h.step19(argx[1])
  idOfSentenceJustSeen = temp
 }
 
 if ((argx[0]) == '20') {
- println "Executing step20 (select S where R limit 1)"
+ println "20: select S where r limit 1"
  def temp = h.step19(argx[1])
  idOfSentenceJustSeen = temp
 }
