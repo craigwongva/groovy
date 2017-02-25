@@ -239,6 +239,24 @@ class Hello {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
+ void step21(int idOfSentenceJustSeen) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //21: select s where s
+   sql4 += 'select s.s '
+   sql4 += 'from sentences s '
+   sql4 += "where s.id = $idOfSentenceJustSeen "
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  String r
+  String s
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   s   = rs4.getString("s");
+   println "$s"
+  }
+ }
 
  int step20(String regexp) {
   def stmt4 = conn.createStatement();
@@ -614,6 +632,11 @@ if ((argx[0]) == '20') {
  }
 }
 
+if ((argx[0]) == '21') {
+ println "20: select s where s"
+ h.step21(idOfSentenceJustSeen)
+}
+
 if ((argx[0]) == '0') {
  println "11: insert sample sentences and insert has-word labels (it)"
  println "13: insert l ('has-word-cumpleanos') //or 'has-root-frasco'"
@@ -626,7 +649,9 @@ if ((argx[0]) == '0') {
  println "16b select S where s limit 1 {}"
  println "17: select S where s and r {regexp}"
  println "18: select S where s and r limit 1 {regexp}"
+ println "21: select s where s {}"
 } 
 }
 /*
+s/m: Use plagiarism algorithm
 */
