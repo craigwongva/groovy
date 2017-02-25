@@ -256,11 +256,8 @@ class Hello {
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   String r
-  int ids
+  int ids = -1
   String s
-  String idl
-  String sid
-  String l
   def i=0
   while(rs4.next() && i++ <= 2000000) {
    r   = rs4.getString("r");
@@ -272,7 +269,7 @@ class Hello {
   return ids
  }
 
- int step19(String regexp) {
+ void step19(String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //19: select S where r
@@ -300,7 +297,6 @@ class Hello {
 
    println "$i $r,$ids,$s"
   }
-  return ids
  }
 
  int step18(int idOfSentenceJustSeen, String regexp) {
@@ -327,21 +323,16 @@ class Hello {
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   String r
-  int ids
+  int ids = -1
   String s
-  String idl
-  String sid
   String l
   def i=0
   while(rs4.next() && i++ <= 2000000) {
-   r   = rs4.getString("r");
    ids = rs4.getInt("ids");
    s   = rs4.getString("s");
-   idl = rs4.getString("idl");
-   sid = rs4.getString("sid");
    l   = rs4.getString("l");
 
-   println "$i $r,$ids,$s,$idl,$sid,$l"
+   println "$s,$l"
   }
   return ids
  }
@@ -366,17 +357,14 @@ class Hello {
 
   def i=0
   while(rs4.next() && i++ <= 2000000) {
-   String ids = rs4.getString("ids");
    String s   = rs4.getString("s");
-   String idl = rs4.getString("idl");
-   String sid = rs4.getString("sid");
    String l   = rs4.getString("l");
 
-   println "$ids,$s,$idl,$sid,$l"
+   println "$s,$l"
   }
  }
 
- void step16b(int idOfSentenceJustSeen) {
+ int step16b(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //select S where s limit 1
@@ -390,25 +378,26 @@ class Hello {
    sql4 += 'from labels l '
    sql4 += "where sid = $idOfSentenceJustSeen "
    sql4 += ') '
+   sql4 += 'limit 1 '
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
+  int ids = -1
   def i=0
   while(rs4.next() && i++ <= 2000000) {
-   String ids = rs4.getString("ids");
+   ids        = rs4.getInt("ids");
    String s   = rs4.getString("s");
-   String idl = rs4.getString("idl");
-   String sid = rs4.getString("sid");
    String l   = rs4.getString("l");
 
-   println "$ids,$s,$idl,$sid,$l"
+   println "$s,$l"
   }
+  return ids
  }
 
  void step16(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
-   //select S where s
+   //select S where s {}
    sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
    sql4 += 'from sentences s '
    sql4 += 'join labels l '
@@ -424,13 +413,9 @@ class Hello {
 
   def i=0
   while(rs4.next() && i++ <= 2000000) {
-   String ids = rs4.getString("ids");
    String s   = rs4.getString("s");
-   String idl = rs4.getString("idl");
-   String sid = rs4.getString("sid");
    String l   = rs4.getString("l");
-
-   println "$ids,$s,$idl,$sid,$l"
+   println "$s,$l"
   }
  }
 
@@ -586,7 +571,13 @@ if ((argx[0]) == '15') {
 
 if ((argx[0]) == '16b') {
  println "16b: select S where s limit 1"
- h.step16b(idOfSentenceJustSeen)
+ def temp = h.step16b(idOfSentenceJustSeen)
+ //temp == -1: no sentence found
+ //temp  >  0: exactly one sentence found
+ if (temp > 0) {
+  idOfSentenceJustSeen = temp
+  println "Just updated your current sentence"
+ }
 }
 
 if ((argx[0]) == '16') {
@@ -595,26 +586,36 @@ if ((argx[0]) == '16') {
 }
 
 if ((argx[0]) == '17') {
- println "17: select S where s and r"
+ println "17: select S where s and r {regexp}"
  h.step17(idOfSentenceJustSeen, argx[1])
 }
 
 if ((argx[0]) == '18') {
- println "18: select S where s and r limit 1"
- def temp = h.step18(idOfSentenceJustSeen, argx[1])
- idOfSentenceJustSeen = temp
+ println "18: select S where s and r limit 1 {regexp}"
+ String regexp = argx[1]
+ def temp = h.step18(idOfSentenceJustSeen, regexp)
+ //temp == -1: no sentence found
+ //temp  >  0: exactly one sentence found
+ if (temp > 0) {
+  idOfSentenceJustSeen = temp
+ }
 }
 
 if ((argx[0]) == '19') {
  println "19: select S where r"
- def temp = h.step19(argx[1])
- idOfSentenceJustSeen = temp
+ String regexp = argx[1]
+ h.step19(regexp)
 }
 
 if ((argx[0]) == '20') {
  println "20: select S where r limit 1"
- def temp = h.step19(argx[1])
- idOfSentenceJustSeen = temp
+ String regexp = argx[1]
+ def temp = h.step20(regexp)
+ //temp == -1: no sentence found
+ //temp  >  0: exactly one sentence found
+ if (temp > 0) {
+  idOfSentenceJustSeen = temp
+ }
 }
 
 if ((argx[0]) == '0') {
@@ -623,13 +624,13 @@ if ((argx[0]) == '0') {
  println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
  println "12: select L where 'has-root-poder' //or 'has-word-cumpleanos' "
  println "15: select L where s"
- println "16: select S where s"
- println "16b select S where s limit 1"
- println "17: select S where s and r"
- println "18: select S where s and r limit 1"
  println "19: select S where r"
  println "20: select S where r limit 1"
-}
+ println "16: select S where s {}"
+ println "16b select S where s limit 1 {}"
+ println "17: select S where s and r {regexp}"
+ println "18: select S where s and r limit 1 {regexp}"
 } 
+}
 /*
 */
