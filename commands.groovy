@@ -238,25 +238,8 @@ class Hello {
  String getWordInHyphenedLabel(hyphenedLabel) {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
-/*
---Return one row. Not an optimized query!
-select * from (
-select rownum r, s.*, l.id lid, l.sid, l.l
-from sentences s
-join labels l
-on s.id = l.sid
-where s.id <> 3
---and s.s regexp 'faltar'
-and l in (
-select l.l
-from labels l
-where sid = 3
-)
-)
-order by rand()
-limit 1
-*/
- void step17oneline(int n, String regexp) {
+
+ int step17oneline(int n, String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //Find sentences matching a certain sentence
@@ -279,17 +262,24 @@ limit 1
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
+  String r
+  int ids
+  String s
+  String idl
+  String sid
+  String l
   def i=0
   while(rs4.next() && i++ <= 2000000) {
-   String r   = rs4.getString("r");
-   String ids = rs4.getString("ids");
-   String s   = rs4.getString("s");
-   String idl = rs4.getString("idl");
-   String sid = rs4.getString("sid");
-   String l   = rs4.getString("l");
+   r   = rs4.getString("r");
+   ids = rs4.getInt("ids");
+   s   = rs4.getString("s");
+   idl = rs4.getString("idl");
+   sid = rs4.getString("sid");
+   l   = rs4.getString("l");
 
    println "$i $r,$ids,$s,$idl,$sid,$l"
   }
+  return ids
  }
 
  void step17(int n, String regexp) {
@@ -428,7 +418,10 @@ limit 1
 }
 
 def h = new Hello()
-if ((args[0]) == 'step11') {
+def mysentence = 34
+System.in.eachLine() { line ->  
+ def argx = line.split(' ')
+if ((argx[0]) == 'step11') {
  def temp = [
  'Siempre hay una manera positiva de ver las cosas, buscala',
  'Domingo para reflexionar en las bendiciones que se te han dado',
@@ -474,45 +467,47 @@ if ((args[0]) == 'step11') {
  }
 }
 
-if ((args[0]) == 'step12') {
+if ((argx[0]) == 'step12') {
  println "Executing step12 (select labels like has-root-poder)"
  h.step12('has-root-poder')
  println ""
  h.step12('has-word-cumpleanos')
 }
 
-if ((args[0]) == 'step13') {
+if ((argx[0]) == 'step13') {
  println "Executing step13 (insert labels like has-word-cumpleanos)"
  h.step13('has-word-cumpleanos')
  println ""
  h.step13('has-root-frasco')
 }
 
-if ((args[0]) == 'step14') {
+if ((argx[0]) == 'step14') {
  println "Executing step14 (insert labels like has-root-decorar)"
  h.step14('has-root-decorar',
   ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
 }
 
-if ((args[0]) == 'step15') {
+if ((argx[0]) == 'step15') {
  println "Executing step15 (select labels for a certain sentence)"
- h.step15(43)
+ h.step15(mysentence)
 }
 
-if ((args[0]) == 'step16') {
+if ((argx[0]) == 'step16') {
  println "Executing step16 (select sentences matching a certain sentence)"
- h.step16(34)
+ h.step16(mysentence)
 }
 
-if ((args[0]) == 'step17') {
+if ((argx[0]) == 'step17') {
  println "Executing step17 (select sentences matching a certain sentence with user input)"
- h.step17(34, args[1])
+ h.step17(mysentence, argx[1])
 }
 
-if ((args[0]) == 'step17oneline') {
+if ((argx[0]) == 'step17oneline') {
  println "Executing step17 (select sentences matching a certain sentence with user input one line)"
- h.step17oneline(34, args[1])
+ def temp = h.step17oneline(mysentence, argx[1])
+ mysentence = temp
 }
+} 
 /*
  println "Executing step11 now (insert sample sentences and insert has-word labels)"
  h.step11(it)
