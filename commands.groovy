@@ -239,22 +239,86 @@ class Hello {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
- int step17oneline(int n, String regexp) {
+
+ int step20(String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
-   //Find sentences matching a certain sentence
-   //Return one row. Not an optimized query!
+   //20: select S where r limit 1
+   //Not an optimized query!
+   sql4 += 'select * from ( '
+   sql4 += 'select rownum r, s.id ids, s.s '
+   sql4 += 'from sentences s '
+   sql4 += "where s.s regexp '$regexp' "
+   sql4 += ') '
+   sql4 += 'order by rand() '
+   sql4 += 'limit 1 '
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  String r
+  int ids
+  String s
+  String idl
+  String sid
+  String l
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   r   = rs4.getString("r");
+   ids = rs4.getInt("ids");
+   s   = rs4.getString("s");
+
+   println "$i $r,$ids"
+  }
+  return ids
+ }
+
+ int step19(String regexp) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //19: select S where r
+   //Not an optimized query!
+   sql4 += 'select * from ( '
+   sql4 += 'select rownum r, s.id ids, s.s '
+   sql4 += 'from sentences s '
+   sql4 += "where s.s regexp '$regexp' "
+   sql4 += ') '
+   sql4 += 'order by rand() '
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  String r
+  int ids
+  String s
+  String idl
+  String sid
+  String l
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   r   = rs4.getString("r");
+   ids = rs4.getInt("ids");
+   s   = rs4.getString("s");
+
+   println "$i $r,$ids,$s"
+  }
+  return ids
+ }
+
+ int step18(int idOfSentenceJustSeen, String regexp) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //18: select S where s and r limit 1
+   //Not an optimized query!
    sql4 += 'select * from ( '
    sql4 += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l '
    sql4 += 'from sentences s '
    sql4 += 'join labels l '
    sql4 += 'on s.id = l.sid '
-   sql4 += "where s.id <> $n "
+   sql4 += "where s.id <> $idOfSentenceJustSeen "
    sql4 += "and s.s regexp '$regexp' "
    sql4 += 'and l in ( '
    sql4 += 'select l.l '
    sql4 += 'from labels l '
-   sql4 += "where sid = $n "
+   sql4 += "where sid = $idOfSentenceJustSeen "
    sql4 += ') '
    sql4 += ') '
    sql4 += 'order by rand() '
@@ -418,10 +482,10 @@ class Hello {
 }
 
 def h = new Hello()
-def mysentence = 34
+def idOfSentenceJustSeen = 34
 System.in.eachLine() { line ->  
  def argx = line.split(' ')
-if ((argx[0]) == 'step11') {
+if ((argx[0]) == '11') {
  def temp = [
  'Siempre hay una manera positiva de ver las cosas, buscala',
  'Domingo para reflexionar en las bendiciones que se te han dado',
@@ -467,72 +531,72 @@ if ((argx[0]) == 'step11') {
  }
 }
 
-if ((argx[0]) == 'step12') {
+if ((argx[0]) == '12') {
  println "Executing step12 (select labels like has-root-poder)"
  h.step12('has-root-poder')
  println ""
  h.step12('has-word-cumpleanos')
 }
 
-if ((argx[0]) == 'step13') {
+if ((argx[0]) == '13') {
  println "Executing step13 (insert labels like has-word-cumpleanos)"
  h.step13('has-word-cumpleanos')
  println ""
  h.step13('has-root-frasco')
 }
 
-if ((argx[0]) == 'step14') {
+if ((argx[0]) == '14') {
  println "Executing step14 (insert labels like has-root-decorar)"
  h.step14('has-root-decorar',
   ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
 }
 
-if ((argx[0]) == 'step15') {
+if ((argx[0]) == '15') {
  println "Executing step15 (select labels for a certain sentence)"
- h.step15(mysentence)
+ h.step15(idOfSentenceJustSeen)
 }
 
-if ((argx[0]) == 'step16') {
+if ((argx[0]) == '16') {
  println "Executing step16 (select sentences matching a certain sentence)"
- h.step16(mysentence)
+ h.step16(idOfSentenceJustSeen)
 }
 
-if ((argx[0]) == 'step17') {
+if ((argx[0]) == '17') {
  println "Executing step17 (select sentences matching a certain sentence with user input)"
- h.step17(mysentence, argx[1])
+ h.step17(idOfSentenceJustSeen, argx[1])
 }
 
-if ((argx[0]) == 'step17oneline') {
- println "Executing step17 (select sentences matching a certain sentence with user input one line)"
- def temp = h.step17oneline(mysentence, argx[1])
- mysentence = temp
+if ((argx[0]) == '18') {
+ println "Executing step18 (select sentences matching a certain sentence with user input one line)"
+ def temp = h.step18(idOfSentenceJustSeen, argx[1])
+ idOfSentenceJustSeen = temp
+}
+
+if ((argx[0]) == '19') {
+ println "Executing step19 (select S where R)"
+ def temp = h.step19(argx[1])
+ idOfSentenceJustSeen = temp
+}
+
+if ((argx[0]) == '20') {
+ println "Executing step20 (select S where R limit 1)"
+ def temp = h.step19(argx[1])
+ idOfSentenceJustSeen = temp
+}
+
+if ((argx[0]) == '0') {
+ println "11: insert sample sentences and insert has-word labels (it)"
+ println "13: insert l ('has-word-cumpleanos') //or 'has-root-frasco'"
+ println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
+ println "12: select L where 'has-root-poder' //or 'has-word-cumpleanos' "
+ println "15: select L where s"
+ println "16: select S where s"
+ println "16b select S where s limit 1"
+ println "17: select S where s and r"
+ println "18: select S where s and r limit 1"
+ println "19: select S where r"
+ println "20: select S where r limit 1"
 }
 } 
 /*
- println "Executing step11 now (insert sample sentences and insert has-word labels)"
- h.step11(it)
-
- println "Executing step12 (select labels like has-root-poder)"
- h.step12('has-root-poder')
- h.step12('has-word-cumpleanos')
-
- println "Executing step13 (insert labels like has-word-cumpleanos)"
- h.step13('has-word-cumpleanos')
- h.step13('has-root-frasco')
-
- println "Executing step14 (insert labels like has-root-decorar)"
- h.step14('has-root-decorar',
-  ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
-
- println "Executing step15 (select labels for a certain sentence)"
- h.step15(43)
-
- println "Executing step16 (select sentences matching a certain sentence)"
- h.step16(34)
-
- println "Executing step17 (select sentences matching a certain sentence with user input)"
- h.step17(34, args[1])
-
- println "Executing step17 (select sentences matching a certain sentence with user input one line)"
- h.step17oneline(34, args[1])
 */
