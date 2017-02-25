@@ -260,11 +260,9 @@ class Hello {
   String s
   def i=0
   while(rs4.next() && i++ <= 2000000) {
-   r   = rs4.getString("r");
    ids = rs4.getInt("ids");
    s   = rs4.getString("s");
-
-   println "$i $r,$ids"
+   println "$s"
   }
   return ids
  }
@@ -291,11 +289,8 @@ class Hello {
   String l
   def i=0
   while(rs4.next() && i++ <= 2000000) {
-   r   = rs4.getString("r");
-   ids = rs4.getInt("ids");
    s   = rs4.getString("s");
-
-   println "$i $r,$ids,$s"
+   println "$s"
   }
  }
 
@@ -615,6 +610,7 @@ if ((argx[0]) == '20') {
  //temp  >  0: exactly one sentence found
  if (temp > 0) {
   idOfSentenceJustSeen = temp
+  println "Just updated your current sentence"
  }
 }
 
@@ -624,8 +620,8 @@ if ((argx[0]) == '0') {
  println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
  println "12: select L where 'has-root-poder' //or 'has-word-cumpleanos' "
  println "15: select L where s"
- println "19: select S where r"
- println "20: select S where r limit 1"
+ println "19: select S where r {regexp}"
+ println "20: select S where r limit 1 {regexp}"
  println "16: select S where s {}"
  println "16b select S where s limit 1 {}"
  println "17: select S where s and r {regexp}"
