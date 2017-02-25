@@ -513,4 +513,31 @@ if ((args[0]) == 'step17oneline') {
  println "Executing step17 (select sentences matching a certain sentence with user input one line)"
  h.step17oneline(34, args[1])
 }
+/*
+ println "Executing step11 now (insert sample sentences and insert has-word labels)"
+ h.step11(it)
 
+ println "Executing step12 (select labels like has-root-poder)"
+ h.step12('has-root-poder')
+ h.step12('has-word-cumpleanos')
+
+ println "Executing step13 (insert labels like has-word-cumpleanos)"
+ h.step13('has-word-cumpleanos')
+ h.step13('has-root-frasco')
+
+ println "Executing step14 (insert labels like has-root-decorar)"
+ h.step14('has-root-decorar',
+  ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
+
+ println "Executing step15 (select labels for a certain sentence)"
+ h.step15(43)
+
+ println "Executing step16 (select sentences matching a certain sentence)"
+ h.step16(34)
+
+ println "Executing step17 (select sentences matching a certain sentence with user input)"
+ h.step17(34, args[1])
+
+ println "Executing step17 (select sentences matching a certain sentence with user input one line)"
+ h.step17oneline(34, args[1])
+*/
