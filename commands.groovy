@@ -558,17 +558,15 @@ if ((argx[0]) == '11') {
 }
 
 if ((argx[0]) == '12') {
- println "12: select L where 'has-root-poder' //or 'has-word-cumpleanos' "
- h.step12('has-root-poder')
- println ""
- h.step12('has-word-cumpleanos')
+ println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
+ String label = argx[1]
+ h.step12(label)
 }
 
 if ((argx[0]) == '13') {
- println "13: insert l ('has-word-cumpleanos') //or 'has-root-frasco'"
- h.step13('has-word-cumpleanos')
- println ""
- h.step13('has-root-frasco')
+ println "13: insert l values hl {hyphenated label} //has-word-cumpleanos,has-root-frasco"
+ String label = argx[1]
+ h.step13(label)
 }
 
 if ((argx[0]) == '14') {
@@ -578,7 +576,7 @@ if ((argx[0]) == '14') {
 }
 
 if ((argx[0]) == '15') {
- println "15: select L where s"
+ println "15: select L where s{}"
  h.step15(idOfSentenceJustSeen)
 }
 
@@ -600,7 +598,8 @@ if ((argx[0]) == '16') {
 
 if ((argx[0]) == '17') {
  println "17: select S where s and r {regexp}"
- h.step17(idOfSentenceJustSeen, argx[1])
+ String regexp = argx[1]
+ h.step17(idOfSentenceJustSeen, regexp)
 }
 
 if ((argx[0]) == '18') {
@@ -639,10 +638,10 @@ if ((argx[0]) == '21') {
 
 if ((argx[0]) == '0') {
  println "11: insert sample sentences and insert has-word labels (it)"
- println "13: insert l ('has-word-cumpleanos') //or 'has-root-frasco'"
+ println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
  println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
- println "12: select L where 'has-root-poder' //or 'has-word-cumpleanos' "
- println "15: select L where s"
+ println "12: select S where l=l //'has-root-poder','has-word-cumpleanos' "
+ println "15: select L where s {}"
  println "19: select S where r {regexp}"
  println "20: select S where r limit 1 {regexp}"
  println "16: select S where s {}"
