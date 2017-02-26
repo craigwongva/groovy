@@ -2,9 +2,9 @@
 
 #we don't use ./steps123 anymore
 
-JARPATH=".:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar"
+#JARPATH=".:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar"
 
-/usr/bin/java -cp $JARPATH example/commands
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/commands
 
 step17oneline integral
 step17oneline de
