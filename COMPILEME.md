@@ -39,3 +39,11 @@ aws s3 cp derived/20170223-0720-step2.csv s3://venicegeo-devops-dev-analyze-proj
 JARPATH=".:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar"
 ANALYZECMD="/usr/bin/java -cp $JARPATH example/dinh"
 $ANALYZECMD step3
+
+--
+
+export MONITOR_IP=`curl http://169.254.169.254/latest/meta-data/public-ipv4`:8888
+export MONITOR_EMAIL=
+describe &
+monitor &
+groovyses &
