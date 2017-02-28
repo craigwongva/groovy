@@ -239,6 +239,18 @@ class Hello {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
+ void step22(int idOfSentenceJustSeen, String label) {
+  String sql2 = "insert into labels(sid, l) values ($idOfSentenceJustSeen, '$label')"
+  def stmt2 = conn.createStatement()
+  try {
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "insert failed"
+   println e
+  }
+ }
+
  void step21(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
@@ -439,6 +451,7 @@ class Hello {
    sql4 += 'select l.l '
    sql4 += 'from labels l '
    sql4 += "where sid = $idOfSentenceJustSeen "
+   sql4 += "and not l.l regexp 'has-word-' "
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
@@ -632,8 +645,14 @@ if ((argx[0]) == '20') {
 }
 
 if ((argx[0]) == '21') {
- println "20: select s where s"
+ println "21: select s where s"
  h.step21(idOfSentenceJustSeen)
+}
+
+if ((argx[0]) == '22') {
+ println "22: insert values(s, l) {label}"
+ String label = argx[1]
+ h.step22(idOfSentenceJustSeen, label)
 }
 
 if ((argx[0]) == '0') {
@@ -649,6 +668,7 @@ if ((argx[0]) == '0') {
  println "17: select S where s and r {regexp}"
  println "18: select S where s and r limit 1 {regexp}"
  println "21: select s where s {}"
+ println "22: insert values(s, l) {label}"
 } 
 }
 /*
