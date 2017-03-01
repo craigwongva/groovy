@@ -239,6 +239,21 @@ class Hello {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
+ void step23(int idOfSentenceJustSeen, String label) {
+  String sql2
+  sql2  = "delete from labels "
+  sql2 += "where sid = $idOfSentenceJustSeen "
+  sql2 += "and l = '$label' "
+  def stmt2 = conn.createStatement()
+  try {
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "insert failed"
+   println e
+  }
+ }
+
  void step22(int idOfSentenceJustSeen, String label) {
   String sql2 = "insert into labels(sid, l) values ($idOfSentenceJustSeen, '$label')"
   def stmt2 = conn.createStatement()
@@ -655,6 +670,12 @@ if ((argx[0]) == '22') {
  h.step22(idOfSentenceJustSeen, label)
 }
 
+if ((argx[0]) == '23') {
+ println "23: delete values(l) from s {label}"
+ String label = argx[1]
+ h.step23(idOfSentenceJustSeen, label)
+}
+
 if ((argx[0]) == '0') {
  println "11: insert sample sentences and insert has-word labels (it)"
  println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
@@ -669,6 +690,7 @@ if ((argx[0]) == '0') {
  println "18: select S where s and r limit 1 {regexp}"
  println "21: select s where s {}"
  println "22: insert values(s, l) {label}"
+ println "23: delete values(l) from s {label}"
 } 
 }
 /*
