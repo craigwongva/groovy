@@ -215,8 +215,8 @@ class Hello {
   rs1.next()
   def rs1key = rs1.getInt(1) 
 
-  String sql2 = convertWordListToInsertStatements(rs1key, sentence)
-  println sql2
+  def stanford = convertSentenceToStanfordStructure(sentence)
+  String sql2 = convertWordListToInsertStatements(rs1key, stanford)
   def stmt2 = conn.createStatement()
   try {
    def x2 = stmt2.execute(sql2)
@@ -227,10 +227,28 @@ class Hello {
   }
  }
 
- String convertWordListToInsertStatements(rs1key, String s) {
-  String t = ''
+
+ def convertSentenceToStanfordStructure(String s) {
+  def stanford = [:]
   s.split(' ').each {
-   t += "insert into labels(sid, l) values($rs1key, 'has-word-$it');"
+   stanford[it] = null
+  } 
+
+  def someday = 
+  [
+   "Dave"  :null,
+   "kicked":["root":"kick"],
+   "the"   :null,
+   "ball"  :null,
+  ]
+
+  stanford
+ }
+
+ String convertWordListToInsertStatements(rs1key, HashMap a) {
+  String t = ''
+  a.each { k, v ->
+   t += "insert into labels(sid, l) values($rs1key, 'has-word-$k');\n"
   }
   t
  }
@@ -538,7 +556,13 @@ class Hello {
 def h = new Hello()
 def idOfSentenceJustSeen = 34
 System.in.eachLine() { line ->  
- def argx = line.split(' ')
+ def argx = line.split(':')
+
+if ((argx[0]) == '10') {
+ String sentence = argx[1]
+ h.step11(sentence)
+}
+
 if ((argx[0]) == '11') {
  def temp = [
  'Siempre hay una manera positiva de ver las cosas, buscala',
@@ -677,6 +701,7 @@ if ((argx[0]) == '23') {
 }
 
 if ((argx[0]) == '0') {
+ println "10: insert s {sentence}"
  println "11: insert sample sentences and insert has-word labels (it)"
  println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
  println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
