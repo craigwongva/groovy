@@ -343,8 +343,8 @@ class Dinh {
 ' unblendedRate varchar(100),' + //decimal
 ' unblendedCost varchar(100),' + //decimal
 ' resourceId varchar(200),' +
-' ignore1 varchar(100),' +
-' ignore2 varchar(100)) as ' +
+' awsCreatedBy varchar(100),' +
+' userProject varchar(100)) as ' +
 " select * " +
 "from CSVREAD('3982.step3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
 "update cat.public.dinhraw set blendedRate = '3.14' where blendedRate = ''; " +
@@ -354,7 +354,6 @@ class Dinh {
 "delete from cat.public.dinhraw where usageStartDateRaw = ''; " 
 //"from CSVREAD('3981') "
 //" from CSVREAD('3980') "
-//" from CSVREAD('3982.step3') "
 
   def x3 = stmt3.execute(sql3)
 
@@ -391,7 +390,9 @@ class Dinh {
 ' blendedCost decimal,' +
 ' unblendedRate decimal,' +
 ' unblendedCost decimal,' +
-' resourceId varchar(200)) ' +
+' resourceId varchar(200), ' +
+' awsCreatedBy varchar(100), ' +
+' userProject varchar(100)) ' +
 'as ' +
 'select ' +
 'invoiceID,' +
@@ -415,7 +416,9 @@ class Dinh {
 'convert(blendedCost, decimal) blendedCost, ' +
 'convert(unblendedRate, decimal) unblendedRate, ' +
 'convert(unblendedCost, decimal) unblendedCost, ' +
-'resourceId ' +
+'resourceId, ' +
+'awsCreatedBy, ' +
+'userProject ' +
 'from cat.public.dinhraw'
 
   def x4 = stmt4.execute(sql4)
