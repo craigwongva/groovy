@@ -346,14 +346,17 @@ class Dinh {
 ' ignore1 varchar(100),' +
 ' ignore2 varchar(100)) as ' +
 " select * " +
-"from CSVREAD('3980', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
+"from CSVREAD('3982.step3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
 "update cat.public.dinhraw set blendedRate = '3.14' where blendedRate = ''; " +
 "update cat.public.dinhraw set blendedCost = '3.15' where blendedCost = ''; " +
 "update cat.public.dinhraw set unblendedRate = '3.16' where unblendedRate = ''; " +
-"update cat.public.dinhraw set unblendedCost = '3.17' where unblendedCost = ''; "
+"update cat.public.dinhraw set unblendedCost = '3.17' where unblendedCost = ''; " +
+"delete from cat.public.dinhraw where usageStartDateRaw = ''; " 
 //"from CSVREAD('3981') "
+//" from CSVREAD('3980') "
 //" from CSVREAD('3982.step3') "
-   def x3 = stmt3.execute(sql3)
+
+  def x3 = stmt3.execute(sql3)
 
   def stmt5 = conn.createStatement()
   try {
@@ -361,7 +364,7 @@ class Dinh {
    def x5 = stmt5.execute(sql5)
   }
   catch (e) {
-   println "no table cat.public.dinhis available to drop"
+   println "no table cat.public.dinh is available to drop"
   }
 
   def stmt4 = conn.createStatement()
@@ -388,7 +391,7 @@ class Dinh {
 ' blendedCost decimal,' +
 ' unblendedRate decimal,' +
 ' unblendedCost decimal,' +
-' resourceId varchar(100)) ' +
+' resourceId varchar(200)) ' +
 'as ' +
 'select ' +
 'invoiceID,' +
@@ -413,7 +416,7 @@ class Dinh {
 'convert(unblendedRate, decimal) unblendedRate, ' +
 'convert(unblendedCost, decimal) unblendedCost, ' +
 'resourceId ' +
-'from dinhraw'
+'from cat.public.dinhraw'
 
   def x4 = stmt4.execute(sql4)
 
