@@ -49,3 +49,8 @@ export MONITOR_EMAIL=
 describe &
 monitor &
 groovyses &
+
+--
+
+head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv > suspicious2
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step3
