@@ -36,6 +36,8 @@ aws s3 cp derived/20170223-0720-step2.csv s3://venicegeo-devops-dev-analyze-proj
 
 --
 
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar dinh.groovy
+
 JARPATH=".:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar"
 ANALYZECMD="/usr/bin/java -cp $JARPATH example/dinh"
 $ANALYZECMD step3

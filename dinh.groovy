@@ -207,7 +207,9 @@ class Dinh {
    ' secgrp varchar(100),' +
    ' status varchar(100),' +
    ' projectValue varchar(100),' +
-   ' nameValue varchar(100))' +
+   ' nameValue varchar(100),' +
+   ' ignore1 varchar(100),' +
+   ' ignore2 varchar(100))' +
    " as select * from CSVREAD('deleteme4')"
    .replaceAll('deleteme4',inputfilename)
 
@@ -314,30 +316,42 @@ class Dinh {
   def stmt3 = conn.createStatement()
   String sql3 = '' +
    'create table cat.public.dinhraw (' +
+
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
 ' linkedAccountId varchar(100),' +
 ' recordType varchar(100),' +
 ' recordId varchar(100),' +
+
 ' productName varchar(100),' +
 ' rateId varchar(100),' +
 ' subscriptionId varchar(100),' +
 ' pricingPlanId varchar(100),' +
 ' usageType varchar(100),' +
+
 ' operation varchar(100),' +
 ' availabilityZone varchar(100),' +
 ' reservedInstance varchar(100),' +
 ' itemDescription varchar(200),' +
 ' usageStartDateRaw varchar(100),' +
-' usageEndDateRaw varchar(100),' +
-' usageQuantity decimal,' +
-' blendedRate decimal,' +
-' blendedCost decimal,' +
-' unblendedRate decimal,' +
-' unblendedCost decimal,' +
-' resourceId varchar(100))' +
-" as select * from CSVREAD('dinh.csv')"
 
+' usageEndDateRaw varchar(100),' +
+' usageQuantity varchar(100),' + //decimal
+' blendedRate varchar(100),' + //decimal
+' blendedCost varchar(100),' + //decimal
+' unblendedRate varchar(100),' + //decimal
+' unblendedCost varchar(100),' + //decimal
+' resourceId varchar(200),' +
+' ignore1 varchar(100),' +
+' ignore2 varchar(100)) as ' +
+" select * " +
+"from CSVREAD('3980'); " +
+"update cat.public.dinhraw set blendedRate = '3.14' where blendedRate = ''; " +
+"update cat.public.dinhraw set blendedCost = '3.15' where blendedCost = ''; " +
+"update cat.public.dinhraw set unblendedRate = '3.16' where unblendedRate = ''; " +
+"update cat.public.dinhraw set unblendedCost = '3.17' where unblendedCost = ''; "
+//"from CSVREAD('3981') "
+//" from CSVREAD('3982.step3') "
    def x3 = stmt3.execute(sql3)
 
   def stmt5 = conn.createStatement()
@@ -390,13 +404,34 @@ class Dinh {
 'availabilityZone,' +
 'reservedInstance,' +
 'itemDescription,' +
+"PARSEDATETIME(usageStartDateRaw, 'yyyy-MM-dd HH:mm:SS', 'en') usageStartDate," +
+"PARSEDATETIME(usageEndDateRaw,   'yyyy-MM-dd HH:mm:SS', 'en') usageEndDate," +
+'convert(usageQuantity, decimal) usageQuantity, ' +
+'convert(blendedRate, decimal) blendedRate, ' +
+'convert(blendedCost, decimal) blendedCost, ' +
+'convert(unblendedRate, decimal) unblendedRate, ' +
+'convert(unblendedCost, decimal) unblendedCost, ' +
+'resourceId ' +
+'from dinhraw'
+
+  def x4 = stmt4.execute(sql4)
+
+  conn.close();
+ }
+
+}
+
+def h = new Dinh()
+/*
+if ((args[0]) == 'step1') {
+ h.step1()
 "PARSEDATETIME(usageStartDateRaw, 'MM/dd/yyyy HH:mm', 'en') usageStartDate," +
 "PARSEDATETIME(usageEndDateRaw, 'MM/dd/yyyy HH:mm', 'en') usageEndDate," +
-'usageQuantity,' +
-'blendedRate,' +
-'blendedCost,' +
-'unblendedRate,' +
-'unblendedCost,' +
+'coalesce(usageQuantity, 0) usageQuantity, ' +
+'coalesce(blendedRate, 0) blendedRate, ' +
+'coalesce(blendedCost, 0) blendedCost, ' +
+'coalesce(unblendedRate, 0) unblendedRate, ' +
+'coalesce(unblendedCost, 0) unblendedCost, ' +
 'resourceId ' +
 'from dinhraw'
 
