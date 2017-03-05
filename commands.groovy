@@ -310,25 +310,6 @@ class Hello {
   }
  }
 
- void step14(String hyphenedLabel, ArrayList words) {
-  String wordInHyphenedLabel =
-   getWordInHyphenedLabel(hyphenedLabel)
-
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-
-  sql4 += "delete from labels where l = '$hyphenedLabel'; "
-  sql4 += 'insert into labels (sid, l) '
-  sql4 += "select id, '$hyphenedLabel' "
-  sql4 += 'from sentences s '
-  sql4 += "where s.s regexp '$wordInHyphenedLabel' "
-  words.each {
-   sql4 += "or s.s regexp '$it' "
-  }
-  println sql4
-  stmt4.execute(sql4);
- }
-
  void step13(hyphenedLabel) {
   String wordInHyphenedLabel =
    getWordInHyphenedLabel(hyphenedLabel)
@@ -435,12 +416,6 @@ if ((argx[0]) == '13') {
  h.step13(label)
 }
 
-if ((argx[0]) == '14') {
- println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
- h.step14('has-root-decorar',
-  ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])
-}
-
 if ((argx[0]) == '15') {
  println "15: select L where s{}"
  h.step15(idOfSentenceJustSeen)
@@ -522,7 +497,6 @@ if ((argx[0]) == '0') {
  println "10: insert s {sentence}"
  println "11: insert sample sentences and insert has-word labels (it)"
  println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
- println "14: insert l ('has-root-decorar', ['decoro', 'decoras', 'decora', 'decoramos', 'decoraron'])"
  println "12: select S where l=l //'has-root-poder','has-word-cumpleanos' "
  println "15: select L where s {}"
  println "19: select S where r {regexp}"
