@@ -280,6 +280,7 @@ class Hello {
    sql4 += 'from labels l '
    sql4 += "where sid = $idOfSentenceJustSeen "
    sql4 += ') '
+   sql4 += 'order by l.l '
   //println sql4
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
@@ -287,7 +288,7 @@ class Hello {
   while(rs4.next() && i++ <= 2000000) {
    String s   = rs4.getString("s");
    String l   = rs4.getString("l");
-   println "$s,$l"
+   println "$l,$s"
   }
  }
 
