@@ -349,7 +349,8 @@ class Hello {
 }
 
 def h = new Hello()
-def idOfSentenceJustSeen = 87
+//Assumes there exists at least one sentence
+def idOfSentenceJustSeen = h.step20('.*')
 System.in.eachLine() { line ->  
  def argx = line.split(':')
 
