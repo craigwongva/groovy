@@ -280,7 +280,7 @@ class Hello {
    sql4 += 'from labels l '
    sql4 += "where sid = $idOfSentenceJustSeen "
    sql4 += ') '
-  println sql4
+  //println sql4
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   def i=0
@@ -335,7 +335,7 @@ class Hello {
    sql4 += 'join labels l '
    sql4 += 'on s.id = l.sid '
    sql4 += "where l = '$hyphenedLabel' "
-  println sql4
+  //println sql4
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   def i=0
@@ -396,7 +396,7 @@ if ((argx[0]) == '11') {
  'Alguna vez has espiado a tu pareja',
  'Manana la @dranancyalvarez te dice como acabar con esta mania',
  ]
- println "Executing step11 now (insert sample sentences and insert has-word labels)"
+ //println "Executing step11 now (insert sample sentences and insert has-word labels)"
  int i = 0
  temp.each {
   if (i++ <= 1000) {
@@ -406,19 +406,19 @@ if ((argx[0]) == '11') {
 }
 
 if ((argx[0]) == '12') {
- println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
+ //println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
  String label = argx[1]
  h.step12(label)
 }
 
 if ((argx[0]) == '13') {
- println "13: insert l values hl {hyphenated label} //has-word-cumpleanos,has-root-frasco"
+ //println "13: insert l values hl {hyphenated label} //has-word-cumpleanos,has-root-frasco"
  String label = argx[1]
  h.step13(label)
 }
 
 if ((argx[0]) == '15') {
- println "15: select L where s{}"
+ //println "15: select L where s{}"
  h.step15(idOfSentenceJustSeen)
 }
 
@@ -434,18 +434,18 @@ if ((argx[0]) == '24') {
 }
 
 if ((argx[0]) == '16') {
- println "16: select S where s"
+ //println "16: select S where s"
  h.step16(idOfSentenceJustSeen)
 }
 
 if ((argx[0]) == '17') {
- println "17: select S where s and r {regexp}"
+ //println "17: select S where s and r {regexp}"
  String regexp = argx[1]
  h.step17(idOfSentenceJustSeen, regexp)
 }
 
 if ((argx[0]) =~ '18') {
- println "18: select S where s and r limit 1 {regexp}"
+ //println "18: select S where s and r limit 1 {regexp}"
  if (argx.size() > 1) {
  String regexp = argx[1]
  boolean printSQL = (argx[0] =~ 'q')
@@ -454,19 +454,20 @@ if ((argx[0]) =~ '18') {
  //temp  >  0: exactly one sentence found
  if (temp > 0) {
   idOfSentenceJustSeen = temp
+  println "Just updated your current sentence"
  }
  }
  else println "?"
 }
 
 if ((argx[0]) == '19') {
- println "19: select S where r"
+ //println "19: select S where r"
  String regexp = argx[1]
  h.step19(regexp)
 }
 
 if ((argx[0]) == '20') {
- println "20: select S where r limit 1"
+ //println "20: select S where r limit 1"
  String regexp = argx[1]
  def temp = h.step20(regexp)
  //temp == -1: no sentence found
@@ -478,18 +479,18 @@ if ((argx[0]) == '20') {
 }
 
 if ((argx[0]) == '21') {
- println "21: select s where s"
+ //println "21: select s where s"
  h.step21(idOfSentenceJustSeen)
 }
 
 if ((argx[0]) == '22') {
- println "22: insert values(s, l) {label}"
+ //println "22: insert values(s, l) {label}"
  String label = argx[1]
  h.step22(idOfSentenceJustSeen, label)
 }
 
 if ((argx[0]) == '23') {
- println "23: delete values(l) from s {label}"
+ //println "23: delete values(l) from s {label}"
  String label = argx[1]
  h.step23(idOfSentenceJustSeen, label)
 }
