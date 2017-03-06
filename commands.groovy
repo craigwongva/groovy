@@ -350,17 +350,32 @@ class Hello {
 }
 
 def h = new Hello()
+String a0
+String a1
+
 //Assumes there exists at least one sentence
 def idOfSentenceJustSeen = h.step20('.*')
 System.in.eachLine() { line ->  
  def argx = line.split(':')
+if ((argx.size() == 1) && (!(argx[0] =~ /^\d/))) {
+ a0 = "18"
+ a1 = argx[0]
+}
+if ((argx.size() == 1) && ((argx[0] =~ /^\d/))) {
+ a0 = argx[0]
+ a1 = ''
+}
+if (argx.size() > 1) {
+ a0 = argx[0]
+ a1 = argx[1]
+}
 
-if ((argx[0]) == '10') {
- String sentence = argx[1]
+if (a0 == '10') {
+ String sentence = a1
  h.step11(sentence)
 }
 
-if ((argx[0]) == '11') {
+if (a0 == '11') {
  def temp = [
  'Siempre hay una manera positiva de ver las cosas, buscala',
  'Domingo para reflexionar en las bendiciones que se te han dado',
@@ -406,24 +421,24 @@ if ((argx[0]) == '11') {
  }
 }
 
-if ((argx[0]) == '12') {
+if (a0 == '12') {
  //println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
- String label = argx[1]
+ String label = a1
  h.step12(label)
 }
 
-if ((argx[0]) == '13') {
+if (a0 == '13') {
  //println "13: insert l values hl {hyphenated label} //has-word-cumpleanos,has-root-frasco"
- String label = argx[1]
+ String label = a1
  h.step13(label)
 }
 
-if ((argx[0]) == '15') {
+if (a0 == '15') {
  //println "15: select L where s{}"
  h.step15(idOfSentenceJustSeen)
 }
 
-if ((argx[0]) == '24') {
+if (a0 == '24') {
  println "24: select S where s limit 1"
  def temp = h.step24(idOfSentenceJustSeen)
  //temp == -1: no sentence found
@@ -434,22 +449,25 @@ if ((argx[0]) == '24') {
  }
 }
 
-if ((argx[0]) == '16') {
+if (a0 == '16') {
  //println "16: select S where s"
  h.step16(idOfSentenceJustSeen)
 }
 
-if ((argx[0]) == '17') {
+if (a0 == '17') {
  //println "17: select S where s and r {regexp}"
- String regexp = argx[1]
+ String regexp = a1
  h.step17(idOfSentenceJustSeen, regexp)
 }
 
-if ((argx[0]) =~ '18') {
+if (a0 =~ '18') {
+ //println "I arrived at 18 at line 465, a0 is $a0, a1 is $a1"
+ //println "argx.size is " + argx.size()
+
  //println "18: select S where s and r limit 1 {regexp}"
- if (argx.size() > 1) {
- String regexp = argx[1]
- boolean printSQL = (argx[0] =~ 'q')
+ String regexp = a1
+ println "regexp is '$regexp' "
+ boolean printSQL = (a0 =~ 'q')
  def temp = h.step18(printSQL, idOfSentenceJustSeen, regexp)
  //temp == -1: no sentence found
  //temp  >  0: exactly one sentence found
@@ -457,19 +475,17 @@ if ((argx[0]) =~ '18') {
   idOfSentenceJustSeen = temp
   println "Just updated your current sentence"
  }
- }
- else println "?"
 }
 
-if ((argx[0]) == '19') {
+if (a0 == '19') {
  //println "19: select S where r"
- String regexp = argx[1]
+ String regexp = a1
  h.step19(regexp)
 }
 
-if ((argx[0]) == '20') {
+if (a0 == '20') {
  //println "20: select S where r limit 1"
- String regexp = argx[1]
+ String regexp = a1
  def temp = h.step20(regexp)
  //temp == -1: no sentence found
  //temp  >  0: exactly one sentence found
@@ -479,24 +495,24 @@ if ((argx[0]) == '20') {
  }
 }
 
-if ((argx[0]) == '21') {
+if (a0 == '21') {
  //println "21: select s where s"
  h.step21(idOfSentenceJustSeen)
 }
 
-if ((argx[0]) == '22') {
+if (a0 == '22') {
  //println "22: insert values(s, l) {label}"
- String label = argx[1]
+ String label = a1
  h.step22(idOfSentenceJustSeen, label)
 }
 
-if ((argx[0]) == '23') {
+if (a0 == '23') {
  //println "23: delete values(l) from s {label}"
- String label = argx[1]
+ String label = a1
  h.step23(idOfSentenceJustSeen, label)
 }
 
-if ((argx[0]) == '0') {
+if (a0 == '0') {
  println "10: insert s {sentence}"
  println "11: insert sample sentences and insert has-word labels (it)"
  println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
