@@ -346,7 +346,10 @@ class Dinh {
 ' awsCreatedBy varchar(100),' +
 ' userProject varchar(100)) as ' +
 " select * " +
-"from CSVREAD('3982.step3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
+//"from CSVREAD('3982.step3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
+//works nicely: "from CSVREAD('3982.step3'); " +
+//"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv'); "
+"from CSVREAD('suspicious2'); " +
 "update cat.public.dinhraw set blendedRate = '3.14' where blendedRate = ''; " +
 "update cat.public.dinhraw set blendedCost = '3.15' where blendedCost = ''; " +
 "update cat.public.dinhraw set unblendedRate = '3.16' where unblendedRate = ''; " +
@@ -419,7 +422,8 @@ class Dinh {
 'resourceId, ' +
 'awsCreatedBy, ' +
 'userProject ' +
-'from cat.public.dinhraw'
+'from cat.public.dinhraw ' +
+"where linkedaccountid = '539674021708' "
 
   def x4 = stmt4.execute(sql4)
 
