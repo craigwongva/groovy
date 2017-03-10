@@ -314,7 +314,6 @@ class Dinh {
   * Use h2's CSVREAD
   */
   def stmt3 = conn.createStatement()
-  String temp1 = 'invoiceID,payerAccountId,linkedAccountId,recordType,recordId,productName,rateId,subscriptionId,pricingPlanId,usageType,operation,availabilityZone,reservedInstance,itemDescription,usageStartDateRaw,usageEndDateRaw,usageQuantity,blendedRate,blendedCost,unblendedRate,unblendedCost,resourceId,ignore1,ignore2'
   String sql3 = '' +
    'create table cat.public.dinhraw (' +
 
@@ -346,9 +345,9 @@ class Dinh {
 ' awsCreatedBy varchar(100),' +
 ' userProject varchar(100)) as ' +
 " select * " +
-//"from CSVREAD('3982.step3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
 //works nicely: "from CSVREAD('3982.step3'); " +
 //"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv'); "
+//Yes, the csv does have a header.
 "from CSVREAD('suspicious2'); " +
 "update cat.public.dinhraw set blendedRate = '3.14' where blendedRate = ''; " +
 "update cat.public.dinhraw set blendedCost = '3.15' where blendedCost = ''; " +
