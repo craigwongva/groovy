@@ -303,19 +303,21 @@ class Dinh {
 
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.dinhraw"
+   String sql2 = "drop table cat.public.dinhraw3"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
-   println "no table cat.public.dinhraw is available to drop"
+   println "no table cat.public.dinhraw3 is available to drop"
   }
 
   /**
   * Use h2's CSVREAD
   */
   def stmt3 = conn.createStatement()
+//String temp1 = 'invoiceID,payerAccountId,linkedAccountId,recordType,recordId,productName,rateId,subscriptionId,pricingPlanId,usageType,operation,availabilityZone,reservedInstance,itemDescription,usageStartDateRaw,usageEndDateRaw,usageQuantity,blendedRate,blendedCost,unblendedRate,unblendedCost,resourceId,ignore1,ignore2' 
+
   String sql3 = '' +
-   'create table cat.public.dinhraw (' +
+   'create table cat.public.dinhraw3 (' +
 
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
@@ -346,31 +348,32 @@ class Dinh {
 ' userProject varchar(100)) as ' +
 " select * " +
 //works nicely: "from CSVREAD('3982.step3'); " +
-//"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv'); "
+"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-03.csv'); " +
 //Yes, the csv does have a header.
-"from CSVREAD('suspicious2'); " +
-"update cat.public.dinhraw set blendedRate = '3.14' where blendedRate = ''; " +
-"update cat.public.dinhraw set blendedCost = '3.15' where blendedCost = ''; " +
-"update cat.public.dinhraw set unblendedRate = '3.16' where unblendedRate = ''; " +
-"update cat.public.dinhraw set unblendedCost = '3.17' where unblendedCost = ''; " +
-"delete from cat.public.dinhraw where usageStartDateRaw = ''; " 
-//"from CSVREAD('3981') "
-//" from CSVREAD('3980') "
+//"from CSVREAD('suspicious2'); " +
+//"from CSVREAD('suspicious3'); " +
+//"from CSVREAD('suspicious3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
+"update cat.public.dinhraw3 set usageQuantity = '3.13' where usageQuantity = ''; " +
+"update cat.public.dinhraw3 set blendedRate = '3.14' where blendedRate = ''; " +
+"update cat.public.dinhraw3 set blendedCost = '3.15' where blendedCost = ''; " +
+"update cat.public.dinhraw3 set unblendedRate = '3.16' where unblendedRate = ''; " +
+"update cat.public.dinhraw3 set unblendedCost = '3.17' where unblendedCost = ''; " +
+"delete from cat.public.dinhraw3 where usageStartDateRaw = ''; " 
 
   def x3 = stmt3.execute(sql3)
 
   def stmt5 = conn.createStatement()
   try {
-   String sql5 = "drop table cat.public.dinh"
+   String sql5 = "drop table cat.public.dinh3"
    def x5 = stmt5.execute(sql5)
   }
   catch (e) {
-   println "no table cat.public.dinh is available to drop"
+   println "no table cat.public.dinh3 is available to drop"
   }
 
   def stmt4 = conn.createStatement()
   String sql4 = '' +
-   'create table cat.public.dinh (' +
+   'create table cat.public.dinh3 (' +
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
 ' linkedAccountId varchar(100),' +
@@ -421,7 +424,7 @@ class Dinh {
 'resourceId, ' +
 'awsCreatedBy, ' +
 'userProject ' +
-'from cat.public.dinhraw ' +
+'from cat.public.dinhraw3 ' +
 "where linkedaccountid = '539674021708' "
 
   def x4 = stmt4.execute(sql4)
