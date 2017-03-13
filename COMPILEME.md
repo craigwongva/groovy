@@ -52,6 +52,10 @@ groovyses &
 
 --
 
+cd .aws
+#populate config and credentials files
+aws s3 --profile=payer sync s3://radiantblue-billing/ .
 unzip 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv.zip
 head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv > suspicious2
+#edit the dinh.groovy to read the correct file and create the correct tables
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step3
