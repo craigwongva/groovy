@@ -473,30 +473,62 @@ class Dinh {
 
   def x3 = stmt3.execute(sql3)
 
-/*
-create table instanceproject as (
-select distinct resourceid, userproject
-from dinh3 d
-where resourceid like 'i-%'
-and userproject <> '')
+  def stmt4 = conn.createStatement()
+  try {
+   String sql4 = "drop table cat.public.instanceproject"
+   def x4 = stmt4.execute(sql4)
+  }
+  catch (e) {
+   println "no table cat.public.instanceproject is available to drop"
+  }
 
-create table volumeproject as (
-select v.volumeid, i.userproject
-from volumes v
-join instanceproject i
-on v.instanceid = i.resourceid
-)
+  def stmt5 = conn.createStatement()
 
+  String sql5 = '' +
+'create table instanceproject as ( ' +
+' select distinct resourceid, userproject ' +
+' from dinh3 d ' +
+" where resourceid like 'i-%' " +
+" and userproject <> '') "
+
+  def x5 = stmt5.execute(sql5)
+
+  def stmt6 = conn.createStatement()
+  try {
+   String sql6 = "drop table cat.public.volumeproject"
+   def x6 = stmt6.execute(sql6)
+  }
+  catch (e) {
+   println "no table cat.public.volumeproject is available to drop"
+  }
+
+  def stmt7 = conn.createStatement()
+
+  String sql7 = '' +
+'create table volumeproject as ( ' +
+' select v.volumeid, i.userproject ' +
+' from volumes v ' +
+' join instanceproject i ' +
+' on v.instanceid = i.resourceid ' +
+')'
+
+  def x7 = stmt7.execute(sql7)
+
+  def stmt8 = conn.createStatement()
+
+  String sql8 = """
 --Update volumes based on their association with a tagged instance
-UPDATE dinh3 d SET userproject=(SELECT L.userproject FROM volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%'
+UPDATE dinh3 d SET userproject=(SELECT L.userproject FROM volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
 
 --Update instances based on their later (chronologically) tagging
-UPDATE dinh3 d SET userproject=(SELECT L.userproject FROM instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = ''
+UPDATE dinh3 d SET userproject=(SELECT L.userproject FROM instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
 
 --The previous two UPDATE statements set many rows to null, 
 -- so change them back to ‘’
-UPDATE dinh3 set userproject = '' where userproject is null
-*/
+UPDATE dinh3 set userproject = '' where userproject is null;
+"""
+  def x8 = stmt8.execute(sql8)
+
   conn.close();
  }
 
