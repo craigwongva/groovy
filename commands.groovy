@@ -11,6 +11,9 @@ class Hello {
  Connection conn
  def jsonSlurper
 
+ def GREEN='\033[0;32m'
+ def NOCOLOR='\033[0m' 
+
  Hello() {
   Class.forName("org.h2.Driver");
   conn = DriverManager.
@@ -138,7 +141,7 @@ class Hello {
   while(rs4.next() && i++ <= 2000000) {
    ids = rs4.getInt("ids");
    s   = rs4.getString("s");
-   println "$s"
+   println "$GREEN$s$NOCOLOR"
   }
   return ids
  }
@@ -181,7 +184,7 @@ class Hello {
    sql4 += 'join labels l\n'
    sql4 += 'on s.id = l.sid\n'
    sql4 += "where s.id <> $idOfSentenceJustSeen\n"
-   sql4 += "and s.s regexp '$regexp'\n"
+   sql4 += "and lower(s.s) regexp '$regexp'\n"
    sql4 += 'and l in (\n'
    sql4 += 'select l.l\n'
    sql4 += 'from labels l\n'
@@ -203,7 +206,8 @@ class Hello {
    s   = rs4.getString("s");
    l   = rs4.getString("l");
 
-   println "$s,$l"
+   println l
+   println "$GREEN$s$NOCOLOR"
   }
   return ids
  }
@@ -251,7 +255,6 @@ class Hello {
    sql4 += ')\n'
    sql4 += 'order by rand() '
    sql4 += 'limit 1\n'
-  println sql4
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   int ids = -1
@@ -261,7 +264,8 @@ class Hello {
    String s   = rs4.getString("s");
    String l   = rs4.getString("l");
 
-   println "$s,$l"
+   println l
+   println "$GREEN$s$NOCOLOR"
   }
   return ids
  }
@@ -349,6 +353,7 @@ class Hello {
 
 }
 
+
 def h = new Hello()
 String a0
 String a1
@@ -377,6 +382,7 @@ if (a0 == '10') {
 
 if (a0 == '11') {
  def temp = [
+/*
  'Siempre hay una manera positiva de ver las cosas, buscala',
  'Domingo para reflexionar en las bendiciones que se te han dado',
  'No puedo parar de mirarlo',
@@ -411,6 +417,12 @@ if (a0 == '11') {
  'Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow',
  'Alguna vez has espiado a tu pareja',
  'Manana la @dranancyalvarez te dice como acabar con esta mania',
+*/
+ 'Un dia especial para ti y todas las bellas mujeres del mundo',
+ 'Deja que to sonrisa cambie elmundo, pero no dejes que el mundo cambie tu sonrisa',
+ 'Ana Patricia comenzo este martes contando un chiste',
+ 'Dime que comes y te dire que sientes',
+ 'Un sueno puede tener un alto precio que pagar',
  ]
  //println "Executing step11 now (insert sample sentences and insert has-word labels)"
  int i = 0
@@ -445,7 +457,7 @@ if (a0 == '24') {
  //temp  >  0: exactly one sentence found
  if (temp > 0) {
   idOfSentenceJustSeen = temp
-  println "Just updated your current sentence"
+  //println "Just updated your current sentence"
  }
 }
 
@@ -466,14 +478,15 @@ if (a0 =~ '18') {
 
  //println "18: select S where s and r limit 1 {regexp}"
  String regexp = a1
- println "regexp is '$regexp' "
+ //println "regexp is '$regexp' "
  boolean printSQL = (a0 =~ 'q')
  def temp = h.step18(printSQL, idOfSentenceJustSeen, regexp)
  //temp == -1: no sentence found
  //temp  >  0: exactly one sentence found
  if (temp > 0) {
   idOfSentenceJustSeen = temp
-  println "Just updated your current sentence"
+  //println "Just updated your current sentence"
+  //println "---"
  }
 }
 
@@ -491,7 +504,7 @@ if (a0 == '20') {
  //temp  >  0: exactly one sentence found
  if (temp > 0) {
   idOfSentenceJustSeen = temp
-  println "Just updated your current sentence"
+  //println "Just updated your current sentence"
  }
 }
 
@@ -531,4 +544,7 @@ if (a0 == '0') {
 }
 /*
 s/m: Use plagiarism algorithm
+GREEN='\033[0;32m'
+NC='\033[0m' // No Color
+println "I ${GREEN}love${NC} Stack Overflow\n"
 */
