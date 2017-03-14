@@ -432,6 +432,74 @@ class Dinh {
   conn.close();
  }
 
+ void step5() {
+
+  /**
+  * cat is an arbitrary name
+  */
+  Class.forName("org.h2.Driver");
+  Connection conn = DriverManager.
+
+  // Use the default username/password:
+  //  - the data is not sensitive
+  //  - the h2 console is restricted by IP
+  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  //getConnection("jdbc:h2:~/cat", "sa", "");
+
+  def stmt2 = conn.createStatement()
+  try {
+   String sql2 = "drop table cat.public.volumes"
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "no table cat.public.volumes is available to drop"
+  }
+
+  /**
+  * Use h2's CSVREAD
+  */
+  def stmt3 = conn.createStatement()
+  String temp1 = 'volumeid,instanceid'
+
+  String sql3 = '' +
+   'create table cat.public.volumes (' +
+' volumeid varchar(100),' +
+' instanceid varchar(100)) as ' + 
+" select * " +
+//No, the csv doesn't have a header.
+//Here is the syntax to use if you're debugging and
+// removing the header:
+"from CSVREAD('describe-volumes-three-regions.csv', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " 
+
+  def x3 = stmt3.execute(sql3)
+
+/*
+create table instanceproject as (
+select distinct resourceid, userproject
+from dinh3 d
+where resourceid like 'i-%'
+and userproject <> '')
+
+create table volumeproject as (
+select v.volumeid, i.userproject
+from volumes v
+join instanceproject i
+on v.instanceid = i.resourceid
+)
+
+--Update volumes based on their association with a tagged instance
+UPDATE dinh3 d SET userproject=(SELECT L.userproject FROM volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%'
+
+--Update instances based on their later (chronologically) tagging
+UPDATE dinh3 d SET userproject=(SELECT L.userproject FROM instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = ''
+
+--The previous two UPDATE statements set many rows to null, 
+-- so change them back to ‘’
+UPDATE dinh3 set userproject = '' where userproject is null
+*/
+  conn.close();
+ }
+
 }
 
 def h = new Dinh()
@@ -470,4 +538,10 @@ if ((args[0]) == 'step2') {
 if ((args[0]) == 'step3') {
  h.step3()
  //step3 writes to h2
+}
+//step4 is a bash script called dinhstep4.
+//It should be run before this step5.
+if ((args[0]) == 'step5') {
+ h.step5()
+ //step5 writes to h2
 }

@@ -1,0 +1,8 @@
+rm describe-volumes-three-regions.csv
+
+aws ec2 describe-volumes --region us-west-1 --query Volumes[].[VolumeId,Attachments[].InstanceId] --filters Name=attachment.instance-id,Values=* --output text | paste -d ',' - - >> describe-volumes-three-regions.csv
+
+aws ec2 describe-volumes --region us-west-2 --query Volumes[].[VolumeId,Attachments[].InstanceId] --filters Name=attachment.instance-id,Values=* --output text | paste -d ',' - - >> describe-volumes-three-regions.csv
+
+aws ec2 describe-volumes --region us-east-1 --query Volumes[].[VolumeId,Attachments[].InstanceId] --filters Name=attachment.instance-id,Values=* --output text | paste -d ',' - - >> describe-volumes-three-regions.csv
+
