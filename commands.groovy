@@ -12,6 +12,7 @@ class Hello {
  def jsonSlurper
 
  def GREEN='\033[0;32m'
+ def YELLOW='\033[0;33m'
  def NOCOLOR='\033[0m' 
 
  Hello() {
@@ -71,6 +72,22 @@ class Hello {
 
  String getWordInHyphenedLabel(hyphenedLabel) {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
+ }
+
+ void step25(int idOfSentenceJustSeen) {
+  String sql2
+  sql2  = "delete from labels "
+  sql2 += "where sid = $idOfSentenceJustSeen; "
+  sql2 += "delete from sentences "
+  sql2 += "where  id = $idOfSentenceJustSeen  "
+  def stmt2 = conn.createStatement()
+  try {
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "deletes failed"
+   println e
+  }
  }
 
  void step23(int idOfSentenceJustSeen, String label) {
@@ -206,8 +223,18 @@ class Hello {
    s   = rs4.getString("s");
    l   = rs4.getString("l");
 
-   println l
-   println "$GREEN$s$NOCOLOR"
+   String templabel = getWordInHyphenedLabel(l)
+   int templabelindexof = s.indexOf(" $templabel ")
+   if (templabelindexof < 1) {
+    println l
+    println "$GREEN$s$NOCOLOR"
+   }
+   else {
+    println l
+    print   "$GREEN${s[0..templabelindexof]}$NOCOLOR"
+    print   "$YELLOW$templabel$NOCOLOR"
+    println "$GREEN${s[templabelindexof+templabel.size()+1..-1]}$NOCOLOR"
+   }
   }
   return ids
  }
@@ -525,6 +552,10 @@ if (a0 == '23') {
  h.step23(idOfSentenceJustSeen, label)
 }
 
+if (a0 == '25') {
+ h.step25(idOfSentenceJustSeen)
+}
+
 if (a0 == '0') {
  println "10: insert s {sentence}"
  println "11: insert sample sentences and insert has-word labels (it)"
@@ -540,11 +571,9 @@ if (a0 == '0') {
  println "21: select s where s {}"
  println "22: insert values(s, l) {label}"
  println "23: delete values(l) from s {label}"
+ println "25: delete s from s"
 } 
 }
 /*
 s/m: Use plagiarism algorithm
-GREEN='\033[0;32m'
-NC='\033[0m' // No Color
-println "I ${GREEN}love${NC} Stack Overflow\n"
 */
