@@ -19,8 +19,6 @@ class Hello {
   Class.forName("org.h2.Driver");
   conn = DriverManager.
    getConnection("jdbc:h2:tcp://localhost/~/univision", "sa", "");
-   //getConnection("jdbc:h2:~/univision", "sa", "");
-
   jsonSlurper = new JsonSlurper()
  }
 
@@ -32,7 +30,7 @@ class Hello {
   rs1.next()
   def rs1key = rs1.getInt(1) 
 
-  def stanford = convertSentenceToStanfordStructure(sentence)
+  def stanford = stanfordStructure(sentence)
   String sql2 = convertWordListToInsertStatements(rs1key, stanford)
   def stmt2 = conn.createStatement()
   try {
@@ -44,11 +42,22 @@ class Hello {
   }
  }
 
+ def testStanfordStructure() {
+  def answer = ['dave':null, 'kicked':null, 'the':null, 'ball':null]
+  assert stanfordStructure('Dave kicked the ball') == answer
+  assert stanfordStructure('Dave kicked the ball!') == answer
+  assert stanfordStructure('Dave kicked the ball?') == answer
+  assert stanfordStructure('Dave kicked the ball.') == answer
+  println "50.test passed"
+ }
 
- def convertSentenceToStanfordStructure(String s) {
+ def stanfordStructure(String sentence) {
   def stanford = [:]
-  s.split(' ').each {
-   stanford[it] = null
+  sentence.split(' ').each {
+   def temp = it
+   temp = temp.replaceAll('[!?\\.]','')
+   temp = temp.toLowerCase()
+   stanford[temp] = null
   } 
 
   def someday = 
@@ -382,6 +391,8 @@ class Hello {
 
 
 def h = new Hello()
+h.testStanfordStructure()
+
 String a0
 String a1
 
