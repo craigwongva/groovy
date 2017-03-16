@@ -234,7 +234,9 @@ class Hello {
    l   = rs4.getString("l");
 
    String templabel = getWordInHyphenedLabel(l)
-   int templabelindexof = s.indexOf(" $templabel ")
+   int templabelindexof 
+   s += ' ' //enables matching the final word
+   templabelindexof = s.indexOf(" $templabel ")
    if (templabelindexof < 1) {
     println l
     println "$GREEN$s$NOCOLOR"
