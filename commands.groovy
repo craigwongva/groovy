@@ -55,7 +55,7 @@ class Hello {
   def stanford = [:]
   sentence.split(' ').each {
    def temp = it
-   temp = temp.replaceAll('[!?\\.]','')
+   temp = temp.replaceAll('[!?,\\.]','')
    temp = temp.toLowerCase()
    stanford[temp] = null
   } 
@@ -97,6 +97,7 @@ class Hello {
    println "deletes failed"
    println e
   }
+  println "Deleted sentence $idOfSentenceJustSeen"
  }
 
  void step23(int idOfSentenceJustSeen, String label) {
@@ -420,12 +421,11 @@ if (a0 == '10') {
 
 if (a0 == '11') {
  def temp = [
-/*
- 'Siempre hay una manera positiva de ver las cosas, buscala',
+ 'Siempre hay una manera positiva de ver las cosas',
  'Domingo para reflexionar en las bendiciones que se te han dado',
  'No puedo parar de mirarlo',
  'Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia',
- 'Si quieres cenar algo ligera. Intenta esta Ensalada Griega',
+ 'Si quieres cenar algo ligera, intenta esta Ensalada Griega',
  'Este comercial te hara querer abrazar a tu perrito',
  'Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo',
  'En tu closet no puede faltar un vestido negro',
@@ -455,7 +455,6 @@ if (a0 == '11') {
  'Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow',
  'Alguna vez has espiado a tu pareja',
  'Manana la @dranancyalvarez te dice como acabar con esta mania',
-*/
  'Un dia especial para ti y todas las bellas mujeres del mundo',
  'Deja que to sonrisa cambie elmundo, pero no dejes que el mundo cambie tu sonrisa',
  'Ana Patricia comenzo este martes contando un chiste',
