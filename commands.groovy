@@ -233,22 +233,26 @@ class Hello {
    s   = rs4.getString("s");
    l   = rs4.getString("l");
 
-   String templabel = getWordInHyphenedLabel(l)
-   int templabelindexof 
-   s += ' ' //enables matching the final word
-   templabelindexof = s.indexOf(" $templabel ")
-   if (templabelindexof < 1) {
-    println l
-    println "$GREEN$s$NOCOLOR"
-   }
-   else {
-    println l
-    print   "$GREEN${s[0..templabelindexof]}$NOCOLOR"
-    print   "$YELLOW$templabel$NOCOLOR"
-    println "$GREEN${s[templabelindexof+templabel.size()+1..-1]}$NOCOLOR"
-   }
+   println getOutputline(s, l)
   }
   return ids
+ }
+
+ String getOutputline(String sentence, String label) {
+   String templabel = getWordInHyphenedLabel(label)
+   int templabelindexof 
+   sentence += ' ' //enables matching the final word
+   templabelindexof = sentence.indexOf(" $templabel ")
+   String outputline
+   if (templabelindexof < 1) {
+    outputline = "$GREEN$s$NOCOLOR"
+   }
+   else {
+    outputline  =   "$GREEN${sentence[0..templabelindexof]}$NOCOLOR"
+    outputline +=   "$YELLOW$templabel$NOCOLOR"
+    outputline +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}$NOCOLOR"
+   }
+   outputline
  }
 
  void step17(int idOfSentenceJustSeen, String regexp) {
