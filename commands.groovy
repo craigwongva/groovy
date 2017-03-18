@@ -240,7 +240,8 @@ class Hello {
 
  def testGetOutputline() {
   def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
-  assert getOutputline('Un dia especial para ti y todas las bellas mujeres del mundo', 'has-word-mundo') == answer
+  def temp = 'Un dia especial para ti y todas las bellas mujeres del mundo'
+  assert getOutputline(temp, 'has-word-mundo') == answer
 
   answer = "${GREEN}Felizmente me quedo con ${YELLOW}esta${GREEN} vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo ${NOCOLOR}"
   assert getOutputline('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo', 'has-word-esta')
@@ -250,9 +251,12 @@ class Hello {
 
  String getOutputline(String sentence, String label) {
    String templabel = getWordInHyphenedLabel(label)
-   int templabelindexof 
+
    sentence += ' ' //enables matching the final word
+
+   int templabelindexof 
    templabelindexof = sentence.indexOf(" $templabel ")
+
    String outputline
    if (templabelindexof < 1) {
     outputline = "$GREEN$sentence$NOCOLOR"
@@ -262,8 +266,7 @@ class Hello {
     outputline +=   "YELLOW${templabel}"
     outputline +=   "GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
     outputline +=   "NOCOLOR"
-    println outputline
-
+    //println outputline
     outputline  =   "$GREEN${sentence[0..templabelindexof]}"
     outputline +=   "$YELLOW$templabel"
     outputline +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
