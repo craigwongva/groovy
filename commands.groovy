@@ -255,7 +255,7 @@ class Hello {
    templabelindexof = sentence.indexOf(" $templabel ")
    String outputline
    if (templabelindexof < 1) {
-    outputline = "$GREEN$s$NOCOLOR"
+    outputline = "$GREEN$sentence$NOCOLOR"
    }
    else {
     outputline  =   "GREEN${sentence[0..templabelindexof]}"
