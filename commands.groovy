@@ -238,6 +238,16 @@ class Hello {
   return ids
  }
 
+ def testGetOutputline() {
+  def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
+  assert getOutputline('Un dia especial para ti y todas las bellas mujeres del mundo', 'has-word-mundo') == answer
+
+  answer = "${GREEN}Felizmente me quedo con ${YELLOW}esta${GREEN} vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo ${NOCOLOR}"
+  assert getOutputline('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo', 'has-word-esta')
+
+  println "246.test passed"
+ }
+
  String getOutputline(String sentence, String label) {
    String templabel = getWordInHyphenedLabel(label)
    int templabelindexof 
@@ -248,9 +258,16 @@ class Hello {
     outputline = "$GREEN$s$NOCOLOR"
    }
    else {
-    outputline  =   "$GREEN${sentence[0..templabelindexof]}$NOCOLOR"
-    outputline +=   "$YELLOW$templabel$NOCOLOR"
-    outputline +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}$NOCOLOR"
+    outputline  =   "GREEN${sentence[0..templabelindexof]}"
+    outputline +=   "YELLOW${templabel}"
+    outputline +=   "GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
+    outputline +=   "NOCOLOR"
+    println outputline
+
+    outputline  =   "$GREEN${sentence[0..templabelindexof]}"
+    outputline +=   "$YELLOW$templabel"
+    outputline +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
+    outputline +=   "$NOCOLOR"
    }
    outputline
  }
@@ -399,6 +416,7 @@ class Hello {
 
 def h = new Hello()
 h.testStanfordStructure()
+h.testGetOutputline()
 
 String a0
 String a1
