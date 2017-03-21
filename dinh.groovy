@@ -9,7 +9,8 @@ import java.sql.*
 
 class Dinh {
  def jsonSlurper
- String tableSuffix //e.g. "5" to create tables dinhraw$tableSuffix and dinh$tableSuffix
+ String inputCsvSuffix //02 for Amazon's February usage data csv
+ String outputTableSuffix //e.g. "5" to create tables dinhraw$outputTableSuffix and dinh$outputTableSuffix
 
  Dinh() {
   jsonSlurper = new JsonSlurper()
@@ -31,11 +32,11 @@ class Dinh {
 
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.dinhraw$tableSuffix"
+   String sql2 = "drop table cat.public.dinhraw$outputTableSuffix"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
-   println "no table cat.public.dinhraw$tableSuffix is available to drop"
+   println "no table cat.public.dinhraw$outputTableSuffix is available to drop"
   }
 
   /**
@@ -45,7 +46,7 @@ class Dinh {
 //String temp1 = 'invoiceID,payerAccountId,linkedAccountId,recordType,recordId,productName,rateId,subscriptionId,pricingPlanId,usageType,operation,availabilityZone,reservedInstance,itemDescription,usageStartDateRaw,usageEndDateRaw,usageQuantity,blendedRate,blendedCost,unblendedRate,unblendedCost,resourceId,ignore1,ignore2' 
 
   String sql3 = '' +
-   "create table cat.public.dinhraw$tableSuffix (" +
+   "create table cat.public.dinhraw$outputTableSuffix (" +
 
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
@@ -75,33 +76,32 @@ class Dinh {
 ' awsCreatedBy varchar(100),' +
 ' userProject varchar(100)) as ' +
 " select * " +
-"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-03.csv'); " +
-//"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv'); " +
+"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-${inputCsvSuffix}.csv'); " +
 //Yes, the csv does have a header.
 //Here is the syntax to use if you're debugging and
 // removing the header:
 //"from CSVREAD('suspicious3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
-"update cat.public.dinhraw$tableSuffix set usageQuantity = '0.0' where usageQuantity = ''; " +
-"update cat.public.dinhraw$tableSuffix set blendedRate   = '0.0' where blendedRate = ''; " +
-"update cat.public.dinhraw$tableSuffix set blendedCost   = '0.0' where blendedCost = ''; " +
-"update cat.public.dinhraw$tableSuffix set unblendedRate = '0.0' where unblendedRate = ''; " +
-"update cat.public.dinhraw$tableSuffix set unblendedCost = '0.0' where unblendedCost = ''; " +
-"delete from cat.public.dinhraw$tableSuffix where usageStartDateRaw = ''; " 
+"update cat.public.dinhraw$outputTableSuffix set usageQuantity = '0.0' where usageQuantity = ''; " +
+"update cat.public.dinhraw$outputTableSuffix set blendedRate   = '0.0' where blendedRate = ''; " +
+"update cat.public.dinhraw$outputTableSuffix set blendedCost   = '0.0' where blendedCost = ''; " +
+"update cat.public.dinhraw$outputTableSuffix set unblendedRate = '0.0' where unblendedRate = ''; " +
+"update cat.public.dinhraw$outputTableSuffix set unblendedCost = '0.0' where unblendedCost = ''; " +
+"delete from cat.public.dinhraw$outputTableSuffix where usageStartDateRaw = ''; " 
 
   def x3 = stmt3.execute(sql3)
 
   def stmt5 = conn.createStatement()
   try {
-   String sql5 = "drop table cat.public.dinh$tableSuffix"
+   String sql5 = "drop table cat.public.dinh$outputTableSuffix"
    def x5 = stmt5.execute(sql5)
   }
   catch (e) {
-   println "no table cat.public.dinh$tableSuffix is available to drop"
+   println "no table cat.public.dinh$outputTableSuffix is available to drop"
   }
 
   def stmt4 = conn.createStatement()
   String sql4 = '' +
-   "create table cat.public.dinh$tableSuffix (" +
+   "create table cat.public.dinh$outputTableSuffix (" +
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
 ' linkedAccountId varchar(100),' +
@@ -152,7 +152,7 @@ class Dinh {
 'resourceId, ' +
 'awsCreatedBy, ' +
 'userProject ' +
-"from cat.public.dinhraw$tableSuffix " +
+"from cat.public.dinhraw$outputTableSuffix " +
 "where linkedaccountid = '539674021708' "
 
   def x4 = stmt4.execute(sql4)
@@ -215,7 +215,7 @@ class Dinh {
   String sql5 = '' +
 'create table instanceproject as ( ' +
 ' select distinct resourceid, userproject ' +
-" from dinh$tableSuffix d " +
+" from dinh$outputTableSuffix d " +
 " where resourceid like 'i-%' " +
 " and userproject <> '') "
 
@@ -246,14 +246,14 @@ class Dinh {
 
   String sql8 = """
 --Update volumes based on their association with a tagged instance
-UPDATE dinh$tableSuffix d SET userproject=(SELECT L.userproject FROM volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
+UPDATE dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
 
 --Update instances based on their later (chronologically) tagging
-UPDATE dinh$tableSuffix d SET userproject=(SELECT L.userproject FROM instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
+UPDATE dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
 
 --The previous two UPDATE statements set many rows to null, 
 -- so change them back to ‘’
-UPDATE dinh$tableSuffix set userproject = '' where userproject is null;
+UPDATE dinh$outputTableSuffix set userproject = '' where userproject is null;
 """
   def x8 = stmt8.execute(sql8)
 
@@ -265,14 +265,18 @@ UPDATE dinh$tableSuffix set userproject = '' where userproject is null;
 def h = new Dinh()
 
 if ((args[0]) == 'step3') {
- h.tableSuffix = args[1]
+ h.inputCsvSuffix = args[1]
+ h.outputTableSuffix = args[2]
  h.step3()
  //step3 writes to h2
 }
+
 //step4 is a bash script called dinhstep4.
+
 //It should be run before this step5.
 if ((args[0]) == 'step5') {
- h.tableSuffix = args[1]
+ h.inputCsvSuffix = args[1]
+ h.outputTableSuffix = args[2]
  h.step5()
  //step5 writes to h2
 }
