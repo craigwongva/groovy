@@ -56,10 +56,11 @@ cd .aws
 #populate config and credentials files
 aws s3 --profile=payer sync s3://radiantblue-billing/ .
 unzip 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv.zip
+#The following 'head' statement isn't done anymore, but I'm not sure how the dinh steps3 and steps5 know to ignore the last 13 (or so) lines.
 head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv > suspicious2
 #edit the dinh.groovy to read the correct file 
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar dinh.groovy
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step3 03 5 #from Amazon ...03.csv create tables dinhraw5 and dinh5
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step4      #./dinhstep4
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step5 03 5 #from Amazon ...03.csv create tables dinhraw5 and dinh5
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step3 03    5 #from Amazon ...03.csv, create tables dinhraw5 and dinh5
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step4         #./dinhstep4
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step5 dummy 5 #update table dinh5
 

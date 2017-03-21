@@ -288,7 +288,7 @@ if ((args[0]) == 'step4') {
 
 //step5 loads helper tables and then updates the scrubbed table with add'l tags
 if ((args[0]) == 'step5') {
- h.inputCsvSuffix = args[1]
+ //step5 ignores args[1]
  h.outputTableSuffix = args[2]
  h.step5()
  //step5 writes to h2
