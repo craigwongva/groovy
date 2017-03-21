@@ -160,6 +160,15 @@ class Dinh {
   conn.close();
  }
 
+ //It's easier to call an external batch script
+ // than it is to execute the individual batch commands
+ // from within Groovy
+ // (due to Groovy's weird list syntax to execute()).
+ void step4() {
+  def s0 = ['./dinhstep4'].execute().text
+  println s0
+ }
+
  void step5() {
 
   /**
@@ -189,15 +198,13 @@ class Dinh {
   def stmt3 = conn.createStatement()
   String temp1 = 'volumeid,instanceid'
 
+  //Youl should have run step4 to update describe-volumes-three-regions.csv 
   String sql3 = '' +
    'create table cat.public.volumes (' +
 ' volumeid varchar(100),' +
 ' instanceid varchar(100)) as ' + 
 " select * " +
-//No, the csv doesn't have a header.
-//Here is the syntax to use if you're debugging and
-// removing the header:
-"from CSVREAD('describe-volumes-three-regions.csv', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " 
+" from CSVREAD('describe-volumes-three-regions.csv', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " 
 
   def x3 = stmt3.execute(sql3)
 
@@ -264,6 +271,7 @@ UPDATE dinh$outputTableSuffix set userproject = '' where userproject is null;
 
 def h = new Dinh()
 
+//step3 uploads the csv file into a raw table and into a scrubbed table
 if ((args[0]) == 'step3') {
  h.inputCsvSuffix = args[1]
  h.outputTableSuffix = args[2]
@@ -272,8 +280,13 @@ if ((args[0]) == 'step3') {
 }
 
 //step4 is a bash script called dinhstep4.
+// It associates volumes with instances.
+// It should be run before step5.
+if ((args[0]) == 'step4') {
+ h.step4()
+}
 
-//It should be run before this step5.
+//step5 loads helper tables and then updates the scrubbed table with add'l tags
 if ((args[0]) == 'step5') {
  h.inputCsvSuffix = args[1]
  h.outputTableSuffix = args[2]
