@@ -424,22 +424,30 @@ h.testGetOutputline()
 String a0
 String a1
 
+HashMap tokenizeUserInput(String line) {
+ def argx = line.split(':')
+ if ((argx.size() == 1) && (!(argx[0] =~ /^\d/))) {
+  a0 = "18"
+  a1 = argx[0]
+ }
+ if ((argx.size() == 1) && ((argx[0] =~ /^\d/))) {
+  a0 = argx[0]
+  a1 = ''
+ }
+ if (argx.size() > 1) {
+  a0 = argx[0]
+  a1 = argx[1]
+ }
+ [a0:a0, a1:a1]
+}
+
 //Assumes there exists at least one sentence
 def idOfSentenceJustSeen = h.step20('.*')
 System.in.eachLine() { line ->  
- def argx = line.split(':')
-if ((argx.size() == 1) && (!(argx[0] =~ /^\d/))) {
- a0 = "18"
- a1 = argx[0]
-}
-if ((argx.size() == 1) && ((argx[0] =~ /^\d/))) {
- a0 = argx[0]
- a1 = ''
-}
-if (argx.size() > 1) {
- a0 = argx[0]
- a1 = argx[1]
-}
+
+def temp0 = tokenizeUserInput(line)
+a0 = temp0.a0
+a1 = temp0.a1
 
 if (a0 == '10') {
  String sentence = a1
