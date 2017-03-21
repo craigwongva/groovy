@@ -146,7 +146,7 @@ class Hello {
   }
  }
 
- int step20(String regexp) {
+ int step20(int idOfSentenceJustSeen, String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //20: select S where r limit 1
@@ -170,7 +170,14 @@ class Hello {
    s   = rs4.getString("s");
    println "$GREEN$s$NOCOLOR"
   }
-  return ids
+
+  if (ids == -1) {
+   return idOfSentenceJustSeen
+  }
+  else {
+   return ids
+  }
+
  }
 
  void step19(String regexp) {
@@ -417,9 +424,18 @@ class Hello {
 }
 
 
+def NO_PREVIOUS_SENTENCE = -1
+
 def h = new Hello()
 h.testStanfordStructure()
 h.testGetOutputline()
+testUserInputSequence(h)
+
+def testUserInputSequence(Hello h) {
+  def NO_PREVIOUS_SENTENCE = -1
+  assert h.step20(NO_PREVIOUS_SENTENCE, 'sonrisa.*mundo') == 173
+  println "433.test passed"
+}
 
 String a0
 String a1
@@ -442,7 +458,7 @@ HashMap tokenizeUserInput(String line) {
 }
 
 //Assumes there exists at least one sentence
-def idOfSentenceJustSeen = h.step20('.*')
+def idOfSentenceJustSeen = h.step20(NO_PREVIOUS_SENTENCE, '.*')
 System.in.eachLine() { line ->  
 
 def temp0 = tokenizeUserInput(line)
@@ -571,13 +587,7 @@ if (a0 == '19') {
 if (a0 == '20') {
  //println "20: select S where r limit 1"
  String regexp = a1
- def temp = h.step20(regexp)
- //temp == -1: no sentence found
- //temp  >  0: exactly one sentence found
- if (temp > 0) {
-  idOfSentenceJustSeen = temp
-  //println "Just updated your current sentence"
- }
+ idOfSentenceJustSeen = h.step20(idOfSentenceJustSeen, regexp)
 }
 
 if (a0 == '21') {
