@@ -195,7 +195,7 @@ class Hello {
 
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.step1"
+   String sql2 = "drop table cat.public.blue_step1"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
@@ -203,7 +203,7 @@ class Hello {
 
   def stmt3 = conn.createStatement()
   String sql3 = '' +
-   'create table cat.public.step1 (' +
+   'create table cat.public.blue_step1 (' +
    ' region varchar(100),' +
    ' xtimestamp varchar(100),' + 
    ' xseconds2017 varchar(100),' +
@@ -225,7 +225,7 @@ class Hello {
    def x3 = stmt3.execute(sql3)
 
   def stmt4 = conn.createStatement();
-  String sql4 = "select * from step1 order by instanceid, xtimestamp"
+  String sql4 = "select * from blue_step1 order by instanceid, xtimestamp"
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   print   "region,instanceid,xtimestamp,savepreviousxtimestamp,"
@@ -315,11 +315,11 @@ class Hello {
   */
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.step3"
+   String sql2 = "drop table cat.public.blue_step3"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
-   println "no table cat.public.step3 is available to drop"
+   println "no table cat.public.blue_step3 is available to drop"
   }
 
   /**
@@ -327,7 +327,7 @@ class Hello {
   */
   def stmt3 = conn.createStatement()
   String sql3 = '' +
-   'create table cat.public.step3 (' +
+   'create table cat.public.blue_step3 (' +
    ' region varchar(100),' +
    ' instanceid varchar(100),' +
    ' xtimestamp varchar(100),' + 
