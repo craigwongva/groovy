@@ -139,10 +139,10 @@ class Hello {
 
   String r
   String s
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
+  while(rs4.next()) {
    s   = rs4.getString("s");
-   println "$s"
+   //traz: println "$s"
+   println "$GREEN$s$NOCOLOR"
   }
  }
 
@@ -164,11 +164,10 @@ class Hello {
   String r
   int ids = -1
   String s
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
+  while(rs4.next()) {
    ids = rs4.getInt("ids");
    s   = rs4.getString("s");
-   println "$GREEN$s$NOCOLOR"
+   //traz: println "$GREEN$s$NOCOLOR"
   }
 
   if (ids == -1) {
@@ -459,6 +458,8 @@ HashMap tokenizeUserInput(String line) {
 
 //Assumes there exists at least one sentence
 def idOfSentenceJustSeen = h.step20(NO_PREVIOUS_SENTENCE, '.*')
+h.step21(idOfSentenceJustSeen)
+
 System.in.eachLine() { line ->  
 
 def temp0 = tokenizeUserInput(line)
@@ -588,6 +589,7 @@ if (a0 == '20') {
  //println "20: select S where r limit 1"
  String regexp = a1
  idOfSentenceJustSeen = h.step20(idOfSentenceJustSeen, regexp)
+ h.step21(idOfSentenceJustSeen)
 }
 
 if (a0 == '21') {
