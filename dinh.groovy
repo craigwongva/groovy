@@ -32,11 +32,11 @@ class Dinh {
 
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.dinhraw$outputTableSuffix"
+   String sql2 = "drop table cat.public.orange_dinhraw$outputTableSuffix"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
-   println "no table cat.public.dinhraw$outputTableSuffix is available to drop"
+   println "no table cat.public.orange_dinhraw$outputTableSuffix is available to drop"
   }
 
   /**
@@ -46,7 +46,7 @@ class Dinh {
 //String temp1 = 'invoiceID,payerAccountId,linkedAccountId,recordType,recordId,productName,rateId,subscriptionId,pricingPlanId,usageType,operation,availabilityZone,reservedInstance,itemDescription,usageStartDateRaw,usageEndDateRaw,usageQuantity,blendedRate,blendedCost,unblendedRate,unblendedCost,resourceId,ignore1,ignore2' 
 
   String sql3 = '' +
-   "create table cat.public.dinhraw$outputTableSuffix (" +
+   "create table cat.public.orange_dinhraw$outputTableSuffix (" +
 
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
@@ -81,28 +81,28 @@ class Dinh {
 //Here is the syntax to use if you're debugging and
 // removing the header:
 //"from CSVREAD('suspicious3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
-"update cat.public.dinhraw$outputTableSuffix set usageQuantity = '0.0' where usageQuantity = ''; " +
-"update cat.public.dinhraw$outputTableSuffix set blendedRate   = '0.0' where blendedRate = ''; " +
-"update cat.public.dinhraw$outputTableSuffix set blendedCost   = '0.0' where blendedCost = ''; " +
-"update cat.public.dinhraw$outputTableSuffix set unblendedRate = '0.0' where unblendedRate = ''; " +
-"update cat.public.dinhraw$outputTableSuffix set unblendedCost = '0.0' where unblendedCost = ''; " +
-"update cat.public.dinhraw$outputTableSuffix set userProject = replace(replace(replace(replace(replace(userProject, '-dev', ''), '-int', ''), '-stage', ''), '-test', ''), '-prod', ''); " +
-"delete from cat.public.dinhraw$outputTableSuffix where usageStartDateRaw = ''; " 
+"update cat.public.orange_dinhraw$outputTableSuffix set usageQuantity = '0.0' where usageQuantity = ''; " +
+"update cat.public.orange_dinhraw$outputTableSuffix set blendedRate   = '0.0' where blendedRate = ''; " +
+"update cat.public.orange_dinhraw$outputTableSuffix set blendedCost   = '0.0' where blendedCost = ''; " +
+"update cat.public.orange_dinhraw$outputTableSuffix set unblendedRate = '0.0' where unblendedRate = ''; " +
+"update cat.public.orange_dinhraw$outputTableSuffix set unblendedCost = '0.0' where unblendedCost = ''; " +
+"update cat.public.orange_dinhraw$outputTableSuffix set userProject = replace(replace(replace(replace(replace(userProject, '-dev', ''), '-int', ''), '-stage', ''), '-test', ''), '-prod', ''); " +
+"delete from cat.public.orange_dinhraw$outputTableSuffix where usageStartDateRaw = ''; " 
 
   def x3 = stmt3.execute(sql3)
 
   def stmt5 = conn.createStatement()
   try {
-   String sql5 = "drop table cat.public.dinh$outputTableSuffix"
+   String sql5 = "drop table cat.public.orange_dinh$outputTableSuffix"
    def x5 = stmt5.execute(sql5)
   }
   catch (e) {
-   println "no table cat.public.dinh$outputTableSuffix is available to drop"
+   println "no table cat.public.orange_dinh$outputTableSuffix is available to drop"
   }
 
   def stmt4 = conn.createStatement()
   String sql4 = '' +
-   "create table cat.public.dinh$outputTableSuffix (" +
+   "create table cat.public.orange_dinh$outputTableSuffix (" +
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
 ' linkedAccountId varchar(100),' +
@@ -153,7 +153,7 @@ class Dinh {
 'resourceId, ' +
 'awsCreatedBy, ' +
 'userProject ' +
-"from cat.public.dinhraw$outputTableSuffix " +
+"from cat.public.orange_dinhraw$outputTableSuffix " +
 "where linkedaccountid = '539674021708' "
 
   def x4 = stmt4.execute(sql4)
@@ -186,11 +186,11 @@ class Dinh {
 
   def stmt2 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.volumes"
+   String sql2 = "drop table cat.public.orange_volumes"
    def x2 = stmt2.execute(sql2)
   }
   catch (e) {
-   println "no table cat.public.volumes is available to drop"
+   println "no table cat.public.orange_volumes is available to drop"
   }
 
   /**
@@ -201,7 +201,7 @@ class Dinh {
 
   //Youl should have run step4 to update describe-volumes-three-regions.csv 
   String sql3 = '' +
-   'create table cat.public.volumes (' +
+   'create table cat.public.orange_volumes (' +
 ' volumeid varchar(100),' +
 ' instanceid varchar(100)) as ' + 
 " select * " +
@@ -211,19 +211,19 @@ class Dinh {
 
   def stmt4 = conn.createStatement()
   try {
-   String sql4 = "drop table cat.public.instanceproject"
+   String sql4 = "drop table cat.public.orange_instanceproject"
    def x4 = stmt4.execute(sql4)
   }
   catch (e) {
-   println "no table cat.public.instanceproject is available to drop"
+   println "no table cat.public.orange_instanceproject is available to drop"
   }
 
   def stmt5 = conn.createStatement()
 
   String sql5 = '' +
-'create table instanceproject as ( ' +
+'create table orange_instanceproject as ( ' +
 ' select distinct resourceid, userproject ' +
-" from dinh$outputTableSuffix d " +
+" from orange_dinh$outputTableSuffix d " +
 " where resourceid like 'i-%' " +
 " and userproject <> '') "
 
@@ -231,20 +231,20 @@ class Dinh {
 
   def stmt6 = conn.createStatement()
   try {
-   String sql6 = "drop table cat.public.volumeproject"
+   String sql6 = "drop table cat.public.orange_volumeproject"
    def x6 = stmt6.execute(sql6)
   }
   catch (e) {
-   println "no table cat.public.volumeproject is available to drop"
+   println "no table cat.public.orange_volumeproject is available to drop"
   }
 
   def stmt7 = conn.createStatement()
 
   String sql7 = '' +
-'create table volumeproject as ( ' +
+'create table orange_volumeproject as ( ' +
 ' select v.volumeid, i.userproject ' +
-' from volumes v ' +
-' join instanceproject i ' +
+' from orange_volumes v ' +
+' join orange_instanceproject i ' +
 ' on v.instanceid = i.resourceid ' +
 ')'
 
@@ -254,14 +254,14 @@ class Dinh {
 
   String sql8 = """
 --Update volumes based on their association with a tagged instance
-UPDATE dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
+UPDATE orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM orange_volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
 
 --Update instances based on their later (chronologically) tagging
-UPDATE dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
+UPDATE orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM orange_instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
 
 --The previous two UPDATE statements set many rows to null, 
 -- so change them back to ‘’
-UPDATE dinh$outputTableSuffix set userproject = '' where userproject is null;
+UPDATE orange_dinh$outputTableSuffix set userproject = '' where userproject is null;
 """
   def x8 = stmt8.execute(sql8)
 
