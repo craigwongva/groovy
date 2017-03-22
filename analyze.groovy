@@ -25,9 +25,11 @@ class Hello {
 'd2.8xlarge':   5.52,
 'g2.2xlarge':   0.65,
 'g2.8xlarge':   2.6,
+'i3.xlarge':    0.31,
 'm3.medium':    0.11,
 'm3.large':     0.13,
 'm3.xlarge':    0.27,
+'m3.2xlarge':   0.53,
 'm4.large':     0.11,
 'm4.xlarge':    0.21,
 'm4.2xlarge':   0.43, //week=0.43*24*7=72
@@ -126,7 +128,14 @@ class Hello {
   sortedfiles.each { s ->
    HashMap f = interpretNameOfCapturedFile('captured', s)
    String t = new File(s.toString()).text
-   interpretEC2jsonAndPrint(f, t)
+   try {
+    interpretEC2jsonAndPrint(f, t)
+   }
+   catch (e) {
+    //Sometimes "aws ec2 describe-instances" produces an empty file.
+    // Just ignore the file and its related Exception,
+    // "Text must not be null or empty."
+   }
   }
  }
 
