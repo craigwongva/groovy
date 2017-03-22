@@ -86,6 +86,7 @@ class Dinh {
 "update cat.public.dinhraw$outputTableSuffix set blendedCost   = '0.0' where blendedCost = ''; " +
 "update cat.public.dinhraw$outputTableSuffix set unblendedRate = '0.0' where unblendedRate = ''; " +
 "update cat.public.dinhraw$outputTableSuffix set unblendedCost = '0.0' where unblendedCost = ''; " +
+"update cat.public.dinhraw$outputTableSuffix set userProject = replace(replace(replace(replace(replace(userProject, '-dev', ''), '-int', ''), '-stage', ''), '-test', ''), '-prod', ''); " +
 "delete from cat.public.dinhraw$outputTableSuffix where usageStartDateRaw = ''; " 
 
   def x3 = stmt3.execute(sql3)
