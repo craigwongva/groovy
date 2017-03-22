@@ -206,7 +206,7 @@ class Hello {
   }
  }
 
- int step18(boolean printSQL, int idOfSentenceJustSeen, String regexp) {
+ HashMap step18(boolean printSQL, int idOfSentenceJustSeen, String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //18: select S where s and r limit 1
@@ -233,15 +233,14 @@ class Hello {
   int ids = -1
   String s
   String l
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
+  while(rs4.next()) {
    ids = rs4.getInt("ids");
    s   = rs4.getString("s");
    l   = rs4.getString("l");
 
-   println getOutputline(s, l)
+   //traz: println getOutputline(s, l)
   }
-  return ids
+  [ids:ids, s:s, l:l]
  }
 
  def testGetOutputline() {
@@ -431,9 +430,13 @@ h.testGetOutputline()
 testUserInputSequence(h)
 
 def testUserInputSequence(Hello h) {
-  def NO_PREVIOUS_SENTENCE = -1
-  assert h.step20(NO_PREVIOUS_SENTENCE, 'sonrisa.*mundo') == 173
-  println "433.test passed"
+  def DUMMY = -1
+  int tmp = h.step20(DUMMY, 'sonrisa.*mundo')
+  def temp = h.step18(false, tmp, 'bellas mujeres') 
+  def temp2 = h.getOutputline(temp.s, temp.l)
+  String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
+  assert temp2 == answer
+  println "437.test passed"
 }
 
 String a0
