@@ -433,8 +433,8 @@ def testUserInputSequence(Hello h) {
   def DUMMY = -1
   int tmp = h.step20(DUMMY, 'sonrisa.*mundo')
   def temp = h.step18(false, tmp, 'bellas mujeres') 
-  def temp2 = h.getOutputline(temp.s, temp.l)
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
+  def temp2 = h.getOutputline(temp.s, temp.l)
   assert temp2 == answer
   println "437.test passed"
 }
@@ -565,20 +565,16 @@ if (a0 == '17') {
 }
 
 if (a0 =~ '18') {
- //println "I arrived at 18 at line 465, a0 is $a0, a1 is $a1"
- //println "argx.size is " + argx.size()
-
  //println "18: select S where s and r limit 1 {regexp}"
  String regexp = a1
- //println "regexp is '$regexp' "
  boolean printSQL = (a0 =~ 'q')
  def temp = h.step18(printSQL, idOfSentenceJustSeen, regexp)
  //temp == -1: no sentence found
  //temp  >  0: exactly one sentence found
- if (temp > 0) {
-  idOfSentenceJustSeen = temp
-  //println "Just updated your current sentence"
-  //println "---"
+ if (temp.ids > 0) {
+  idOfSentenceJustSeen = temp.ids
+  String temp2 = h.getOutputline(temp.s, temp.l)
+  println temp2
  }
 }
 
