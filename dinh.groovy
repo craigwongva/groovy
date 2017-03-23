@@ -27,7 +27,8 @@ class Dinh {
   // Use the default username/password:
   //  - the data is not sensitive
   //  - the h2 console is restricted by IP
-  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  //getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
   //getConnection("jdbc:h2:~/cat", "sa", "");
 
   def stmt2 = conn.createStatement()
@@ -181,7 +182,8 @@ class Dinh {
   // Use the default username/password:
   //  - the data is not sensitive
   //  - the h2 console is restricted by IP
-  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  //getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
   //getConnection("jdbc:h2:~/cat", "sa", "");
 
   def stmt2 = conn.createStatement()
@@ -206,7 +208,7 @@ class Dinh {
 ' instanceid varchar(100)) as ' + 
 " select * " +
 " from CSVREAD('describe-volumes-three-regions.csv', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " 
-
+println "I'm about to execute sql3:\n$sql3"
   def x3 = stmt3.execute(sql3)
 
   def stmt4 = conn.createStatement()
@@ -221,9 +223,9 @@ class Dinh {
   def stmt5 = conn.createStatement()
 
   String sql5 = '' +
-'create table orange_instanceproject as ( ' +
+'create table cat.public.orange_instanceproject as ( ' +
 ' select distinct resourceid, userproject ' +
-" from orange_dinh$outputTableSuffix d " +
+" from cat.public.orange_dinh$outputTableSuffix d " +
 " where resourceid like 'i-%' " +
 " and userproject <> '') "
 
@@ -241,10 +243,10 @@ class Dinh {
   def stmt7 = conn.createStatement()
 
   String sql7 = '' +
-'create table orange_volumeproject as ( ' +
+'create table cat.public.orange_volumeproject as ( ' +
 ' select v.volumeid, i.userproject ' +
-' from orange_volumes v ' +
-' join orange_instanceproject i ' +
+' from cat.public.orange_volumes v ' +
+' join cat.public.orange_instanceproject i ' +
 ' on v.instanceid = i.resourceid ' +
 ')'
 
@@ -254,14 +256,14 @@ class Dinh {
 
   String sql8 = """
 --Update volumes based on their association with a tagged instance
-UPDATE orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM orange_volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
+UPDATE cat.public.orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM cat.public.orange_volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
 
 --Update instances based on their later (chronologically) tagging
-UPDATE orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM orange_instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
+UPDATE cat.public.orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM cat.public.orange_instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
 
 --The previous two UPDATE statements set many rows to null, 
 -- so change them back to ‘’
-UPDATE orange_dinh$outputTableSuffix set userproject = '' where userproject is null;
+UPDATE cat.public.orange_dinh$outputTableSuffix set userproject = '' where userproject is null;
 """
   def x8 = stmt8.execute(sql8)
 

@@ -191,7 +191,7 @@ class Hello {
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
   //getConnection("jdbc:h2:~/cat", "sa", "");
-  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
 
   def stmt2 = conn.createStatement()
   try {
@@ -307,7 +307,7 @@ class Hello {
   // Use the default username/password:
   //  - the data is not sensitive
   //  - the h2 console is restricted by IP
-  getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
+  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
   //getConnection("jdbc:h2:~/cat", "sa", "");
 
   /**
@@ -347,11 +347,11 @@ class Hello {
    ' projectValue varchar(100),' +
    ' nameValue varchar(100),' +
    ' costperthisline decimal)' +
-   " as select * from CSVREAD('deleteme4')"
-   .replaceAll('deleteme4',inputfilename)
+   " as select * from CSVREAD('deleteme4'); ".replaceAll('deleteme4',inputfilename) +
+   "update cat.public.blue_step3 set projectValue = replace(replace(replace(replace(replace(projectValue, '-dev', ''), '-int', ''), '-stage', ''), '-test', ''), '-prod', ''); " 
 
    def x3 = stmt3.execute(sql3)
-
+println "I just executed this:\n$sql3"
   conn.close();
  }
 
