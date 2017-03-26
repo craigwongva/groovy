@@ -233,6 +233,36 @@ class Hello {
    def x3 = stmt3.execute(sql3)
  }
 
+ void analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls(String inputfilename) {
+  String region
+  if (inputfilename =~ /east1/) region = 'us-east-1'
+  if (inputfilename =~ /west1/) region = 'us-west-1'
+  if (inputfilename =~ /west2/) region = 'us-west-2'
+  String t = new File(inputfilename).text
+  interpretEC2jsonForNetworkAclsAndPrint(region, t)
+ }
+
+ void interpretEC2jsonForNetworkAclsAndPrint(region, t) {
+   def object = jsonSlurper.parseText(t)
+//xxxxxx
+   for (def i = 0; i < object.NetworkAcls.size(); i++) {
+    def networkAclId = object.NetworkAcls[i].NetworkAclId
+    def entries = object.NetworkAcls[i].Entries
+    for (def j = 0; j < object.NetworkAcls[i].Entries.size(); j++) {
+     def cidrBlock = object.NetworkAcls[i].Entries[j].CidrBlock
+     println "$region,$networkAclId,$cidrBlock"
+/*
+     def instanceId     = object.Reservations[i].Instances[j].InstanceId
+     def securityGroups = object.Reservations[i].Instances[j].SecurityGroups
+     for (def k = 0; k < securityGroups.size(); k++) {
+      def groupName = securityGroups[k].GroupName
+      def groupId   = securityGroups[k].GroupId
+      println "$region,$instanceId,$groupId,$groupName"
+     }
+*/
+    }
+   }
+ }
  void step1() {
   def sortedfiles = getNamesOfCapturedFiles('captured')
 
@@ -499,5 +529,9 @@ if ((args[0]) == 'analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups'
 if ((args[0]) == 'analyzeOfficeMoveToHerndonStep3_Upload') {
  def inputfilename = args[1]
  h.analyzeOfficeMoveToHerndonStep3_Upload(inputfilename)
+}
+if ((args[0]) == 'analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls') {
+ String inputfilename = args[1]
+ h.analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls(inputfilename)
 }
 
