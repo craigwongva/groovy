@@ -122,6 +122,63 @@ class Hello {
    }
  }
 
+ void interpretEC2DescribeSecurityGroupsAndPrint(String region, t) {
+  def object = jsonSlurper.parseText(t)
+   for (def i = 0; i < object.SecurityGroups.size(); i++) {
+    def groupId = object.SecurityGroups[i].GroupId
+    def groupName = object.SecurityGroups[i].GroupName
+    def description = object.SecurityGroups[i].Description
+    description = description.replaceAll(',', ' comma')
+    def ipPermissions = object.SecurityGroups[i].IpPermissions
+    for (def j = 0; j < object.SecurityGroups[i].IpPermissions.size(); j++) {
+     def fromPort = object.SecurityGroups[i].IpPermissions[j].FromPort
+     def ipRanges = object.SecurityGroups[i].IpPermissions[j].IpRanges
+     for (def k = 0; k < ipRanges.size(); k++) {
+      def cidrIp = ipRanges[k].CidrIp
+      def shortDesc = (description.size() >= 12)? description[0..11]: description
+      println "$region,$groupId,$groupName,$description,$fromPort,$cidrIp"
+     }
+    }
+   }
+ }
+
+ void analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups(String inputfilename) {
+   String region
+   if (inputfilename =~ /east1/) region = 'us-east-1'
+   if (inputfilename =~ /west1/) region = 'us-west-1'
+   if (inputfilename =~ /west2/) region = 'us-west-2'
+   String t = new File(inputfilename).text
+   interpretEC2DescribeSecurityGroupsAndPrint(region, t)
+ }
+
+ void analyzeOfficeMoveToHerndonStep3_Upload(inputfilename) {
+  Class.forName("org.h2.Driver");
+  Connection conn = DriverManager.
+  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
+
+  def stmt2 = conn.createStatement()
+  try {
+   String sql2 = "drop table cat.public.herndon_207"
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+  }
+
+  def stmt3 = conn.createStatement()
+  String sql3 = '' +
+   'create table cat.public.herndon_207 (' +
+   ' region varchar(100),' +
+   ' groupId varchar(100),' + 
+   ' groupName varchar(100),' +
+   ' description varchar(200),' +
+   ' fromPort varchar(100),' +
+   ' cidrIp varchar(100))' +
+   " as select * from CSVREAD('deleteme4')"
+   .replaceAll('deleteme4',inputfilename)
+
+   def x3 = stmt3.execute(sql3)
+ }
+
  void step1() {
   def sortedfiles = getNamesOfCapturedFiles('captured')
 
@@ -372,3 +429,12 @@ if ((args[0]) == 'step3') {
  h.step3(inputfilename)
  //step3 writes to h2
 }
+if ((args[0]) == 'analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups') {
+ def inputfilename = args[1]
+ h.analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups(inputfilename)
+}
+if ((args[0]) == 'analyzeOfficeMoveToHerndonStep3_Upload') {
+ def inputfilename = args[1]
+ h.analyzeOfficeMoveToHerndonStep3_Upload(inputfilename)
+}
+

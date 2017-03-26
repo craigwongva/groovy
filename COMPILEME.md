@@ -64,3 +64,15 @@ head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step4         #./dinhstep4
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/dinh step5 dummy 5 #update table dinh5
 
+-- move to Herndon --
+
+aws ec2 describe-security-groups --region us-west-1 > officeMoveToHerndonSecurityGroupsUswest1
+aws ec2 describe-security-groups --region us-west-2 > officeMoveToHerndonSecurityGroupsUswest2
+aws ec2 describe-security-groups --region us-east-1 > officeMoveToHerndonSecurityGroupsUsEast1
+
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar analyze.groovy
+
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups officeMoveToHerndonSecurityGroupsUseast1 > deleteme9useast1
+
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep3_Upload deleteme9useast1
+
