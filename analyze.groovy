@@ -170,6 +170,32 @@ class Hello {
    }
  }
 
+ void analyzeOfficeMoveToHerndonStep1a_Upload(inputfilename) {
+  Class.forName("org.h2.Driver");
+  Connection conn = DriverManager.
+  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
+
+  def stmt2 = conn.createStatement()
+  try {
+   String sql2 = "drop table cat.public.herndon_instancesecgrp"
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+  }
+
+  def stmt3 = conn.createStatement()
+  String sql3 = '' +
+   'create table cat.public.herndon_instancesecgrp (' +
+   ' region varchar(100),' +
+   ' instanceId varchar(100),' + 
+   ' groupId varchar(100),' +
+   ' groupName varchar(100))' +
+   " as select * from CSVREAD('deleteme4')"
+   .replaceAll('deleteme4',inputfilename)
+
+   def x3 = stmt3.execute(sql3)
+ }
+
  void analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups(String inputfilename) {
    String region
    if (inputfilename =~ /east1/) region = 'us-east-1'
@@ -461,6 +487,10 @@ if ((args[0]) == 'step3') {
 if ((args[0]) == 'analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances') {
  String regionWithDashes= args[1]
  h.analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances(regionWithDashes)
+}
+if ((args[0]) == 'analyzeOfficeMoveToHerndonStep1a_Upload') {
+ def inputfilename = args[1]
+ h.analyzeOfficeMoveToHerndonStep1a_Upload(inputfilename)
 }
 if ((args[0]) == 'analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups') {
  def inputfilename = args[1]

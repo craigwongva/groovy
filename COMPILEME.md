@@ -72,6 +72,8 @@ rm officeMoveToHerndonSecurityGroupsAllRegions
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-west-2 >> officeMoveToHerndonSecurityGroupsAllRegions
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-west-1 >> officeMoveToHerndonSecurityGroupsAllRegions
 
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1a_Upload officeMoveToHerndonSecurityGroupsAllRegions
+
 aws ec2 describe-security-groups --region us-west-1 > officeMoveToHerndonSecurityGroupsUswest1
 aws ec2 describe-security-groups --region us-west-2 > officeMoveToHerndonSecurityGroupsUswest2
 aws ec2 describe-security-groups --region us-east-1 > officeMoveToHerndonSecurityGroupsUsEast1
