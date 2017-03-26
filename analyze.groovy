@@ -142,6 +142,34 @@ class Hello {
    }
  }
 
+ void analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances(String regionWithDashes) {
+  ArrayList sortedfiles = getNamesOfCapturedFiles("captured/$regionWithDashes")
+  String region
+  String inputfilename = sortedfiles[-1].toString()
+  if (inputfilename =~ /east-1/) region = 'us-east-1'
+  if (inputfilename =~ /west-1/) region = 'us-west-1'
+  if (inputfilename =~ /west-2/) region = 'us-west-2'
+  String t = new File(inputfilename).text
+  interpretEC2jsonForTrueSecurityGroupsAndPrint(region, t)
+ }
+
+ void interpretEC2jsonForTrueSecurityGroupsAndPrint(region, t) {
+   //The interpreted json values are printed here as a convenience
+   // rather than returning them within an array.
+   def object = jsonSlurper.parseText(t)
+   for (def i = 0; i < object.Reservations.size(); i++) {
+    for (def j = 0; j < object.Reservations[i].Instances.size(); j++) {
+     def instanceId     = object.Reservations[i].Instances[j].InstanceId
+     def securityGroups = object.Reservations[i].Instances[j].SecurityGroups
+     for (def k = 0; k < securityGroups.size(); k++) {
+      def groupName = securityGroups[k].GroupName
+      def groupId   = securityGroups[k].GroupId
+      println "$region,$instanceId,$groupId,$groupName"
+     }
+    }
+   }
+ }
+
  void analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups(String inputfilename) {
    String region
    if (inputfilename =~ /east1/) region = 'us-east-1'
@@ -428,6 +456,11 @@ if ((args[0]) == 'step3') {
  def inputfilename = args[1]
  h.step3(inputfilename)
  //step3 writes to h2
+}
+
+if ((args[0]) == 'analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances') {
+ String regionWithDashes= args[1]
+ h.analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances(regionWithDashes)
 }
 if ((args[0]) == 'analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups') {
  def inputfilename = args[1]
