@@ -63,6 +63,7 @@ head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step3 03    5 #from Amazon ...03.csv, create tables orangeraw5 and orange5
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step4         #./orangestep4
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step5 dummy 5 #update table orange5
+#run orangeAnalysisQueries
 
 -- move to Herndon --
 
