@@ -7,12 +7,12 @@ import groovy.io.FileType
 
 import java.sql.*
 
-class Dinh {
+class Orange {
  def jsonSlurper
  String inputCsvSuffix //02 for Amazon's February usage data csv
  String outputTableSuffix //e.g. "5" to create tables dinhraw$outputTableSuffix and dinh$outputTableSuffix
 
- Dinh() {
+ Orange() {
   jsonSlurper = new JsonSlurper()
  }
 
@@ -167,7 +167,7 @@ class Dinh {
  // from within Groovy
  // (due to Groovy's weird list syntax to execute()).
  void step4() {
-  def s0 = ['./dinhstep4'].execute().text
+  def s0 = ['./orangestep4'].execute().text
   println s0
  }
 
@@ -272,7 +272,7 @@ UPDATE cat.public.orange_dinh$outputTableSuffix set userproject = '' where userp
 
 }
 
-def h = new Dinh()
+def h = new Orange()
 
 //step3 uploads the csv file into a raw table and into a scrubbed table
 if ((args[0]) == 'step3') {
@@ -282,7 +282,7 @@ if ((args[0]) == 'step3') {
  //step3 writes to h2
 }
 
-//step4 is a bash script called dinhstep4.
+//step4 is a bash script called orangestep4.
 // It associates volumes with instances.
 // It should be run before step5.
 if ((args[0]) == 'step4') {
