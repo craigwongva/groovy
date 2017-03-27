@@ -43,6 +43,7 @@ class Hello {
  }
 
  def testStanfordStructure() {
+  println "50.starting test"
   def answer = ['dave':null, 'kicked':null, 'the':null, 'ball':null]
   assert stanfordStructure('Dave kicked the ball') == answer
   assert stanfordStructure('Dave kicked the ball!') == answer
@@ -80,6 +81,7 @@ class Hello {
  }
 
  String getWordInHyphenedLabel(hyphenedLabel) {
+  println "83:$hyphenedLabel"
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
@@ -244,6 +246,7 @@ class Hello {
  }
 
  def testGetOutputline() {
+  println "246.starting test"
   def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
   def temp = 'Un dia especial para ti y todas las bellas mujeres del mundo'
   assert getOutputline(temp, 'has-word-mundo') == answer
@@ -307,7 +310,7 @@ class Hello {
   }
  }
 
- int step24(int idOfSentenceJustSeen) {
+ HashMap step24(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //select S where s limit 1
@@ -326,16 +329,17 @@ class Hello {
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   int ids = -1
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
+  String s
+  String l
+  while(rs4.next()) {
    ids        = rs4.getInt("ids");
-   String s   = rs4.getString("s");
-   String l   = rs4.getString("l");
+   s   = rs4.getString("s");
+   l   = rs4.getString("l");
 
-   println l
-   println "$GREEN$s$NOCOLOR"
+   //println l
+   //println "$GREEN$s$NOCOLOR"
   }
-  return ids
+  [ids:ids, s:s, l:l]
  }
 
  void step16(int idOfSentenceJustSeen) {
@@ -430,6 +434,7 @@ h.testGetOutputline()
 testUserInputSequence(h)
 
 def testUserInputSequence(Hello h) {
+  println "437.starting test"
   def DUMMY = -1
   int tmp = h.step20(DUMMY, 'sonrisa.*mundo')
   def temp = h.step18(false, tmp, 'bellas mujeres') 
@@ -547,9 +552,10 @@ if (a0 == '24') {
  def temp = h.step24(idOfSentenceJustSeen)
  //temp == -1: no sentence found
  //temp  >  0: exactly one sentence found
- if (temp > 0) {
-  idOfSentenceJustSeen = temp
-  //println "Just updated your current sentence"
+ if (temp.ids > 0) {
+  idOfSentenceJustSeen = temp.ids
+  String temp2 = h.getOutputline(temp.s, temp.l)
+  println temp2
  }
 }
 
