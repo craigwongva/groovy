@@ -143,12 +143,11 @@ class Hello {
   String s
   while(rs4.next()) {
    s   = rs4.getString("s");
-   //traz: println "$s"
    println "$GREEN$s$NOCOLOR"
   }
  }
 
- int step20(int idOfSentenceJustSeen, String regexp) {
+ HashMap step20(int idOfSentenceJustSeen, String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //20: select S where r limit 1
@@ -163,22 +162,48 @@ class Hello {
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
-  String r
   int ids = -1
   String s
   while(rs4.next()) {
    ids = rs4.getInt("ids");
    s   = rs4.getString("s");
-   //traz: println "$GREEN$s$NOCOLOR"
   }
 
-  if (ids == -1) {
-   return idOfSentenceJustSeen
-  }
-  else {
-   return ids
-  }
+  [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
+ }
 
+ HashMap step18(boolean printSQL, int idOfSentenceJustSeen, String regexp) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //18: select S where s and r limit 1
+   //Not an optimized query!
+   sql4 += 'select * from (\n'
+   sql4 += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l\n'
+   sql4 += 'from sentences s\n'
+   sql4 += 'join labels l\n'
+   sql4 += 'on s.id = l.sid\n'
+   sql4 += "where s.id <> $idOfSentenceJustSeen\n"
+   sql4 += "and lower(s.s) regexp '$regexp'\n"
+   sql4 += 'and l in (\n'
+   sql4 += 'select l.l\n'
+   sql4 += 'from labels l\n'
+   sql4 += "where sid = $idOfSentenceJustSeen\n"
+   sql4 += ')\n'
+   sql4 += ')\n'
+   sql4 += 'order by rand()\n'
+   sql4 += 'limit 1\n'
+  if (printSQL) println sql4
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  int ids = -1
+  String s
+  String l
+  while(rs4.next()) {
+   ids = rs4.getInt("ids");
+   s   = rs4.getString("s");
+   l   = rs4.getString("l");
+  }
+  [ids:ids, s:s, l:l]
  }
 
  void step19(String regexp) {
@@ -208,42 +233,6 @@ class Hello {
   }
  }
 
- HashMap step18(boolean printSQL, int idOfSentenceJustSeen, String regexp) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //18: select S where s and r limit 1
-   //Not an optimized query!
-   sql4 += 'select * from (\n'
-   sql4 += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l\n'
-   sql4 += 'from sentences s\n'
-   sql4 += 'join labels l\n'
-   sql4 += 'on s.id = l.sid\n'
-   sql4 += "where s.id <> $idOfSentenceJustSeen\n"
-   sql4 += "and lower(s.s) regexp '$regexp'\n"
-   sql4 += 'and l in (\n'
-   sql4 += 'select l.l\n'
-   sql4 += 'from labels l\n'
-   sql4 += "where sid = $idOfSentenceJustSeen\n"
-   sql4 += ')\n'
-   sql4 += ')\n'
-   sql4 += 'order by rand()\n'
-   sql4 += 'limit 1\n'
-  if (printSQL) println sql4
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  String r
-  int ids = -1
-  String s
-  String l
-  while(rs4.next()) {
-   ids = rs4.getInt("ids");
-   s   = rs4.getString("s");
-   l   = rs4.getString("l");
-
-   //traz: println getOutputline(s, l)
-  }
-  [ids:ids, s:s, l:l]
- }
 
  def testGetOutputline() {
   println "246.starting test"
@@ -335,9 +324,6 @@ class Hello {
    ids        = rs4.getInt("ids");
    s   = rs4.getString("s");
    l   = rs4.getString("l");
-
-   //println l
-   //println "$GREEN$s$NOCOLOR"
   }
   [ids:ids, s:s, l:l]
  }
@@ -436,8 +422,8 @@ testUserInputSequence(h)
 def testUserInputSequence(Hello h) {
   println "437.starting test"
   def DUMMY = -1
-  int tmp = h.step20(DUMMY, 'sonrisa.*mundo')
-  def temp = h.step18(false, tmp, 'bellas mujeres') 
+  def tmp = h.step20(DUMMY, 'sonrisa.*mundo')
+  def temp = h.step18(false, tmp.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
   def temp2 = h.getOutputline(temp.s, temp.l)
   assert temp2 == answer
@@ -465,7 +451,9 @@ HashMap tokenizeUserInput(String line) {
 }
 
 //Assumes there exists at least one sentence
-def idOfSentenceJustSeen = h.step20(NO_PREVIOUS_SENTENCE, '.*')
+//def idOfSentenceJustSeen = h.step20(NO_PREVIOUS_SENTENCE, '.*')
+def temp4 = h.step20(NO_PREVIOUS_SENTENCE, '.*')
+def idOfSentenceJustSeen = temp4.ids
 h.step21(idOfSentenceJustSeen)
 
 System.in.eachLine() { line ->  
@@ -575,8 +563,6 @@ if (a0 =~ '18') {
  String regexp = a1
  boolean printSQL = (a0 =~ 'q')
  def temp = h.step18(printSQL, idOfSentenceJustSeen, regexp)
- //temp == -1: no sentence found
- //temp  >  0: exactly one sentence found
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
   String temp2 = h.getOutputline(temp.s, temp.l)
@@ -584,17 +570,25 @@ if (a0 =~ '18') {
  }
 }
 
+if (a0 == '20') {
+ //println "20: select S where r limit 1"
+ String regexp = a1
+ //idOfSentenceJustSeen = h.step20(idOfSentenceJustSeen, regexp)
+ println "before executing 20, idOfSentenceJustSeen=$idOfSentenceJustSeen"
+ def temp6 = h.step20(idOfSentenceJustSeen, regexp)
+ if (temp6.ids > 0) {
+  idOfSentenceJustSeen = temp6.ids
+  //String temp2 = h.getOutputline(idOfSentenceJustSeen, 'we are matching regexp not current sentence')
+  //println "Extra I think: $temp2"
+ }
+ def temp = h.step21(idOfSentenceJustSeen)
+ println "after executing 20, idOfSentenceJustSeen=$idOfSentenceJustSeen"
+}
+
 if (a0 == '19') {
  //println "19: select S where r"
  String regexp = a1
  h.step19(regexp)
-}
-
-if (a0 == '20') {
- //println "20: select S where r limit 1"
- String regexp = a1
- idOfSentenceJustSeen = h.step20(idOfSentenceJustSeen, regexp)
- h.step21(idOfSentenceJustSeen)
 }
 
 if (a0 == '21') {
