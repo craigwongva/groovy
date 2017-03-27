@@ -1,0 +1,31 @@
+--which projects use the hardcoded 207.x.x.x RB IP?
+
+select h.region, h.groupid, h.groupname, h.description, h.fromport, h.cidrip, i.instanceid
+from herndon_207 h
+join herndon_instancesecgrp i
+on h.groupid = i.groupid
+where cidrip like '207.106.237.97%'
+--34 rows (a row is a secgrp referencing Chantilly's IP and associated with an EC2 instance)
+
+select h.region, h.groupid, h.groupname, h.description, h.fromport, h.cidrip, i.instanceid, ipn.secgrp, ipn.projectvalue, ipn.namevalue
+from herndon_207 h
+join herndon_instancesecgrp i
+on h.groupid = i.groupid
+left outer join blue_instanceprojectname ipn
+on i.instanceid = ipn.instanceid
+where cidrip like '207.106.237.97%'
+--Also 34 rows, we know about keypair and tags (Project, Name)
+
+select h.region, h.groupid, h.groupname, h.description, h.fromport, h.cidrip, i.instanceid, ipn.secgrp, ipn.projectvalue, ipn.namevalue
+from herndon_207 h
+join herndon_instancesecgrp i
+on h.groupid = i.groupid
+left outer join blue_instanceprojectname ipn
+on i.instanceid = ipn.instanceid
+where cidrip like '207.106.237.97%'
+and h.groupname <> 'afroje-ci'
+and h.groupname <> 'DevOps University'
+and ipn.namevalue not in ('EC2snapshots', 'gsn-kibana-dev', 'gsn-kibana-int', 'gsn-kibana-stage', 'gsn-kibana-test', 'gsp-kibana-prod')
+--Exclude groupname and namevalue values that the DevOps team owns and will fix.
+order by ipn.projectvalue, i.instanceid
+

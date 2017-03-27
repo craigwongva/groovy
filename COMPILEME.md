@@ -102,3 +102,5 @@ aws ec2 describe-network-acls --region us-east-1 > network-acls-useast1
 #It's not necessary to upload this into h2,
 # because there's nothing interesting to join a network ACL against anyway.
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls network-acls-useast1 | grep 207
+
+#run the herndonAnalysisQueries
