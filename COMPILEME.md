@@ -98,4 +98,6 @@ aws ec2 describe-network-acls --region us-east-1 > network-acls-useast1
 
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar analyze.groovy
 
+#It's not necessary to upload this into h2,
+# because there's nothing interesting to join a network ACL against anyway.
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls network-acls-useast1 | grep 207

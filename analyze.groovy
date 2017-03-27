@@ -184,13 +184,14 @@ class Hello {
   }
 
   def stmt3 = conn.createStatement()
+  String temp1 = 'region,instanceId,groupId,groupName'
   String sql3 = '' +
    'create table cat.public.herndon_instancesecgrp (' +
    ' region varchar(100),' +
    ' instanceId varchar(100),' + 
    ' groupId varchar(100),' +
    ' groupName varchar(100))' +
-   " as select * from CSVREAD('deleteme4')"
+   " as select * from CSVREAD('deleteme4', '$temp1', 'charset=UTF-8 fieldSeparator=,')"
    .replaceAll('deleteme4',inputfilename)
 
    def x3 = stmt3.execute(sql3)
@@ -219,6 +220,7 @@ class Hello {
   }
 
   def stmt3 = conn.createStatement()
+  String temp1 = 'region,groupId,groupName,description,fromPort,cidrIp'
   String sql3 = '' +
    'create table cat.public.herndon_207 (' +
    ' region varchar(100),' +
@@ -227,7 +229,7 @@ class Hello {
    ' description varchar(200),' +
    ' fromPort varchar(100),' +
    ' cidrIp varchar(100))' +
-   " as select * from CSVREAD('deleteme4')"
+   " as select * from CSVREAD('deleteme4', '$temp1', 'charset=UTF-8 fieldSeparator=,')"
    .replaceAll('deleteme4',inputfilename)
 
    def x3 = stmt3.execute(sql3)
