@@ -117,59 +117,31 @@ class Hello {
   }
  }
 
- void step22(int idOfSentenceJustSeen, String label) {
-  String sql2 = "insert into labels(sid, l) values ($idOfSentenceJustSeen, '$label')"
-  def stmt2 = conn.createStatement()
-  try {
-   def x2 = stmt2.execute(sql2)
-  }
-  catch (e) {
-   println "insert failed"
-   println e
-  }
- }
-
- void step21(int idOfSentenceJustSeen) {
+ void step17(int idOfSentenceJustSeen, String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
-   //21: select s where s
-   sql4 += 'select s.s '
+   //Find sentences matching a certain sentence
+   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
    sql4 += 'from sentences s '
-   sql4 += "where s.id = $idOfSentenceJustSeen "
-
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  String r
-  String s
-  while(rs4.next()) {
-   s   = rs4.getString("s");
-   println "$GREEN$s$NOCOLOR"
-  }
- }
-
- HashMap step20(int idOfSentenceJustSeen, String regexp) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //20: select S where r limit 1
-   //Not an optimized query!
-   sql4 += 'select * from ( '
-   sql4 += 'select rownum r, s.id ids, s.s '
-   sql4 += 'from sentences s '
-   sql4 += "where s.s regexp '$regexp' "
+   sql4 += 'join labels l '
+   sql4 += 'on s.id = l.sid '
+   sql4 += "where s.id <> $idOfSentenceJustSeen "
+   sql4 += "and s.s regexp '$regexp' "
+   sql4 += 'and l in ( '
+   sql4 += 'select l.l '
+   sql4 += 'from labels l '
+   sql4 += "where sid = $idOfSentenceJustSeen "
    sql4 += ') '
-   sql4 += 'order by rand() '
-   sql4 += 'limit 1 '
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
-  int ids = -1
-  String s
-  while(rs4.next()) {
-   ids = rs4.getInt("ids");
-   s   = rs4.getString("s");
-  }
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String s   = rs4.getString("s");
+   String l   = rs4.getString("l");
 
-  [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
+   println "$s,$l"
+  }
  }
 
  HashMap step18(boolean printSQL, int idOfSentenceJustSeen, String regexp) {
@@ -233,6 +205,63 @@ class Hello {
   }
  }
 
+ HashMap step20(int idOfSentenceJustSeen, String regexp) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //20: select S where r limit 1
+   //Not an optimized query!
+   sql4 += 'select * from ( '
+   sql4 += 'select rownum r, s.id ids, s.s '
+   sql4 += 'from sentences s '
+   sql4 += "where s.s regexp '$regexp' "
+   sql4 += ') '
+   sql4 += 'order by rand() '
+   sql4 += 'limit 1 '
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  int ids = -1
+  String s
+  while(rs4.next()) {
+   ids = rs4.getInt("ids");
+   s   = rs4.getString("s");
+  }
+
+  [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
+ }
+
+ void step21(int idOfSentenceJustSeen) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //21: select s where s
+   sql4 += 'select s.s '
+   sql4 += 'from sentences s '
+   sql4 += "where s.id = $idOfSentenceJustSeen "
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  String r
+  String s
+  while(rs4.next()) {
+   s   = rs4.getString("s");
+   println "$GREEN$s$NOCOLOR"
+  }
+ }
+
+ void step22(int idOfSentenceJustSeen, String label) {
+  String sql2 = "insert into labels(sid, l) values ($idOfSentenceJustSeen, '$label')"
+  def stmt2 = conn.createStatement()
+  try {
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "insert failed"
+   println e
+  }
+ }
+
+
+
 
  def testGetOutputline() {
   println "246.starting test"
@@ -272,32 +301,6 @@ class Hello {
    outputline
  }
 
- void step17(int idOfSentenceJustSeen, String regexp) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //Find sentences matching a certain sentence
-   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
-   sql4 += 'from sentences s '
-   sql4 += 'join labels l '
-   sql4 += 'on s.id = l.sid '
-   sql4 += "where s.id <> $idOfSentenceJustSeen "
-   sql4 += "and s.s regexp '$regexp' "
-   sql4 += 'and l in ( '
-   sql4 += 'select l.l '
-   sql4 += 'from labels l '
-   sql4 += "where sid = $idOfSentenceJustSeen "
-   sql4 += ') '
-
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String s   = rs4.getString("s");
-   String l   = rs4.getString("l");
-
-   println "$s,$l"
-  }
- }
 
  HashMap step24(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
