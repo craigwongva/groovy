@@ -85,35 +85,86 @@ class Hello {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
- void step25(int idOfSentenceJustSeen) {
-  String sql2
-  sql2  = "delete from labels "
-  sql2 += "where sid = $idOfSentenceJustSeen; "
-  sql2 += "delete from sentences "
-  sql2 += "where  id = $idOfSentenceJustSeen  "
-  def stmt2 = conn.createStatement()
-  try {
-   def x2 = stmt2.execute(sql2)
+
+
+ void step12(String hyphenedLabel) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //Find sentences with a certain label
+   sql4 += 'select s.* '
+   sql4 += 'from sentences s '
+   sql4 += 'join labels l '
+   sql4 += 'on s.id = l.sid '
+   sql4 += "where l = '$hyphenedLabel' "
+  //println sql4
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String s = rs4.getString("s");
+
+   println "$s"
   }
-  catch (e) {
-   println "deletes failed"
-   println e
-  }
-  println "Deleted sentence $idOfSentenceJustSeen"
  }
 
- void step23(int idOfSentenceJustSeen, String label) {
-  String sql2
-  sql2  = "delete from labels "
-  sql2 += "where sid = $idOfSentenceJustSeen "
-  sql2 += "and l = '$label' "
-  def stmt2 = conn.createStatement()
-  try {
-   def x2 = stmt2.execute(sql2)
+ void step13(hyphenedLabel) {
+  String wordInHyphenedLabel =
+   getWordInHyphenedLabel(hyphenedLabel)
+
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+
+  sql4 += "delete from labels where l = '$hyphenedLabel'; "
+  sql4 += 'insert into labels (sid, l) '
+  sql4 += "select id, '$hyphenedLabel' "
+  sql4 += 'from sentences s '
+  sql4 += "where s.s regexp '$wordInHyphenedLabel' "
+
+  stmt4.execute(sql4);
+ }
+
+ void step15(int idOfSentenceJustSeen) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //Find labels in a certain sentence
+   sql4 += 'select l.l '
+   sql4 += 'from labels l '
+   sql4 += "where sid = $idOfSentenceJustSeen "
+   sql4 += "and not l.l regexp 'has-word-' "
+
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String l = rs4.getString("l");
+
+   println "$l"
   }
-  catch (e) {
-   println "insert failed"
-   println e
+ }
+
+ void step16(int idOfSentenceJustSeen) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //select S where s {}
+   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
+   sql4 += 'from sentences s '
+   sql4 += 'join labels l '
+   sql4 += 'on s.id = l.sid '
+   sql4 += "where s.id <> $idOfSentenceJustSeen "
+   sql4 += 'and l in ( '
+   sql4 += 'select l.l '
+   sql4 += 'from labels l '
+   sql4 += "where sid = $idOfSentenceJustSeen "
+   sql4 += ') '
+   sql4 += 'order by l.l '
+  //println sql4
+  ResultSet rs4 = stmt4.executeQuery(sql4);
+
+  def i=0
+  while(rs4.next() && i++ <= 2000000) {
+   String s   = rs4.getString("s");
+   String l   = rs4.getString("l");
+   println "$l,$s"
   }
  }
 
@@ -260,8 +311,66 @@ class Hello {
   }
  }
 
+ void step23(int idOfSentenceJustSeen, String label) {
+  String sql2
+  sql2  = "delete from labels "
+  sql2 += "where sid = $idOfSentenceJustSeen "
+  sql2 += "and l = '$label' "
+  def stmt2 = conn.createStatement()
+  try {
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "insert failed"
+   println e
+  }
+ }
 
+ HashMap step24(int idOfSentenceJustSeen) {
+  def stmt4 = conn.createStatement();
+  String sql4 = ''
+   //select S where s limit 1
+   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l\n'
+   sql4 += 'from sentences s\n'
+   sql4 += 'join labels l\n'
+   sql4 += 'on s.id = l.sid\n'
+   sql4 += "where s.id <> $idOfSentenceJustSeen\n"
+   sql4 += 'and l in (\n'
+   sql4 += 'select l.l\n'
+   sql4 += 'from labels l\n'
+   sql4 += "where sid = $idOfSentenceJustSeen\n"
+   sql4 += ')\n'
+   sql4 += 'order by rand() '
+   sql4 += 'limit 1\n'
+  ResultSet rs4 = stmt4.executeQuery(sql4);
 
+  int ids = -1
+  String s
+  String l
+  while(rs4.next()) {
+   ids        = rs4.getInt("ids");
+   s   = rs4.getString("s");
+   l   = rs4.getString("l");
+  }
+  [ids:ids, s:s, l:l]
+ }
+
+ void step25(int idOfSentenceJustSeen) {
+  String sql2
+  sql2  = "delete from labels "
+  sql2 += "where sid = $idOfSentenceJustSeen; "
+  sql2 += "delete from sentences "
+  sql2 += "where  id = $idOfSentenceJustSeen  "
+  def stmt2 = conn.createStatement()
+  try {
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "deletes failed"
+   println e
+  }
+  println "Deleted sentence $idOfSentenceJustSeen"
+ }
 
  def testGetOutputline() {
   println "246.starting test"
@@ -300,118 +409,6 @@ class Hello {
    }
    outputline
  }
-
-
- HashMap step24(int idOfSentenceJustSeen) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //select S where s limit 1
-   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l\n'
-   sql4 += 'from sentences s\n'
-   sql4 += 'join labels l\n'
-   sql4 += 'on s.id = l.sid\n'
-   sql4 += "where s.id <> $idOfSentenceJustSeen\n"
-   sql4 += 'and l in (\n'
-   sql4 += 'select l.l\n'
-   sql4 += 'from labels l\n'
-   sql4 += "where sid = $idOfSentenceJustSeen\n"
-   sql4 += ')\n'
-   sql4 += 'order by rand() '
-   sql4 += 'limit 1\n'
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  int ids = -1
-  String s
-  String l
-  while(rs4.next()) {
-   ids        = rs4.getInt("ids");
-   s   = rs4.getString("s");
-   l   = rs4.getString("l");
-  }
-  [ids:ids, s:s, l:l]
- }
-
- void step16(int idOfSentenceJustSeen) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //select S where s {}
-   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
-   sql4 += 'from sentences s '
-   sql4 += 'join labels l '
-   sql4 += 'on s.id = l.sid '
-   sql4 += "where s.id <> $idOfSentenceJustSeen "
-   sql4 += 'and l in ( '
-   sql4 += 'select l.l '
-   sql4 += 'from labels l '
-   sql4 += "where sid = $idOfSentenceJustSeen "
-   sql4 += ') '
-   sql4 += 'order by l.l '
-  //println sql4
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String s   = rs4.getString("s");
-   String l   = rs4.getString("l");
-   println "$l,$s"
-  }
- }
-
- void step15(int idOfSentenceJustSeen) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //Find labels in a certain sentence
-   sql4 += 'select l.l '
-   sql4 += 'from labels l '
-   sql4 += "where sid = $idOfSentenceJustSeen "
-   sql4 += "and not l.l regexp 'has-word-' "
-
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String l = rs4.getString("l");
-
-   println "$l"
-  }
- }
-
- void step13(hyphenedLabel) {
-  String wordInHyphenedLabel =
-   getWordInHyphenedLabel(hyphenedLabel)
-
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-
-  sql4 += "delete from labels where l = '$hyphenedLabel'; "
-  sql4 += 'insert into labels (sid, l) '
-  sql4 += "select id, '$hyphenedLabel' "
-  sql4 += 'from sentences s '
-  sql4 += "where s.s regexp '$wordInHyphenedLabel' "
-
-  stmt4.execute(sql4);
- }
-
- void step12(String hyphenedLabel) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //Find sentences with a certain label
-   sql4 += 'select s.* '
-   sql4 += 'from sentences s '
-   sql4 += 'join labels l '
-   sql4 += 'on s.id = l.sid '
-   sql4 += "where l = '$hyphenedLabel' "
-  //println sql4
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String s = rs4.getString("s");
-
-   println "$s"
-  }
- }
-
 }
 
 
@@ -576,16 +573,11 @@ if (a0 =~ '18') {
 if (a0 == '20') {
  //println "20: select S where r limit 1"
  String regexp = a1
- //idOfSentenceJustSeen = h.step20(idOfSentenceJustSeen, regexp)
- println "before executing 20, idOfSentenceJustSeen=$idOfSentenceJustSeen"
  def temp6 = h.step20(idOfSentenceJustSeen, regexp)
  if (temp6.ids > 0) {
   idOfSentenceJustSeen = temp6.ids
-  //String temp2 = h.getOutputline(idOfSentenceJustSeen, 'we are matching regexp not current sentence')
-  //println "Extra I think: $temp2"
  }
  def temp = h.step21(idOfSentenceJustSeen)
- println "after executing 20, idOfSentenceJustSeen=$idOfSentenceJustSeen"
 }
 
 if (a0 == '19') {
