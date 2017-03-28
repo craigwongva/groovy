@@ -518,6 +518,24 @@ if (a0 == '11') {
  }
 }
 
+if (a0 == '0') {
+ println "10: insert s {sentence}"
+ println "11: insert sample sentences and insert has-word labels (it)"
+ println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
+ println "12: select S where l=l //'has-root-poder','has-word-cumpleanos' "
+ println "15: select L where s {}"
+ println "19: select S where r {regexp}"
+ println "20: select S where r limit 1 {regexp}"
+ println "16: select S where s {}"
+ println "24: select S where s limit 1 {}"
+ println "17: select S where s and r {regexp}"
+ println "18: select S where s and r limit 1 {regexp}"
+ println "21: select s where s {}"
+ println "22: insert values(s, l) {label}"
+ println "23: delete values(l) from s {label}"
+ println "25: delete s from s"
+} 
+
 if (a0 == '12') {
  //println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
  String label = a1
@@ -535,17 +553,7 @@ if (a0 == '15') {
  h.step15(idOfSentenceJustSeen)
 }
 
-if (a0 == '24') {
- println "24: select S where s limit 1"
- def temp = h.step24(idOfSentenceJustSeen)
- //temp == -1: no sentence found
- //temp  >  0: exactly one sentence found
- if (temp.ids > 0) {
-  idOfSentenceJustSeen = temp.ids
-  String temp2 = h.getOutputline(temp.s, temp.l)
-  println temp2
- }
-}
+
 
 if (a0 == '16') {
  //println "16: select S where s"
@@ -570,6 +578,12 @@ if (a0 =~ '18') {
  }
 }
 
+if (a0 == '19') {
+ //println "19: select S where r"
+ String regexp = a1
+ h.step19(regexp)
+}
+
 if (a0 == '20') {
  //println "20: select S where r limit 1"
  String regexp = a1
@@ -578,12 +592,6 @@ if (a0 == '20') {
   idOfSentenceJustSeen = temp6.ids
  }
  def temp = h.step21(idOfSentenceJustSeen)
-}
-
-if (a0 == '19') {
- //println "19: select S where r"
- String regexp = a1
- h.step19(regexp)
 }
 
 if (a0 == '21') {
@@ -603,28 +611,20 @@ if (a0 == '23') {
  h.step23(idOfSentenceJustSeen, label)
 }
 
-if (a0 == '25') {
- h.step25(idOfSentenceJustSeen)
+if (a0 == '24') {
+ println "24: select S where s limit 1"
+ def temp = h.step24(idOfSentenceJustSeen)
+ //temp == -1: no sentence found
+ //temp  >  0: exactly one sentence found
+ if (temp.ids > 0) {
+  idOfSentenceJustSeen = temp.ids
+  String temp2 = h.getOutputline(temp.s, temp.l)
+  println temp2
+ }
 }
 
-if (a0 == '0') {
- println "10: insert s {sentence}"
- println "11: insert sample sentences and insert has-word labels (it)"
- println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
- println "12: select S where l=l //'has-root-poder','has-word-cumpleanos' "
- println "15: select L where s {}"
- println "19: select S where r {regexp}"
- println "20: select S where r limit 1 {regexp}"
- println "16: select S where s {}"
- println "24: select S where s limit 1 {}"
- println "17: select S where s and r {regexp}"
- println "18: select S where s and r limit 1 {regexp}"
- println "21: select s where s {}"
- println "22: insert values(s, l) {label}"
- println "23: delete values(l) from s {label}"
- println "25: delete s from s"
+if (a0 == '25') {
+ h.step25(idOfSentenceJustSeen) 
 } 
-}
-/*
-s/m: Use plagiarism algorithm
-*/
+
+} /* s/m: Use plagiarism algorithm */
