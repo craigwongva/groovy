@@ -10,6 +10,9 @@ import java.sql.*
 class Hello {
  Connection conn
  def jsonSlurper
+ def a0
+ def a1
+ def idOfSentenceJustSeen 
 
  def GREEN='\033[0;32m'
  def YELLOW='\033[0;33m'
@@ -20,26 +23,6 @@ class Hello {
   conn = DriverManager.
    getConnection("jdbc:h2:tcp://localhost/~/univision", "sa", "");
   jsonSlurper = new JsonSlurper()
- }
-
- void step11(sentence) {
-  String sql1 = "insert into sentences(s) values('$sentence')"
-  def stmt1 = conn.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS)
-  def x1 = stmt1.execute()
-  ResultSet rs1 = stmt1.getGeneratedKeys()
-  rs1.next()
-  def rs1key = rs1.getInt(1) 
-
-  def stanford = stanfordStructure(sentence)
-  String sql2 = convertWordListToInsertStatements(rs1key, stanford)
-  def stmt2 = conn.createStatement()
-  try {
-   def x2 = stmt2.execute(sql2)
-  }
-  catch (e) {
-   println "insert failed"
-   println e
-  }
  }
 
  def testStanfordStructure() {
@@ -81,11 +64,236 @@ class Hello {
  }
 
  String getWordInHyphenedLabel(hyphenedLabel) {
-  println "83:$hyphenedLabel"
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
+HashMap tokenizeUserInput(String line) {
+ def argx = line.split(':')
+ if ((argx.size() == 1) && (!(argx[0] =~ /^\d/))) {
+  a0 = "18"
+  a1 = argx[0]
+ }
+ if ((argx.size() == 1) && ((argx[0] =~ /^\d/))) {
+  a0 = argx[0]
+  a1 = ''
+ }
+ if (argx.size() > 1) {
+  a0 = argx[0]
+  a1 = argx[1]
+ }
+ [a0:a0, a1:a1]
+}
 
+//A line could come from:
+// stdin
+// a txt file
+void interpretInputLine(line) {
+def temp0 = tokenizeUserInput(line)
+a0 = temp0.a0
+a1 = temp0.a1
+
+if (a0 == '0') {
+ println "10: insert s {sentence}"
+ println "11: insert sample sentences and insert has-word labels (it)"
+ println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
+ println "12: select S where l=l //'has-root-poder','has-word-cumpleanos' "
+ println "15: select L where s {}"
+ println "19: select S where r {regexp}"
+ println "20: select S where r limit 1 {regexp}"
+ println "16: select S where s {}"
+ println "24: select S where s limit 1 {}"
+ println "17: select S where s and r {regexp}"
+ println "18: select S where s and r limit 1 {regexp}"
+ println "21: select s where s {}"
+ println "22: insert values(s, l) {label}"
+ println "23: delete values(l) from s {label}"
+ println "25: delete s from s"
+} 
+
+if (a0 == '9') {
+ //println "Executing step9 now (insert sample sentences and insert has-word labels)"
+ step9()
+}
+
+if (a0 == '10') {
+ String sentence = a1.trim()
+ step11(sentence)
+}
+
+if (a0 == '11') {
+ def temp = [
+ 'Siempre hay una manera positiva de ver las cosas',
+ 'Domingo para reflexionar en las bendiciones que se te han dado',
+ 'No puedo parar de mirarlo',
+ 'Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia',
+ 'Si quieres cenar algo ligera, intenta esta Ensalada Griega',
+ 'Este comercial te hara querer abrazar a tu perrito',
+ 'Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo',
+ 'En tu closet no puede faltar un vestido negro',
+ 'No deseches tus frascos',
+ 'Mira como decorarlos para que sirvan de adornos en tu hogar',
+ 'Aprende a decorar tus frascos ahora y reutilizalos',
+ 'Tu pareja gasta mas dinero que tu?',
+ 'Aprende como evitar problemas',
+ 'Este miercoles te damos los trucos para lucir bien elegante en shorts',
+ 'Manana voy a estar contestando sus preguntas sobre moda y estilo, a tiempo para el verano',
+ 'Envien sus preguntas usando #AskThalia',
+ 'Hoy es su cumpleanos',
+ 'Hoy cumpleanos la periodista hondurena y copresentadora de @despiertamerica',
+ 'Todos abrazaron a @satchapretto en un dia muy especial',
+ 'Si te preguntabas que es #PanamaPapers, aqui te compartimos un resumen',
+ 'Feliz inicio de semana',
+ 'Conoce ahora a la hija de @CristianCastro',
+ 'Tiene dos anitos y es una estrella de las redes sociales',
+ 'Si quieres que tus hijos tengan una vida adulta emocional saludable',
+ 'Mira que puedes hacer',
+ 'Enterate como hacer que la cama de tu mascota sea parte integral del diseno de casa',
+ 'Que felicidad regresar a mi universidad',
+ 'Por que Playboy esta apunto de morir',
+ 'Nosotros tambien felices de tenerte con nosotros',
+ 'Es viernes y mi cuerpo lo sabe',
+ 'Gracias por ver @despiertamerica hoy Lunes',
+ 'Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow',
+ 'Alguna vez has espiado a tu pareja',
+ 'Manana la @dranancyalvarez te dice como acabar con esta mania',
+ 'Un dia especial para ti y todas las bellas mujeres del mundo',
+ 'Deja que to sonrisa cambie elmundo, pero no dejes que el mundo cambie tu sonrisa',
+ 'Ana Patricia comenzo este martes contando un chiste',
+ 'Dime que comes y te dire que sientes',
+ 'Un sueno puede tener un alto precio que pagar',
+ ]
+ //println "Executing step11 now (insert sample sentences and insert has-word labels)"
+ int i = 0
+ temp.each {
+  if (i++ <= 1000) {
+   step11(it)
+  }
+ }
+}
+
+if (a0 == '12') {
+ //println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
+ String label = a1
+ step12(label)
+}
+
+if (a0 == '13') {
+ //println "13: insert l values hl {hyphenated label} //has-word-cumpleanos,has-root-frasco"
+ String label = a1
+ step13(label)
+}
+
+if (a0 == '15') {
+ //println "15: select L where s{}"
+ step15(idOfSentenceJustSeen)
+}
+
+
+
+if (a0 == '16') {
+ //println "16: select S where s"
+ step16(idOfSentenceJustSeen)
+}
+
+if (a0 == '17') {
+ //println "17: select S where s and r {regexp}"
+ String regexp = a1
+ step17(idOfSentenceJustSeen, regexp)
+}
+
+if (a0 =~ '18') {
+ //println "18: select S where s and r limit 1 {regexp}"
+ String regexp = a1
+ boolean printSQL = (a0 =~ 'q')
+ def temp = step18(printSQL, idOfSentenceJustSeen, regexp)
+ if (temp.ids > 0) {
+  idOfSentenceJustSeen = temp.ids
+  String temp2 = getOutputline(temp.s, temp.l)
+  println temp2
+ }
+}
+
+if (a0 == '19') {
+ //println "19: select S where r"
+ String regexp = a1
+ step19(regexp)
+}
+
+if (a0 == '20') {
+ //println "20: select S where r limit 1"
+ String regexp = a1
+ def temp6 = step20(idOfSentenceJustSeen, regexp)
+ if (temp6.ids > 0) {
+  idOfSentenceJustSeen = temp6.ids
+ }
+ def temp = step21(idOfSentenceJustSeen)
+}
+
+if (a0 == '21') {
+ //println "21: select s where s"
+ step21(idOfSentenceJustSeen)
+}
+
+if (a0 == '22') {
+ //println "22: insert values(s, l) {label}"
+ String label = a1
+ step22(idOfSentenceJustSeen, label)
+}
+
+if (a0 == '23') {
+ //println "23: delete values(l) from s {label}"
+ String label = a1
+ step23(idOfSentenceJustSeen, label)
+}
+
+if (a0 == '24') {
+ println "24: select S where s limit 1"
+ def temp = step24(idOfSentenceJustSeen)
+ //temp == -1: no sentence found
+ //temp  >  0: exactly one sentence found
+ if (temp.ids > 0) {
+  idOfSentenceJustSeen = temp.ids
+  String temp2 = getOutputline(temp.s, temp.l)
+  println temp2
+ }
+}
+
+if (a0 == '25') {
+ step25(idOfSentenceJustSeen) 
+} 
+
+if (a0 == '99') {
+ System.exit(0)
+}
+}
+
+ void step9() {
+  def f = new File('sentences.txt')
+  f.each {
+   //step11(it)
+   interpretInputLine(it) 
+  }
+ }
+
+ void step11(sentence) {
+  String sql1 = "insert into sentences(s) values('$sentence')"
+  def stmt1 = conn.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS)
+  def x1 = stmt1.execute()
+  ResultSet rs1 = stmt1.getGeneratedKeys()
+  rs1.next()
+  def rs1key = rs1.getInt(1) 
+
+  def stanford = stanfordStructure(sentence)
+  String sql2 = convertWordListToInsertStatements(rs1key, stanford)
+  def stmt2 = conn.createStatement()
+  try {
+   def x2 = stmt2.execute(sql2)
+  }
+  catch (e) {
+   println "insert failed"
+   println e
+  }
+ }
 
  void step12(String hyphenedLabel) {
   def stmt4 = conn.createStatement();
@@ -417,214 +625,49 @@ def NO_PREVIOUS_SENTENCE = -1
 def h = new Hello()
 h.testStanfordStructure()
 h.testGetOutputline()
-testUserInputSequence(h)
+def DUMMY = -1
+def checkForSampleData = h.step20(DUMMY, 'sonrisa.*mundo')
+if (checkForSampleData.ids == -1) {
+ h.step9()
+}
+else {
+ testUserInputSequence(h)
+}
 
 def testUserInputSequence(Hello h) {
   println "437.starting test"
+
+  String abc = 'ABC'
+  int code
+  code = (int)abc[0]
+
   def DUMMY = -1
   def tmp = h.step20(DUMMY, 'sonrisa.*mundo')
   def temp = h.step18(false, tmp.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
-  def temp2 = h.getOutputline(temp.s, temp.l)
+  String temp2 = h.getOutputline(temp.s, temp.l)
+/*
+  println "test about to fail '${temp2[80..-1]}' '${answer[80..-1]}' "
+  println "80: ${(int)temp2[80]}, ${(int)answer[80]}"
+  println "81: ${(int)temp2[81]}, ${(int)answer[81]}"
+  println "82: ${(int)temp2[82]}, ${(int)answer[82]}"
+  println "83: ${(int)temp2[83]}, ${(int)answer[83]}"
+  println "84: ${(int)temp2[84]}, ${(int)answer[84]}"
+  println "85: ${(int)temp2[85]}, ${(int)answer[85]}"
+  println "86: ${(int)temp2[86]}, ${(int)answer[86]}"
+  assert temp2[0..80] == answer[0..80]
+*/
   assert temp2 == answer
   println "437.test passed"
 }
 
-String a0
-String a1
-
-HashMap tokenizeUserInput(String line) {
- def argx = line.split(':')
- if ((argx.size() == 1) && (!(argx[0] =~ /^\d/))) {
-  a0 = "18"
-  a1 = argx[0]
- }
- if ((argx.size() == 1) && ((argx[0] =~ /^\d/))) {
-  a0 = argx[0]
-  a1 = ''
- }
- if (argx.size() > 1) {
-  a0 = argx[0]
-  a1 = argx[1]
- }
- [a0:a0, a1:a1]
-}
-
 //Assumes there exists at least one sentence
-//def idOfSentenceJustSeen = h.step20(NO_PREVIOUS_SENTENCE, '.*')
 def temp4 = h.step20(NO_PREVIOUS_SENTENCE, '.*')
-def idOfSentenceJustSeen = temp4.ids
-h.step21(idOfSentenceJustSeen)
+h.idOfSentenceJustSeen = temp4.ids
+h.step21(h.idOfSentenceJustSeen)
 
 System.in.eachLine() { line ->  
-
-def temp0 = tokenizeUserInput(line)
-a0 = temp0.a0
-a1 = temp0.a1
-
-if (a0 == '10') {
- String sentence = a1
- h.step11(sentence)
+ h.interpretInputLine(line) 
 }
 
-if (a0 == '11') {
- def temp = [
- 'Siempre hay una manera positiva de ver las cosas',
- 'Domingo para reflexionar en las bendiciones que se te han dado',
- 'No puedo parar de mirarlo',
- 'Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia',
- 'Si quieres cenar algo ligera, intenta esta Ensalada Griega',
- 'Este comercial te hara querer abrazar a tu perrito',
- 'Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo',
- 'En tu closet no puede faltar un vestido negro',
- 'No deseches tus frascos',
- 'Mira como decorarlos para que sirvan de adornos en tu hogar',
- 'Aprende a decorar tus frascos ahora y reutilizalos',
- 'Tu pareja gasta mas dinero que tu?',
- 'Aprende como evitar problemas',
- 'Este miercoles te damos los trucos para lucir bien elegante en shorts',
- 'Manana voy a estar contestando sus preguntas sobre moda y estilo, a tiempo para el verano',
- 'Envien sus preguntas usando #AskThalia',
- 'Hoy es su cumpleanos',
- 'Hoy cumpleanos la periodista hondurena y copresentadora de @despiertamerica',
- 'Todos abrazaron a @satchapretto en un dia muy especial',
- 'Si te preguntabas que es #PanamaPapers, aqui te compartimos un resumen',
- 'Feliz inicio de semana',
- 'Conoce ahora a la hija de @CristianCastro',
- 'Tiene dos anitos y es una estrella de las redes sociales',
- 'Si quieres que tus hijos tengan una vida adulta emocional saludable',
- 'Mira que puedes hacer',
- 'Enterate como hacer que la cama de tu mascota sea parte integral del diseno de casa',
- 'Que felicidad regresar a mi universidad',
- 'Por que Playboy esta apunto de morir',
- 'Nosotros tambien felices de tenerte con nosotros',
- 'Es viernes y mi cuerpo lo sabe',
- 'Gracias por ver @despiertamerica hoy Lunes',
- 'Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow',
- 'Alguna vez has espiado a tu pareja',
- 'Manana la @dranancyalvarez te dice como acabar con esta mania',
- 'Un dia especial para ti y todas las bellas mujeres del mundo',
- 'Deja que to sonrisa cambie elmundo, pero no dejes que el mundo cambie tu sonrisa',
- 'Ana Patricia comenzo este martes contando un chiste',
- 'Dime que comes y te dire que sientes',
- 'Un sueno puede tener un alto precio que pagar',
- ]
- //println "Executing step11 now (insert sample sentences and insert has-word labels)"
- int i = 0
- temp.each {
-  if (i++ <= 1000) {
-   h.step11(it)
-  }
- }
-}
-
-if (a0 == '0') {
- println "10: insert s {sentence}"
- println "11: insert sample sentences and insert has-word labels (it)"
- println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
- println "12: select S where l=l //'has-root-poder','has-word-cumpleanos' "
- println "15: select L where s {}"
- println "19: select S where r {regexp}"
- println "20: select S where r limit 1 {regexp}"
- println "16: select S where s {}"
- println "24: select S where s limit 1 {}"
- println "17: select S where s and r {regexp}"
- println "18: select S where s and r limit 1 {regexp}"
- println "21: select s where s {}"
- println "22: insert values(s, l) {label}"
- println "23: delete values(l) from s {label}"
- println "25: delete s from s"
-} 
-
-if (a0 == '12') {
- //println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
- String label = a1
- h.step12(label)
-}
-
-if (a0 == '13') {
- //println "13: insert l values hl {hyphenated label} //has-word-cumpleanos,has-root-frasco"
- String label = a1
- h.step13(label)
-}
-
-if (a0 == '15') {
- //println "15: select L where s{}"
- h.step15(idOfSentenceJustSeen)
-}
-
-
-
-if (a0 == '16') {
- //println "16: select S where s"
- h.step16(idOfSentenceJustSeen)
-}
-
-if (a0 == '17') {
- //println "17: select S where s and r {regexp}"
- String regexp = a1
- h.step17(idOfSentenceJustSeen, regexp)
-}
-
-if (a0 =~ '18') {
- //println "18: select S where s and r limit 1 {regexp}"
- String regexp = a1
- boolean printSQL = (a0 =~ 'q')
- def temp = h.step18(printSQL, idOfSentenceJustSeen, regexp)
- if (temp.ids > 0) {
-  idOfSentenceJustSeen = temp.ids
-  String temp2 = h.getOutputline(temp.s, temp.l)
-  println temp2
- }
-}
-
-if (a0 == '19') {
- //println "19: select S where r"
- String regexp = a1
- h.step19(regexp)
-}
-
-if (a0 == '20') {
- //println "20: select S where r limit 1"
- String regexp = a1
- def temp6 = h.step20(idOfSentenceJustSeen, regexp)
- if (temp6.ids > 0) {
-  idOfSentenceJustSeen = temp6.ids
- }
- def temp = h.step21(idOfSentenceJustSeen)
-}
-
-if (a0 == '21') {
- //println "21: select s where s"
- h.step21(idOfSentenceJustSeen)
-}
-
-if (a0 == '22') {
- //println "22: insert values(s, l) {label}"
- String label = a1
- h.step22(idOfSentenceJustSeen, label)
-}
-
-if (a0 == '23') {
- //println "23: delete values(l) from s {label}"
- String label = a1
- h.step23(idOfSentenceJustSeen, label)
-}
-
-if (a0 == '24') {
- println "24: select S where s limit 1"
- def temp = h.step24(idOfSentenceJustSeen)
- //temp == -1: no sentence found
- //temp  >  0: exactly one sentence found
- if (temp.ids > 0) {
-  idOfSentenceJustSeen = temp.ids
-  String temp2 = h.getOutputline(temp.s, temp.l)
-  println temp2
- }
-}
-
-if (a0 == '25') {
- h.step25(idOfSentenceJustSeen) 
-} 
-
-} /* s/m: Use plagiarism algorithm */
+/* s/m: Use plagiarism algorithm */
