@@ -150,12 +150,10 @@ if (a0 == '17') {
 if (a0 =~ '18') {
  //println "18: select S where s and r limit 1 {regexp}"
  String regexp = a1
- boolean printSQL = (a0 =~ 'q')
- def temp = step18(printSQL, idOfSentenceJustSeen, regexp)
+ HashMap temp = step18(idOfSentenceJustSeen, regexp)
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
-  String temp2 = getOutputline(temp.s, temp.l)
-  println temp2
+  println getOutputline(temp.s, temp.l)
  }
 }
 
@@ -168,11 +166,11 @@ if (a0 == '19') {
 if (a0 == '20') {
  //println "20: select S where r limit 1"
  String regexp = a1
- def temp6 = step20(idOfSentenceJustSeen, regexp)
- if (temp6.ids > 0) {
-  idOfSentenceJustSeen = temp6.ids
+ HashMap temp = step20(idOfSentenceJustSeen, regexp)
+ if (temp.ids > 0) {
+  idOfSentenceJustSeen = temp.ids
  }
- def temp = step21(idOfSentenceJustSeen)
+ step21(idOfSentenceJustSeen)
 }
 
 if (a0 == '21') {
@@ -194,13 +192,10 @@ if (a0 == '23') {
 
 if (a0 == '24') {
  println "24: select S where s limit 1"
- def temp = step24(idOfSentenceJustSeen)
- //temp == -1: no sentence found
- //temp  >  0: exactly one sentence found
+ HashMap temp = step24(idOfSentenceJustSeen)
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
-  String temp2 = getOutputline(temp.s, temp.l)
-  println temp2
+  println getOutputline(temp.s, temp.l)
  }
 }
 
@@ -349,7 +344,7 @@ if (a0 == '99') {
   }
  }
 
- HashMap step18(boolean printSQL, int idOfSentenceJustSeen, String regexp) {
+ HashMap step18(int idOfSentenceJustSeen, String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //18: select S where s and r limit 1
@@ -369,7 +364,6 @@ if (a0 == '99') {
    sql4 += ')\n'
    sql4 += 'order by rand()\n'
    sql4 += 'limit 1\n'
-  if (printSQL) println sql4
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
   int ids = -1
@@ -577,7 +571,7 @@ inviteUserInputForever(h)
 
 def testUserInputSequence(Hello h) {
   def tmp = h.step20('sonrisa.*mundo')
-  def temp = h.step18(false, tmp.ids, 'bellas mujeres') 
+  def temp = h.step18(tmp.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
   String temp2 = h.getOutputline(temp.s, temp.l)
 
