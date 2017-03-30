@@ -527,7 +527,6 @@ if (a0 == '99') {
  }
 
  def testGetOutputline() {
-  println "246.starting test"
   def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
   def temp = 'Un dia especial para ti y todas las bellas mujeres del mundo'
   assert getOutputline(temp, 'has-word-mundo') == answer
@@ -535,7 +534,7 @@ if (a0 == '99') {
   answer = "${GREEN}Felizmente me quedo con ${YELLOW}esta${GREEN} vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo ${NOCOLOR}"
   assert getOutputline('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo', 'has-word-esta')
 
-  println "246.test passed"
+  println "testGetOutputline passed"
  }
 
  String getOutputline(String sentence, String label) {
@@ -572,24 +571,18 @@ HashMap checkForSampleData = h.step20('sonrisa.*mundo')
 if (checkForSampleData.ids == -1) {
  h.step9()
 }
-else {
- //testUserInputSequence(h)
-}
 testUserInputSequence(h)
 getAnInitialSentence(h) 
 inviteUserInputForever(h)
 
-
 def testUserInputSequence(Hello h) {
-  println "437.starting test"
-
   def tmp = h.step20('sonrisa.*mundo')
   def temp = h.step18(false, tmp.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
   String temp2 = h.getOutputline(temp.s, temp.l)
 
   assert temp2 == answer
-  println "437.test passed"
+  println "testUserInputSequence passed"
 }
 
 void getAnInitialSentence(h) {
