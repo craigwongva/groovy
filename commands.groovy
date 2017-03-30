@@ -410,7 +410,7 @@ if (a0 == '99') {
   }
  }
 
- HashMap step20(int idOfSentenceJustSeen, String regexp) {
+ HashMap step20(String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //20: select S where r limit 1
@@ -565,29 +565,25 @@ if (a0 == '99') {
  }
 }
 
-def NO_PREVIOUS_SENTENCE = -1
-
 def h = new Hello()
 h.testStanfordStructure()
 h.testGetOutputline()
-def DUMMY = -1
-def checkForSampleData = h.step20(DUMMY, 'sonrisa.*mundo')
+HashMap checkForSampleData = h.step20('sonrisa.*mundo')
 if (checkForSampleData.ids == -1) {
  h.step9()
 }
 else {
- testUserInputSequence(h)
+ //testUserInputSequence(h)
 }
+testUserInputSequence(h)
+getAnInitialSentence(h) 
+inviteUserInputForever(h)
+
 
 def testUserInputSequence(Hello h) {
   println "437.starting test"
 
-  String abc = 'ABC'
-  int code
-  code = (int)abc[0]
-
-  def DUMMY = -1
-  def tmp = h.step20(DUMMY, 'sonrisa.*mundo')
+  def tmp = h.step20('sonrisa.*mundo')
   def temp = h.step18(false, tmp.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
   String temp2 = h.getOutputline(temp.s, temp.l)
@@ -596,13 +592,15 @@ def testUserInputSequence(Hello h) {
   println "437.test passed"
 }
 
-//Assumes there exists at least one sentence
-def temp4 = h.step20(NO_PREVIOUS_SENTENCE, '.*')
-h.idOfSentenceJustSeen = temp4.ids
-h.step21(h.idOfSentenceJustSeen)
-
-System.in.eachLine() { line ->  
- h.interpretInputLine(line) 
+void getAnInitialSentence(h) {
+ //Assumes database has at least one sentence
+ HashMap temp = h.step20('.*')
+ h.idOfSentenceJustSeen = temp.ids
+ h.step21(h.idOfSentenceJustSeen)
 }
 
-/* s/m: Use plagiarism algorithm */
+void inviteUserInputForever(h) {
+ System.in.eachLine() { line ->  
+  h.interpretInputLine(line) 
+ }
+}
