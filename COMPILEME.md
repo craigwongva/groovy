@@ -12,9 +12,9 @@ http://35.36.37.38:8082
 
 --
 
-/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar analyze.groovy
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar blue.groovy
 
-./steps123 20170216-0910
+./blue-steps123 20170216-0910
 
 java -jar h2/bin/h2-1.4.193.jar -webAllowOthers &
 
@@ -71,36 +71,36 @@ head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags
 
 rm officeMoveToHerndonSecurityGroupsAllRegions
 
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-east-1 >> officeMoveToHerndonSecurityGroupsAllRegions
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-west-2 >> officeMoveToHerndonSecurityGroupsAllRegions
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-west-1 >> officeMoveToHerndonSecurityGroupsAllRegions
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-east-1 >> officeMoveToHerndonSecurityGroupsAllRegions
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-west-2 >> officeMoveToHerndonSecurityGroupsAllRegions
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep1_FlattenDescribeInstances us-west-1 >> officeMoveToHerndonSecurityGroupsAllRegions
 
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1a_Upload officeMoveToHerndonSecurityGroupsAllRegions
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep1a_Upload officeMoveToHerndonSecurityGroupsAllRegions
 
 ---- 
 aws ec2 describe-security-groups --region us-west-1 > officeMoveToHerndonSecurityGroupsUswest1
 aws ec2 describe-security-groups --region us-west-2 > officeMoveToHerndonSecurityGroupsUswest2
 aws ec2 describe-security-groups --region us-east-1 > officeMoveToHerndonSecurityGroupsUseast1
 
-/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar analyze.groovy
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar blue.groovy
 
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups officeMoveToHerndonSecurityGroupsUswest1 > deleteme9uswest1
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups officeMoveToHerndonSecurityGroupsUswest2 > deleteme9uswest2
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups officeMoveToHerndonSecurityGroupsUseast1 > deleteme9useast1
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups officeMoveToHerndonSecurityGroupsUswest1 > deleteme9uswest1
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups officeMoveToHerndonSecurityGroupsUswest2 > deleteme9uswest2
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep2_FlattenDescribeSecurityGroups officeMoveToHerndonSecurityGroupsUseast1 > deleteme9useast1
 
 rm deleteme9allregions
 
 cat deleteme9uswest1 deleteme9uswest2 deleteme9useast1 > deleteme9allregions
 
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep3_Upload deleteme9allregions
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep3_Upload deleteme9allregions
 
 -- Which networkACLs mention the RB IP address?
 aws ec2 describe-network-acls --region us-east-1 > network-acls-useast1
 
-/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar analyze.groovy
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar blue.groovy
 
 #It's not necessary to upload this into h2,
 # because there's nothing interesting to join a network ACL against anyway.
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/analyze analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls network-acls-useast1 | grep 207
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls network-acls-useast1 | grep 207
 
 #run the herndonAnalysisQueries

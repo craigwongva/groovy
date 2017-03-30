@@ -5,7 +5,7 @@
 ##
 
 JARPATH=".:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar"
-ANALYZECMD="/usr/bin/java -cp $JARPATH example/analyze"
+ANALYZECMD="/usr/bin/java -cp $JARPATH example/blue"
 
 echo "Starting step1 (reading json files and writing as rows)"
 $ANALYZECMD step1                      > derived/$1-step1.csv
