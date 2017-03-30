@@ -94,7 +94,6 @@ a1 = temp0.a1
 
 if (a0 == '0') {
  println "10: insert s {sentence}"
- println "11: insert sample sentences and insert has-word labels (it)"
  println "13: insert l values hl {hyphenated label}//has-word-cumpleanos,has-root-frasco"
  println "12: select S where l=l //'has-root-poder','has-word-cumpleanos' "
  println "15: select L where s {}"
@@ -120,57 +119,6 @@ if (a0 == '10') {
  step11(sentence)
 }
 
-if (a0 == '11') {
- def temp = [
- 'Siempre hay una manera positiva de ver las cosas',
- 'Domingo para reflexionar en las bendiciones que se te han dado',
- 'No puedo parar de mirarlo',
- 'Ahora conversan y opinan si les gustan mas los amores inocentes or con experiencia',
- 'Si quieres cenar algo ligera, intenta esta Ensalada Griega',
- 'Este comercial te hara querer abrazar a tu perrito',
- 'Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo',
- 'En tu closet no puede faltar un vestido negro',
- 'No deseches tus frascos',
- 'Mira como decorarlos para que sirvan de adornos en tu hogar',
- 'Aprende a decorar tus frascos ahora y reutilizalos',
- 'Tu pareja gasta mas dinero que tu?',
- 'Aprende como evitar problemas',
- 'Este miercoles te damos los trucos para lucir bien elegante en shorts',
- 'Manana voy a estar contestando sus preguntas sobre moda y estilo, a tiempo para el verano',
- 'Envien sus preguntas usando #AskThalia',
- 'Hoy es su cumpleanos',
- 'Hoy cumpleanos la periodista hondurena y copresentadora de @despiertamerica',
- 'Todos abrazaron a @satchapretto en un dia muy especial',
- 'Si te preguntabas que es #PanamaPapers, aqui te compartimos un resumen',
- 'Feliz inicio de semana',
- 'Conoce ahora a la hija de @CristianCastro',
- 'Tiene dos anitos y es una estrella de las redes sociales',
- 'Si quieres que tus hijos tengan una vida adulta emocional saludable',
- 'Mira que puedes hacer',
- 'Enterate como hacer que la cama de tu mascota sea parte integral del diseno de casa',
- 'Que felicidad regresar a mi universidad',
- 'Por que Playboy esta apunto de morir',
- 'Nosotros tambien felices de tenerte con nosotros',
- 'Es viernes y mi cuerpo lo sabe',
- 'Gracias por ver @despiertamerica hoy Lunes',
- 'Recuerden que pueden ver el show si te lo perdiste en la aplicacion #UnivisionNow',
- 'Alguna vez has espiado a tu pareja',
- 'Manana la @dranancyalvarez te dice como acabar con esta mania',
- 'Un dia especial para ti y todas las bellas mujeres del mundo',
- 'Deja que to sonrisa cambie elmundo, pero no dejes que el mundo cambie tu sonrisa',
- 'Ana Patricia comenzo este martes contando un chiste',
- 'Dime que comes y te dire que sientes',
- 'Un sueno puede tener un alto precio que pagar',
- ]
- //println "Executing step11 now (insert sample sentences and insert has-word labels)"
- int i = 0
- temp.each {
-  if (i++ <= 1000) {
-   step11(it)
-  }
- }
-}
-
 if (a0 == '12') {
  //println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
  String label = a1
@@ -187,8 +135,6 @@ if (a0 == '15') {
  //println "15: select L where s{}"
  step15(idOfSentenceJustSeen)
 }
-
-
 
 if (a0 == '16') {
  //println "16: select S where s"
@@ -619,7 +565,6 @@ if (a0 == '99') {
  }
 }
 
-
 def NO_PREVIOUS_SENTENCE = -1
 
 def h = new Hello()
@@ -646,17 +591,7 @@ def testUserInputSequence(Hello h) {
   def temp = h.step18(false, tmp.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
   String temp2 = h.getOutputline(temp.s, temp.l)
-/*
-  println "test about to fail '${temp2[80..-1]}' '${answer[80..-1]}' "
-  println "80: ${(int)temp2[80]}, ${(int)answer[80]}"
-  println "81: ${(int)temp2[81]}, ${(int)answer[81]}"
-  println "82: ${(int)temp2[82]}, ${(int)answer[82]}"
-  println "83: ${(int)temp2[83]}, ${(int)answer[83]}"
-  println "84: ${(int)temp2[84]}, ${(int)answer[84]}"
-  println "85: ${(int)temp2[85]}, ${(int)answer[85]}"
-  println "86: ${(int)temp2[86]}, ${(int)answer[86]}"
-  assert temp2[0..80] == answer[0..80]
-*/
+
   assert temp2 == answer
   println "437.test passed"
 }
