@@ -128,7 +128,9 @@ class Tagger {
 	tagme['us-west-1'] = [
 	    //RULES FOR EC2 INSTANCES
 	      'Name=instance.group-name,Values=legion-web' : 'xterrain-dev',
-               //Name=instance.group-name,Values=legion-web
+              //Use the key-pair to infer the project:
+              'Name=key-name,Values=mrgeo.us-west-1' :'xterrain',
+
 	    //RULES FOR AMI IMAGES
               'Name=name,Values=dual-geoserver'    :'geoserver-dev',
               'Name=name,Values=geoserver*'        :'geoserver-dev',
