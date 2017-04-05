@@ -104,3 +104,17 @@ aws ec2 describe-network-acls --region us-east-1 > network-acls-useast1
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/blue analyzeOfficeMoveToHerndonStep1_FlattenDescribeNetworkAcls network-acls-useast1 | grep 207
 
 #run the herndonAnalysisQueries
+
+-- Tag instances any time of the month (it's manual right now):
+
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar tagger.groovy
+
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar tag/tagger
+
+Look at the output that suggests tags needed.  
+Remove the --dry-run.  
+Run the commands to tag the instances. For example:  
+   aws ec2 create-tags --resources i-0457cae63f023ed9a i-09daee605405d6bc6 --tags Key=Project,Value=geowave-dev --region us-east-1  
+   aws ec2 create-tags --resources i-07014cdcf56b0d018 --tags Key=Project,Value=piazza-dev --region us-east-1  
+   aws ec2 create-tags --resources i-00d5ed2271af2ae19 --tags Key=Project,Value=mrgeo-dev --region us-east-1  
+
