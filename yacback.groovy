@@ -110,8 +110,7 @@ if (a0 == '0') {
 } 
 
 if (a0 == '9') {
- //println "Executing step9 now (insert sample sentences and insert has-word labels)"
- step9()
+ step9_insertSampleSentences()
 }
 
 if (a0 == '10') {
@@ -170,12 +169,12 @@ if (a0 == '20') {
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
  }
- step21(idOfSentenceJustSeen)
+ step21_select_s_where_s_print(idOfSentenceJustSeen)
 }
 
 if (a0 == '21') {
  //println "21: select s where s"
- step21(idOfSentenceJustSeen)
+ step21_select_s_where_s_print(idOfSentenceJustSeen)
 }
 
 if (a0 == '22') {
@@ -208,10 +207,9 @@ if (a0 == '99') {
 }
 }
 
- void step9() {
+ void step9_insertSampleSentences() {
   def f = new File('sentences.txt')
   f.each {
-   //step11(it)
    interpretInputLine(it) 
   }
  }
@@ -429,22 +427,19 @@ if (a0 == '99') {
   [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
  }
 
- void step21(int idOfSentenceJustSeen) {
+ void step21_select_s_where_s_print(int idOfSentenceJustSeen) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
-   //21: select s where s
-   sql4 += 'select s.s '
-   sql4 += 'from sentences s '
-   sql4 += "where s.id = $idOfSentenceJustSeen "
+  //21: select s where s
+  sql4 += 'select s.s '
+  sql4 += 'from sentences s '
+  sql4 += "where s.id = $idOfSentenceJustSeen "
 
   ResultSet rs4 = stmt4.executeQuery(sql4);
 
-  String r
-  String s
-  while(rs4.next()) {
-   s   = rs4.getString("s");
-   println "$GREEN$s$NOCOLOR"
-  }
+  rs4.next() 
+  String s = rs4.getString("s");
+  println "$GREEN$s$NOCOLOR"
  }
 
  void step22(int idOfSentenceJustSeen, String label) {
@@ -559,15 +554,33 @@ if (a0 == '99') {
 }
 
 def h = new Yacback()
-h.testStanfordStructure()
-h.testGetOutputline()
-HashMap checkForSampleData = h.step20_select_S_where_r_limit_1('sonrisa.*mundo')
-if (checkForSampleData.ids == -1) {
- h.step9()
-}
-testUserInputSequence(h)
+ensureSampleDataAndRunTests(h)
 getAnInitialSentence(h) 
 inviteUserInputForever(h)
+
+void ensureSampleDataAndRunTests(Yacback h) {
+ runUnitTests(h)
+ ensureSampleData(h)
+ runIntegrationTests(h)
+}
+
+void runUnitTests(Yacback h) {
+ h.testStanfordStructure()
+ h.testGetOutputline()
+}
+
+void ensureSampleData(Yacback h) {
+ String arbitraryExpectedString = 'sonrisa.*mundo'
+ HashMap temp = 
+  h.step20_select_S_where_r_limit_1(arbitraryExpectedString)
+ if (temp.ids == -1) {
+  h.step9_insertSampleSentences()
+ }
+}
+
+void runIntegrationTests(Yacback h) {
+ testUserInputSequence(h)
+}
 
 def testUserInputSequence(Yacback h) {
   def tmp = h.step20_select_S_where_r_limit_1('sonrisa.*mundo')
@@ -579,14 +592,13 @@ def testUserInputSequence(Yacback h) {
   println "testUserInputSequence passed"
 }
 
-void getAnInitialSentence(h) {
- //Assumes database has at least one sentence
+void getAnInitialSentence(Yacback h) {
  HashMap temp = h.step20_select_S_where_r_limit_1('.*')
  h.idOfSentenceJustSeen = temp.ids
- h.step21(h.idOfSentenceJustSeen)
+ h.step21_select_s_where_s_print(h.idOfSentenceJustSeen)
 }
 
-void inviteUserInputForever(h) {
+void inviteUserInputForever(Yacback h) {
  System.in.eachLine() { line ->  
   h.interpretInputLine(line) 
  }
