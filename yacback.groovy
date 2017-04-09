@@ -26,13 +26,11 @@ class Yacback {
  }
 
  def testStanfordStructure() {
-  println "50.starting test"
   def answer = ['dave':null, 'kicked':null, 'the':null, 'ball':null]
   assert stanfordStructure('Dave kicked the ball') == answer
   assert stanfordStructure('Dave kicked the ball!') == answer
   assert stanfordStructure('Dave kicked the ball?') == answer
   assert stanfordStructure('Dave kicked the ball.') == answer
-  println "50.test passed"
  }
 
  def stanfordStructure(String sentence) {
@@ -515,17 +513,6 @@ if (a0 == '99') {
   println "Deleted sentence $idOfSentenceJustSeen"
  }
 
- def testGetOutputline() {
-  def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
-  def temp = 'Un dia especial para ti y todas las bellas mujeres del mundo'
-  assert getOutputline(temp, 'has-word-mundo') == answer
-
-  answer = "${GREEN}Felizmente me quedo con ${YELLOW}esta${GREEN} vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo ${NOCOLOR}"
-  assert getOutputline('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo', 'has-word-esta')
-
-  println "testGetOutputline passed"
- }
-
  String getOutputline(String sentence, String label) {
    String templabel = getWordInHyphenedLabel(label)
 
@@ -534,22 +521,28 @@ if (a0 == '99') {
    int templabelindexof 
    templabelindexof = sentence.indexOf(" $templabel ")
 
-   String outputline
+   String s
    if (templabelindexof < 1) {
-    outputline = "$GREEN$sentence$NOCOLOR"
+    s = "$GREEN$sentence$NOCOLOR"
    }
    else {
-    outputline  =   "GREEN${sentence[0..templabelindexof]}"
-    outputline +=   "YELLOW${templabel}"
-    outputline +=   "GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
-    outputline +=   "NOCOLOR"
-    //println outputline
-    outputline  =   "$GREEN${sentence[0..templabelindexof]}"
-    outputline +=   "$YELLOW$templabel"
-    outputline +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
-    outputline +=   "$NOCOLOR"
+    s  =   "$GREEN${sentence[0..templabelindexof]}"
+    s +=   "$YELLOW$templabel"
+    s +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
+    s +=   "$NOCOLOR"
    }
-   outputline
+   s
+ }
+
+ void testGetOutputline() {
+  def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
+  def temp = 'Un dia especial para ti y todas las bellas mujeres del mundo'
+  assert getOutputline(temp, 'has-word-mundo') == answer
+
+  answer = "${GREEN}Felizmente me quedo con ${YELLOW}esta${GREEN} vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo ${NOCOLOR}"
+  assert getOutputline('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo', 'has-word-esta')
+
+  println "testGetOutputline passed"
  }
 }
 
@@ -579,17 +572,17 @@ void ensureSampleData(Yacback h) {
 }
 
 void runIntegrationTests(Yacback h) {
- testUserInputSequence(h)
+ testUserInputSequence1(h)
 }
 
-def testUserInputSequence(Yacback h) {
-  def tmp = h.step20_select_S_where_r_limit_1('sonrisa.*mundo')
-  def temp = h.step18(tmp.ids, 'bellas mujeres') 
+def testUserInputSequence1(Yacback h) {
+  def temp1 = h.step20_select_S_where_r_limit_1('sonrisa.*mundo')
+  def temp2 = h.step18(temp1.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
-  String temp2 = h.getOutputline(temp.s, temp.l)
+  String temp3 = h.getOutputline(temp2.s, temp2.l)
+  assert temp3 == answer
 
-  assert temp2 == answer
-  println "testUserInputSequence passed"
+  println "testUserInputSequence1 passed"
 }
 
 void getAnInitialSentence(Yacback h) {
