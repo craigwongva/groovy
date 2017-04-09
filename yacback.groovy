@@ -1,4 +1,4 @@
-package example
+package yacback
 
 import groovy.json.*
 import groovyx.net.http.*
@@ -7,7 +7,7 @@ import groovy.io.FileType
 
 import java.sql.*
 
-class Hello {
+class Yacback {
  Connection conn
  def jsonSlurper
  def a0
@@ -18,7 +18,7 @@ class Hello {
  def YELLOW='\033[0;33m'
  def NOCOLOR='\033[0m' 
 
- Hello() {
+ Yacback() {
   Class.forName("org.h2.Driver");
   conn = DriverManager.
    getConnection("jdbc:h2:tcp://localhost/~/univision", "sa", "");
@@ -166,7 +166,7 @@ if (a0 == '19') {
 if (a0 == '20') {
  //println "20: select S where r limit 1"
  String regexp = a1
- HashMap temp = step20(idOfSentenceJustSeen, regexp)
+ HashMap temp = step20_select_S_where_r_limit_1(regexp)
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
  }
@@ -404,7 +404,7 @@ if (a0 == '99') {
   }
  }
 
- HashMap step20(String regexp) {
+ HashMap step20_select_S_where_r_limit_1(String regexp) {
   def stmt4 = conn.createStatement();
   String sql4 = ''
    //20: select S where r limit 1
@@ -558,10 +558,10 @@ if (a0 == '99') {
  }
 }
 
-def h = new Hello()
+def h = new Yacback()
 h.testStanfordStructure()
 h.testGetOutputline()
-HashMap checkForSampleData = h.step20('sonrisa.*mundo')
+HashMap checkForSampleData = h.step20_select_S_where_r_limit_1('sonrisa.*mundo')
 if (checkForSampleData.ids == -1) {
  h.step9()
 }
@@ -569,8 +569,8 @@ testUserInputSequence(h)
 getAnInitialSentence(h) 
 inviteUserInputForever(h)
 
-def testUserInputSequence(Hello h) {
-  def tmp = h.step20('sonrisa.*mundo')
+def testUserInputSequence(Yacback h) {
+  def tmp = h.step20_select_S_where_r_limit_1('sonrisa.*mundo')
   def temp = h.step18(tmp.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
   String temp2 = h.getOutputline(temp.s, temp.l)
@@ -581,7 +581,7 @@ def testUserInputSequence(Hello h) {
 
 void getAnInitialSentence(h) {
  //Assumes database has at least one sentence
- HashMap temp = h.step20('.*')
+ HashMap temp = h.step20_select_S_where_r_limit_1('.*')
  h.idOfSentenceJustSeen = temp.ids
  h.step21(h.idOfSentenceJustSeen)
 }
