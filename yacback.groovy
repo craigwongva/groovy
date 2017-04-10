@@ -189,7 +189,7 @@ if (a0 == '23') {
 
 if (a0 == '24') {
  println "24: select S where s limit 1"
- HashMap temp = step24(idOfSentenceJustSeen)
+ HashMap temp = step24_select_S_from_s_limit_1(idOfSentenceJustSeen)
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
   println getOutputline(temp.s, temp.l)
@@ -197,7 +197,7 @@ if (a0 == '24') {
 }
 
 if (a0 == '25') {
- step25(idOfSentenceJustSeen) 
+ step25_delete_s(idOfSentenceJustSeen) 
 } 
 
 if (a0 == '99') {
@@ -467,44 +467,44 @@ if (a0 == '99') {
   }
  }
 
- HashMap step24(int idOfSentenceJustSeen) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //select S where s limit 1
-   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l\n'
-   sql4 += 'from sentences s\n'
-   sql4 += 'join labels l\n'
-   sql4 += 'on s.id = l.sid\n'
-   sql4 += "where s.id <> $idOfSentenceJustSeen\n"
-   sql4 += 'and l in (\n'
-   sql4 += 'select l.l\n'
-   sql4 += 'from labels l\n'
-   sql4 += "where sid = $idOfSentenceJustSeen\n"
-   sql4 += ')\n'
-   sql4 += 'order by rand() '
-   sql4 += 'limit 1\n'
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+ HashMap step24_select_S_from_s_limit_1(int idOfSentenceJustSeen) {
+  def stmt = conn.createStatement();
+  String sql = ''
+  //select S where s limit 1
+  sql += 'select s.id ids, s.s, l.id idl, l.sid, l.l\n'
+  sql += 'from sentences s\n'
+  sql += 'join labels l\n'
+  sql += 'on s.id = l.sid\n'
+  sql += "where s.id <> $idOfSentenceJustSeen\n"
+  sql += 'and l in (\n'
+  sql += 'select l.l\n'
+  sql += 'from labels l\n'
+  sql += "where sid = $idOfSentenceJustSeen\n"
+  sql += ')\n'
+  sql += 'order by rand() '
+  sql += 'limit 1\n'
+  ResultSet rs = stmt.executeQuery(sql);
 
   int ids = -1
   String s
   String l
-  while(rs4.next()) {
-   ids        = rs4.getInt("ids");
-   s   = rs4.getString("s");
-   l   = rs4.getString("l");
+  while(rs.next()) {
+   ids        = rs.getInt("ids");
+   s   = rs.getString("s");
+   l   = rs.getString("l");
   }
   [ids:ids, s:s, l:l]
  }
 
- void step25(int idOfSentenceJustSeen) {
-  String sql2
-  sql2  = "delete from labels "
-  sql2 += "where sid = $idOfSentenceJustSeen; "
-  sql2 += "delete from sentences "
-  sql2 += "where  id = $idOfSentenceJustSeen  "
-  def stmt2 = conn.createStatement()
+ void step25_delete_s(int idOfSentenceJustSeen) {
+  String s
+  s  = "delete from labels "
+  s += "where sid = $idOfSentenceJustSeen; "
+  s += "delete from sentences "
+  s += "where  id = $idOfSentenceJustSeen  "
+  def stmt = conn.createStatement()
   try {
-   def x2 = stmt2.execute(sql2)
+   stmt.execute(s)
   }
   catch (e) {
    println "deletes failed"
