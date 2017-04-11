@@ -29,6 +29,100 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 
 public class UploadObjectSingleOperation {
 
+/*
+DONE identify all apps that use pz-blobstore
+DONE for the first app, do ‘./cf env <appfullname>’
+DONE find the pz-blobstore credentials
+DONE write them plus the encryption_key into a .json file
+uups
+restage each app
+*/
+    def cflogin(user, pwd) {
+        def cfcmd = '/home/ec2-user/groovy/cf'
+        def cftarget = 'https://api.devops.geointservices.io'
+        def cfskip = '--skip-ssl-validation'
+        def cforg = 'piazza'
+        def cfspace = 'int'
+        def cmd = "$cfcmd login -a $cftarget -u $user -p $pwd -o $cforg -s $cfspace $cfskip"
+        def cmdtext = cmd.execute()
+	println cmdtext.err.text
+	println cmdtext.text
+
+	def s1 = "$cfcmd services".execute() | "grep pz-blobstore".execute()
+	def t1 = s1.text.split()
+	
+	ArrayList appsUsingBlobstore = []
+	for (int i=2; i<t1.size(); i++) {
+	    //sometimes the split() returns an empty string
+	    if (t1[i] != '') {
+		appsUsingBlobstore.add(t1[i].replaceAll(',', ''))
+	    }
+	}
+
+	if (appsUsingBlobstore.size() == 0) {
+	    println "Error: The list of apps using pz-blobstore is empty."
+	    return
+	}
+
+	def arbitraryApp = appsUsingBlobstore[0]
+
+        def cmd3 = "$cfcmd env $arbitraryApp"
+        def cmdtext3 = cmd3.execute()
+	println cmdtext3.err.text
+	//println cmdtext3.text
+	def lines3 = cmdtext3.text.split('\n')
+	int lineContainingAppblobstore
+	for (int i=0; i<lines3.size(); i++) {
+	    if (lines3[i] =~ /app-blobstore/) {
+		lineContainingAppblobstore = i
+	    }
+	}
+
+	def credentials = [:]
+	//Yes, -5 to +5 could theoretically cause an exception.
+	// It's not likely, so ignore this for now.
+	for (int i=lineContainingAppblobstore-5; 
+		 i<=lineContainingAppblobstore+5; i++) {
+	    String withoutComma = lines3[i].replaceAll(',', '')
+	    [
+	     'access_key_id', 
+	     'bucket', 
+	     'path',
+	     'secret_access_key'
+	    ].each {
+	        if (lines3[i] =~ it) credentials[it] = withoutComma
+	    }
+	}
+	credentials['encryption_key'] = '     "encryption_key": "piazza-kms"'
+
+	def f = new File('upload-uups.json')
+	f.write "{\n"
+	f << "${credentials['access_key_id']}\n"
+	f << "${credentials['bucket']}\n"
+	f << "${credentials['encryption_key']}\n"
+	f << "${credentials['path']}\n"
+	f << "${credentials['secret_access_key']}\n"
+	f << "}\n"
+/*
+commented out because we don't want to run at 4pm:
+        def cmd4 = "$cfcmd uups pz-blobstore -p upload-uups.json"
+        def cmdtext4 = cmd4.execute()
+	println cmdtext4.err.text
+	println cmdtext4.text
+
+	appsUsingBlobstore.each {
+            def cmd5 = "$cfcmd restage $it"
+            def cmdtext5 = cmd5.execute()
+	    println cmdtext5.err.text
+	    println cmdtext5.text
+	}
+*/
+        def cmd2 = "$cfcmd logout"
+        def cmdtext2 = cmd2.execute()
+	println cmdtext2.err.text
+	println cmdtext2.text
+    }
+
     def createFiveKeys(boolean createKeys) {
 
 	def spaces = [
@@ -77,6 +171,8 @@ public class UploadObjectSingleOperation {
 	    spaceEncryptionkey[k] = existingKeys[k] + ',' + spaceEncryptionkey[k]
 	}
 
+
+        println "\nRun the following manually from the command line:\n"
         spaceEncryptionkey.each { k, v ->
             def keyId = v.split(',')[0]
             def userid = v.split(',')[1]
@@ -160,6 +256,8 @@ def u = new UploadObjectSingleOperation()
 //AWS KMS enforces a 7 day waiting period before deletion, so
 // in order to prevent an overabundance of test keys, set to false:
 boolean CREATE_KEYS = false
-u.createFiveKeys(CREATE_KEYS)
-
+//u.createFiveKeys(CREATE_KEYS)
 //u.upload()
+String user = args[0]
+String password = args[1]
+u.cflogin(user, password)
