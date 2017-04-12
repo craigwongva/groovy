@@ -30,19 +30,19 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 public class UploadObjectSingleOperation {
 
 /*
-DONE identify all apps that use pz-blobstore
-DONE for the first app, do ‘./cf env <appfullname>’
-DONE find the pz-blobstore credentials
-DONE write them plus the encryption_key into a .json file
-uups
-restage each app
+Steps for updating pz-blobstore:
+- identify all apps that use pz-blobstore
+- for the first app, do ‘./cf env <appfullname>’
+- find the pz-blobstore credentials
+- write them plus the encryption_key into a .json file
+- uups
+- restage each app that uses pz-blobstore
 */
-    def cflogin(user, pwd) {
+    def cflogin(user, pwd, cfspace, encryptionkey) {
         def cfcmd = '/home/ec2-user/groovy/cf'
         def cftarget = 'https://api.devops.geointservices.io'
         def cfskip = '--skip-ssl-validation'
         def cforg = 'piazza'
-        def cfspace = 'int'
         def cmd = "$cfcmd login -a $cftarget -u $user -p $pwd -o $cforg -s $cfspace $cfskip"
         def cmdtext = cmd.execute()
 	println cmdtext.err.text
@@ -60,16 +60,20 @@ restage each app
 	}
 
 	if (appsUsingBlobstore.size() == 0) {
+	    //An empty list of apps is a problem because
+	    // at least one app is needed to get the pz-blobstore
+	    // credentials (because there is a 'cf cups' and
+	    // 'cf uups' but no 'cf list-user-provided-service').
 	    println "Error: The list of apps using pz-blobstore is empty."
 	    return
 	}
 
+	println "About to use 'cf env' to get pz-blobstore credentials"
 	def arbitraryApp = appsUsingBlobstore[0]
 
         def cmd3 = "$cfcmd env $arbitraryApp"
         def cmdtext3 = cmd3.execute()
 	println cmdtext3.err.text
-	//println cmdtext3.text
 	def lines3 = cmdtext3.text.split('\n')
 	int lineContainingAppblobstore
 	for (int i=0; i<lines3.size(); i++) {
@@ -79,12 +83,21 @@ restage each app
 	}
 
 	def credentials = [:]
-	//Yes, -5 to +5 could theoretically cause an exception.
-	// It's not likely, so ignore this for now.
+
+	if ((lineContainingAppblobstore < 5) ||
+ 	    (lineContainingAppblobstore > lines3.size() - 5)) {
+	    println "Error: Unexpected 'cf env' output format."
+	    return
+	}
+
 	for (int i=lineContainingAppblobstore-5; 
 		 i<=lineContainingAppblobstore+5; i++) {
 	    String withoutComma = lines3[i].replaceAll(',', '')
 	    [
+	     //These are the expected four credential variables
+	     // for pz-blobstore. If new ones are introduced
+	     // they must be added to this list, because
+	     // this code does not interpret the 'cf env' json.
 	     'access_key_id', 
 	     'bucket', 
 	     'path',
@@ -93,30 +106,32 @@ restage each app
 	        if (lines3[i] =~ it) credentials[it] = withoutComma
 	    }
 	}
-	credentials['encryption_key'] = '     "encryption_key": "piazza-kms"'
+	credentials['encryption_key'] = '     "encryption_key": "' + encryptionkey + '"'
 
+	println "About to write to uups json..."
 	def f = new File('upload-uups.json')
 	f.write "{\n"
-	f << "${credentials['access_key_id']}\n"
-	f << "${credentials['bucket']}\n"
-	f << "${credentials['encryption_key']}\n"
-	f << "${credentials['path']}\n"
+	f << "${credentials['access_key_id']},\n"
+	f << "${credentials['bucket']},\n"
+	f << "${credentials['encryption_key']},\n"
+	f << "${credentials['path']},\n"
 	f << "${credentials['secret_access_key']}\n"
 	f << "}\n"
-/*
-commented out because we don't want to run at 4pm:
+
+	println "About to uups..."
         def cmd4 = "$cfcmd uups pz-blobstore -p upload-uups.json"
         def cmdtext4 = cmd4.execute()
 	println cmdtext4.err.text
 	println cmdtext4.text
 
 	appsUsingBlobstore.each {
+	    println "About to restage $it..."
             def cmd5 = "$cfcmd restage $it"
             def cmdtext5 = cmd5.execute()
 	    println cmdtext5.err.text
 	    println cmdtext5.text
 	}
-*/
+
         def cmd2 = "$cfcmd logout"
         def cmdtext2 = cmd2.execute()
 	println cmdtext2.err.text
@@ -260,4 +275,6 @@ boolean CREATE_KEYS = false
 //u.upload()
 String user = args[0]
 String password = args[1]
-u.cflogin(user, password)
+String space = args[2]
+String encryptionkey = args[3] //e.g. piazza-kms-fade
+u.cflogin(user, password, space, encryptionkey)
