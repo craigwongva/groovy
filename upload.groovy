@@ -30,10 +30,12 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 //
 //To run this code (for the createFiveKeys method):
 // java -cp $JARS \
-//   upload/upload <encryptionKeyId> <encryptionKeyAlias>
-//Note: encryptionKeyAlias must include the prefix 'alias/'
+//   upload/upload createFiveKeys <buildKeys> <encryptionKeyId> <encryptionKeyDescription>
+//where <buildKeys> is true or false
+//If <buildKeys> is true, then <encryptionKeyId> is ignored
+//Note: encryptionKeyDescription looks like 'x-y-l2'
 //
-//To run this code (for the cflogin method):
+//To run this code (for the uups method):
 // java -cp $JARS \
 //   upload/upload <cfuser> <cfpassword> <cfspace> <encryptionKeyAlias>
 //Note: encryptionKeyAlias must include the prefix 'alias/'
@@ -49,7 +51,7 @@ Steps for updating pz-blobstore:
 - uups
 - restage each app that uses pz-blobstore
 */
-    def cflogin(user, pwd, cfspace, encryptionkey) {
+    def uups(user, pwd, cfspace, encryptionkey) {
         def cfcmd = '/home/ec2-user/groovy/cf'
         def cftarget = 'https://api.devops.geointservices.io'
         def cfskip = '--skip-ssl-validation'
@@ -129,14 +131,14 @@ Steps for updating pz-blobstore:
 	f << "${credentials['secret_access_key']}\n"
 	f << "}\n"
 
-	println "About to uups..."
+	println "About to uups... (remember, we're in $cfspace)"
         def cmd4 = "$cfcmd uups pz-blobstore -p upload-uups.json"
         def cmdtext4 = cmd4.execute()
 	println cmdtext4.err.text
 	println cmdtext4.text
 
 	appsUsingBlobstore.each {
-	    println "About to restage $it..."
+	    println "About to restage $it... (remember, we're in $cfspace)"
             def cmd5 = "$cfcmd restage $it"
             def cmdtext5 = cmd5.execute()
 	    println cmdtext5.err.text
@@ -149,7 +151,7 @@ Steps for updating pz-blobstore:
 	println cmdtext2.text
     }
 
-    def createFiveKeys(boolean createKeys, String encryptionKeyId, String encryptionKeyAlias) {
+    def createFiveKeys(String createKeys, String encryptionKeyId, String encryptionKeyAlias) {
 
 	def spaces = [
 	    'test', 'dev', 'int', 'stage', 'prod'
@@ -183,14 +185,14 @@ Steps for updating pz-blobstore:
 
 	def existingKeys = [:]
 
- 	if (createKeys) {
+ 	if (createKeys == 'true') {
+            def s1 = "aws kms create-key --description $encryptionKeyAlias --region us-east-1 --output text".execute()
+            def t1 = s1.text.split()
+            encryptionKeyId = t1[6] 
 	    spaces.each {
-                def s1 = "aws kms create-key --description $alias --region us-east-1 --output text".execute()
-                def t1 = s1.text.split()
-                def keyId = t1[6] 
-		existingKeys[it] = keyId
+		existingKeys[it] = encryptionKeyId
 	    }
-	}   
+	}
 	else {
 	    existingKeys = [
                 'test':   encryptionKeyId, //e.g. 42de4feb-844f-43d3-bff9-6bde53474aff
@@ -200,35 +202,43 @@ Steps for updating pz-blobstore:
                 'prod':   encryptionKeyId,
 	    ]
 	}
-
+/* The x,y format isn't used anymore.
 	spaces.each { k ->
 	    spaceEncryptionkey[k] = existingKeys[k] + ',' + spaceEncryptionkey[k]
 	}
+*/
 
-
-        println "\nRun the following manually from the command line:\n"
-        spaceEncryptionkey.each { k, v ->
-            def keyId = v.split(',')[0]
-            def userid = v.split(',')[1]
-            def alias = encryptionKeyAlias //'piazza-kms-' + k
+            def keyId = encryptionKeyId //it used to say this: v.split(',')[0]
+            def userid = 'unused' //it is not used anymore: v.split(',')[1] 
+            def alias = encryptionKeyAlias 
            
-            def s2 = "aws kms create-alias --alias-name alias/$alias --target-key-id $keyId --region us-east-1".execute()
+            def s1 = "aws kms create-alias --alias-name alias/$alias --target-key-id $keyId --region us-east-1"
+            def s2 = s1.execute()
             println ""
+	    println s1
             println "create-alias err.text: ${s2.err.text}"
             println "create-alias    .text: ${s2.text}"
-            
-            def s3 = 'aws kms put-key-policy --key-id ' + keyId + ' --region us-east-1 --policy-name default --policy \'{"Version":"2012-10-17","Id":"key-consolepolicy-3","Statement":[{"Sid":"EnableIAMUserPermissions","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:root"},"Action":"kms:*","Resource":"*"},{"Sid":"AllowAccessForKeyAdministrators","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:user/cwong"},"Action":["kms:Create*","kms:Describe*","kms:Enable*","kms:List*","kms:Put*","kms:Update*","kms:Revoke*","kms:Disable*","kms:Get*","kms:Delete*","kms:TagResource","kms:UntagResource","kms:ScheduleKeyDeletion","kms:CancelKeyDeletion"],"Resource":"*"},{"Sid":"AllowUseOfTheKey","Effect":"Allow","Principal":{"AWS":["arn:aws:iam::539674021708:user/' + userid + '"]},"Action":["kms:Encrypt","kms:Decrypt","kms:ReEncrypt*","kms:GenerateDataKey*","kms:DescribeKey"],"Resource":"*"},{"Sid":"AllowAttachmentOfPersistentResources","Effect":"Allow","Principal":{"AWS":["arn:aws:iam::539674021708:user/' + userid + '"]},"Action":["kms:CreateGrant","kms:ListGrants","kms:RevokeGrant"],"Resource":"*","Condition":{"Bool":{"kms:GrantIsForAWSResource":"true"}}}]}\' '
-            
-	    putKeyPolicy[k] = s3
-        }
+	    def acctuser = 'arn:aws:iam::539674021708:user'
+
+	    userid =  ''
+	    spaceEncryptionkey.each { k, v ->
+	      userid += "\"$acctuser/$v\","
+	    }
+	    userid = userid[0..-2] //remove trailing comma
+
+            def s3 = 'aws kms put-key-policy --key-id ' + keyId + ' --region us-east-1 --policy-name default --policy \'{"Version":"2012-10-17","Id":"key-consolepolicy-3","Statement":[{"Sid":"EnableIAMUserPermissions","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:root"},"Action":"kms:*","Resource":"*"},{"Sid":"AllowAccessForKeyAdministrators","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:user/cwong"},"Action":["kms:Create*","kms:Describe*","kms:Enable*","kms:List*","kms:Put*","kms:Update*","kms:Revoke*","kms:Disable*","kms:Get*","kms:Delete*","kms:TagResource","kms:UntagResource","kms:ScheduleKeyDeletion","kms:CancelKeyDeletion"],"Resource":"*"},{"Sid":"AllowUseOfTheKey","Effect":"Allow","Principal":{"AWS":[' + userid + ']},"Action":["kms:Encrypt","kms:Decrypt","kms:ReEncrypt*","kms:GenerateDataKey*","kms:DescribeKey"],"Resource":"*"},{"Sid":"AllowAttachmentOfPersistentResources","Effect":"Allow","Principal":{"AWS":[' + userid + ']},"Action":["kms:CreateGrant","kms:ListGrants","kms:RevokeGrant"],"Resource":"*","Condition":{"Bool":{"kms:GrantIsForAWSResource":"true"}}}]}\' '
+	    //not used anymore: putKeyPolicy[k] = s3
 
         //This script isn't able to submit the put-key-policy command.
         // The problem is probably related to Groovy's handling of embedded
         // whitespace in .execute() command strings.
 	def f = new File('upload-puts')
+/* not used anymore:
 	putKeyPolicy.each { k, v ->
             f << "${putKeyPolicy[k]}\n"
 	}
+*/
+	f.write "$s3\n"
         println "\nRun the following manually from the command line:\n"
 	println "./upload-puts"
     }
@@ -287,15 +297,27 @@ Steps for updating pz-blobstore:
 
 def u = new UploadObjectSingleOperation()
 
-//AWS KMS enforces a 7 day waiting period before deletion, so
-// in order to prevent an overabundance of test keys, set to false:
-boolean CREATE_KEYS = false
-String encryptionKeyId = args[0] //e.g. bcdebfc2-68d1-4473-8675-73da960326e1
-String encryptionKeyAlias = args[1] //e.g. alias/piazza-kms-fade
-//u.createFiveKeys(CREATE_KEYS, encryptionKeyId, encryptionKeyAlias)
-//u.upload()
-String user = args[0]
-String password = args[1]
-String space = args[2]
-String encryptionkey = args[3] //e.g. alias/piazza-kms-fade
-u.cflogin(user, password, space, encryptionkey)
+String cmd = args[0]
+
+if (cmd == 'upload') {
+  u.upload()
+}
+
+if (cmd == 'createFiveKeys') {
+  //AWS KMS enforces a 7 day waiting period before deletion, so
+  // in order to prevent an overabundance of test keys, set to false:
+  String createKeys = args[1]
+  String encryptionKeyId = args[2] //e.g. bcdebfc2-68d1-4473-8675-73da960326e1
+  String encryptionKeyAlias = args[3] //e.g. alias/piazza-kms-fade
+  println "encryptionKeyId is $encryptionKeyId"
+  println "encryptionKeyAlias is $encryptionKeyAlias"
+  u.createFiveKeys(createKeys, encryptionKeyId, encryptionKeyAlias)
+}
+
+if (cmd == 'uups') {
+  String user = args[1]
+  String password = args[2]
+  String space = args[3]
+  String encryptionkey = args[4] //e.g. alias/piazza-kms-fade
+  u.uups(user, password, space, encryptionkey)
+}
