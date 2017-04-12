@@ -15,7 +15,8 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 
 //To compile this code:
 // /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp aws-java-sdk-1.10.50.jar upload.groovy
-//To run this code:
+//
+//To run this code (for the 'upload' method (to demo uploading+encrypting))::
 // JARS1=.:./groovy-2.4.7.jar:./groovy-json-2.4.7.jar
 // JARS2=aws-java-sdk-1.10.50.jar
 // JARS3=commons-codec-1.6.jar:commons-logging-1.1.3.jar
@@ -26,6 +27,16 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 // java -cp $JARS \
 //  -Daws.accessKeyId=REDACTED -Daws.secretKey=REDACTED \
 //   upload/upload
+//
+//To run this code (for the createFiveKeys method):
+// java -cp $JARS \
+//   upload/upload <encryptionKeyId> <encryptionKeyAlias>
+//Note: encryptionKeyAlias must include the prefix 'alias/'
+//
+//To run this code (for the cflogin method):
+// java -cp $JARS \
+//   upload/upload <cfuser> <cfpassword> <cfspace> <encryptionKeyAlias>
+//Note: encryptionKeyAlias must include the prefix 'alias/'
 
 public class UploadObjectSingleOperation {
 
@@ -138,7 +149,7 @@ Steps for updating pz-blobstore:
 	println cmdtext2.text
     }
 
-    def createFiveKeys(boolean createKeys) {
+    def createFiveKeys(boolean createKeys, String encryptionKeyId, String encryptionKeyAlias) {
 
 	def spaces = [
 	    'test', 'dev', 'int', 'stage', 'prod'
@@ -147,13 +158,21 @@ Steps for updating pz-blobstore:
 	def putKeyPolicy = [:]
 
 	def spaceEncryptionkey = [:]
-	//when loaded will look like this:
+	//when loaded will at first look like this:
         // [
       	//  'test': 'gsn-iam-test-S3BlobstoreUser-14JQDCWOCNXRU',
         //  'dev':  'gsn-iam-dev-S3BlobstoreUser-1OM0QYZL8BTEP',
         //  'int':  'gsn-iam-int-S3BlobstoreUser-W4XRSOXFO9VF',
         //  'stage':'gsn-iam-stage-S3BlobstoreUser-MIF4H60PGOSX',
         //  'prod': 'gsp-iam-prod-S3BlobstoreUser-1056HWJ5M3PXS'
+        // ]42de4feb-844f-43d3-bff9-6bde53474aff
+	//then it will eventually look like this (lines are abbreviated):
+        // [
+      	//  'test': 'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-test...',
+        //  'dev':  'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-dev...',
+        //  'int':  'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-int...',
+        //  'stage':'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-stage...',
+        //  'prod': 'bcdebfc2-68d1-4473-8675-73da960326e1,gsp-iam-prod...'
         // ]
 
 	spaces.each {
@@ -174,11 +193,11 @@ Steps for updating pz-blobstore:
 	}   
 	else {
 	    existingKeys = [
-      	        'test': '9d756117-08ce-4426-9f88-160576b6325e',
-                'dev':  '90a294e3-13c0-47ba-bf08-6f88f286de84',
-                'int':  '42de4feb-844f-43d3-bff9-6bde53474aff',
-                'stage':'bcdebfc2-68d1-4473-8675-73da960326e1',
-                'prod': '02291128-c6ab-46bf-a918-c989fb6e2c71'
+                'test':   encryptionKeyId, //e.g. 42de4feb-844f-43d3-bff9-6bde53474aff
+                'dev':    encryptionKeyId,
+                'int':    encryptionKeyId,
+                'stage':  encryptionKeyId,
+                'prod':   encryptionKeyId,
 	    ]
 	}
 
@@ -191,7 +210,7 @@ Steps for updating pz-blobstore:
         spaceEncryptionkey.each { k, v ->
             def keyId = v.split(',')[0]
             def userid = v.split(',')[1]
-            def alias = 'piazza-kms-' + k
+            def alias = encryptionKeyAlias //'piazza-kms-' + k
            
             def s2 = "aws kms create-alias --alias-name alias/$alias --target-key-id $keyId --region us-east-1".execute()
             println ""
@@ -271,10 +290,12 @@ def u = new UploadObjectSingleOperation()
 //AWS KMS enforces a 7 day waiting period before deletion, so
 // in order to prevent an overabundance of test keys, set to false:
 boolean CREATE_KEYS = false
-//u.createFiveKeys(CREATE_KEYS)
+String encryptionKeyId = args[0] //e.g. bcdebfc2-68d1-4473-8675-73da960326e1
+String encryptionKeyAlias = args[1] //e.g. alias/piazza-kms-fade
+//u.createFiveKeys(CREATE_KEYS, encryptionKeyId, encryptionKeyAlias)
 //u.upload()
 String user = args[0]
 String password = args[1]
 String space = args[2]
-String encryptionkey = args[3] //e.g. piazza-kms-fade
+String encryptionkey = args[3] //e.g. alias/piazza-kms-fade
 u.cflogin(user, password, space, encryptionkey)
