@@ -175,8 +175,84 @@ Steps for updating pz-blobstore:
 	String allPCFBlobstoreUserids = 
 	    getAllPCFBlobstoreUserids(pcfspaces, awsaccount)
 
-        def policy = '{"Version":"2012-10-17","Id":"key-consolepolicy-3","Statement":[{"Sid":"EnableIAMUserPermissions","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::' + awsaccount + ':root"},"Action":"kms:*","Resource":"*"},{"Sid":"AllowAccessForKeyAdministrators","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::' + awsaccount + ':user/' + awsaccountpoweruser + '"},"Action":["kms:Create*","kms:Describe*","kms:Enable*","kms:List*","kms:Put*","kms:Update*","kms:Revoke*","kms:Disable*","kms:Get*","kms:Delete*","kms:TagResource","kms:UntagResource","kms:ScheduleKeyDeletion","kms:CancelKeyDeletion"],"Resource":"*"},{"Sid":"AllowUseOfTheKey","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:Encrypt","kms:Decrypt","kms:ReEncrypt*","kms:GenerateDataKey*","kms:DescribeKey"],"Resource":"*"},{"Sid":"AllowAttachmentOfPersistentResources","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:CreateGrant","kms:ListGrants","kms:RevokeGrant"],"Resource":"*","Condition":{"Bool":{"kms:GrantIsForAWSResource":"true"}}}]}'
-
+	def policy = """
+{
+  "Version":"2012-10-17",
+  "Id":"key-consolepolicy-3",
+  "Statement":[
+    {
+      "Sid":"EnableIAMUserPermissions",
+      "Effect":"Allow",
+      "Principal":{
+        "AWS":"arn:aws:iam::${awsaccount}:root"
+      },
+      "Action":"kms:*",
+      "Resource":"*"
+    },
+    {
+      "Sid":"AllowAccessForKeyAdministrators",
+      "Effect":"Allow",
+      "Principal":{
+        "AWS":"arn:aws:iam::${awsaccount}:user/${awsaccountpoweruser}"
+      },
+      "Action":[
+        "kms:Create*",
+        "kms:Describe*",
+        "kms:Enable*",
+        "kms:List*",
+        "kms:Put*",
+        "kms:Update*",
+        "kms:Revoke*",
+        "kms:Disable*",
+        "kms:Get*",
+        "kms:Delete*",
+        "kms:TagResource",
+        "kms:UntagResource",
+        "kms:ScheduleKeyDeletion",
+        "kms:CancelKeyDeletion"
+      ],
+      "Resource":"*"
+    },
+    {
+      "Sid":"AllowUseOfTheKey",
+      "Effect":"Allow",
+      "Principal":{
+        "AWS":[
+          "${allPCFBlobstoreUserids}"
+        ]
+      },
+      "Action":[
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ],
+      "Resource":"*"
+    },
+    {
+      "Sid":"AllowAttachmentOfPersistentResources",
+      "Effect":"Allow",
+      "Principal":{
+        "AWS":[
+          "${allPCFBlobstoreUserids}"
+        ]
+      },
+      "Action":[
+        "kms:CreateGrant",
+        "kms:ListGrants",
+        "kms:RevokeGrant"
+      ],
+      "Resource":"*",
+      "Condition":{
+        "Bool":{
+          "kms:GrantIsForAWSResource":"true"
+        }
+      }
+    }
+  ]
+}
+"""
         String s3 = "aws kms put-key-policy --key-id $encryptionKeyId "
 	s3 += "--region us-east-1 --policy-name default "
 	s3 += "--policy '$policy'"
@@ -224,7 +300,9 @@ Steps for updating pz-blobstore:
 	    allPCFBlobstoreUserids += "\"$awsaccountuser/$t2\","
 	}
 
-	allPCFBlobstoreUserids[0..-2] //trailing comma isn't valid json
+	def r1 = allPCFBlobstoreUserids[0..-2] //trailing comma isn't valid json
+	def r2 = r1[1..-2] //leading and trailing double quote aren't needed
+	r2
     }
 
     //This code is borrowed from
