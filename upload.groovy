@@ -156,26 +156,27 @@ Steps for updating pz-blobstore:
     }
 
     def createFiveKeys(args) {
-	//createKeys e.g. true or false
-        //encryptionKeyId e.g. bcdebfc2-68d1-4473-8675-73da960326e1
-  	//encryptionKeyAlias e.g. alias/piazza-kms-fade
-	def (dummy, createKeys, encryptionKeyId, encryptionKeyAlias) = args
+	def (
+	  dummy,		//name of method to invoke
+	  createKeys,		//'true' or 'false'
+	  encryptionKeyId,	//e.g. zzzzzzz9-99z9-9999-9999-99zz999999z9
+	  encryptionKeyAlias,   //e.g. projectname-kms-pcfname
+	  pcfspaces,		//omits spaces, e.g. test,dev,int,stage,prod
+	  awsaccount,		//e.g. 999999999999
+	  awsaccountpoweruser	//e.g. deisenhower
+	) = args
 
-	def spaces = [
-	    'test', 'dev', 'int', 'stage', 'prod'
-	]
+	def spaces = pcfspaces.split(',')
 
 	def putKeyPolicy = [:]
 
-	//s/m: somehow acctuser must be parameterized
-	//s/m: somehow spaces must be parameterized
-	def acctuser = 'arn:aws:iam::539674021708:user'
+	def awsaccountuser = "arn:aws:iam::$awsaccount:user"
 	def allPCFBlobstoreUserids =  ''
 	spaces.each {
 	    def s1 = "aws iam list-users --output text".execute() | "grep S3BlobstoreUser".execute() | "grep $it".execute()
 	    def t1 = s1.text.split()
 	    def t2 = t1[5] //gsn-iam-dev-S3BlobstoreUser-99Z9ZZZZ9ZZZZ
-	    allPCFBlobstoreUserids += "\"$acctuser/$t2\","
+	    allPCFBlobstoreUserids += "\"$awsaccountuser/$t2\","
 	}
 
 	allPCFBlobstoreUserids = allPCFBlobstoreUserids[0..-2] //trailing comma isn't valid json
@@ -185,11 +186,11 @@ Steps for updating pz-blobstore:
             def t1 = s1.text.split()
             encryptionKeyId = t1[6] 
 	}
-
-        def keyId = encryptionKeyId
+/* to be deleted
+        def encryptionKeyId = encryptionKeyId
         def alias = encryptionKeyAlias 
-           
-        def s1 = "aws kms create-alias --alias-name alias/$alias --target-key-id $keyId --region us-east-1"
+*/           
+        def s1 = "aws kms create-alias --alias-name alias/$encryptionKeyAlias --target-key-id $encryptionKeyId --region us-east-1"
         def s2 = s1.execute()
         println ""
 	println s1
@@ -197,7 +198,7 @@ Steps for updating pz-blobstore:
         println "create-alias    .text: ${s2.text}"
 
 
-        def s3 = 'aws kms put-key-policy --key-id ' + keyId + ' --region us-east-1 --policy-name default --policy \'{"Version":"2012-10-17","Id":"key-consolepolicy-3","Statement":[{"Sid":"EnableIAMUserPermissions","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:root"},"Action":"kms:*","Resource":"*"},{"Sid":"AllowAccessForKeyAdministrators","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:user/cwong"},"Action":["kms:Create*","kms:Describe*","kms:Enable*","kms:List*","kms:Put*","kms:Update*","kms:Revoke*","kms:Disable*","kms:Get*","kms:Delete*","kms:TagResource","kms:UntagResource","kms:ScheduleKeyDeletion","kms:CancelKeyDeletion"],"Resource":"*"},{"Sid":"AllowUseOfTheKey","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:Encrypt","kms:Decrypt","kms:ReEncrypt*","kms:GenerateDataKey*","kms:DescribeKey"],"Resource":"*"},{"Sid":"AllowAttachmentOfPersistentResources","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:CreateGrant","kms:ListGrants","kms:RevokeGrant"],"Resource":"*","Condition":{"Bool":{"kms:GrantIsForAWSResource":"true"}}}]}\' '
+        def s3 = 'aws kms put-key-policy --key-id ' + encryptionKeyId + ' --region us-east-1 --policy-name default --policy \'{"Version":"2012-10-17","Id":"key-consolepolicy-3","Statement":[{"Sid":"EnableIAMUserPermissions","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::' + awsaccount + ':root"},"Action":"kms:*","Resource":"*"},{"Sid":"AllowAccessForKeyAdministrators","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::' + awsaccount + ':user/' + awsaccountpoweruser + '"},"Action":["kms:Create*","kms:Describe*","kms:Enable*","kms:List*","kms:Put*","kms:Update*","kms:Revoke*","kms:Disable*","kms:Get*","kms:Delete*","kms:TagResource","kms:UntagResource","kms:ScheduleKeyDeletion","kms:CancelKeyDeletion"],"Resource":"*"},{"Sid":"AllowUseOfTheKey","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:Encrypt","kms:Decrypt","kms:ReEncrypt*","kms:GenerateDataKey*","kms:DescribeKey"],"Resource":"*"},{"Sid":"AllowAttachmentOfPersistentResources","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:CreateGrant","kms:ListGrants","kms:RevokeGrant"],"Resource":"*","Condition":{"Bool":{"kms:GrantIsForAWSResource":"true"}}}]}\' '
 
         //This script isn't able to submit the put-key-policy command.
         // The problem is probably related to Groovy's handling of embedded
