@@ -65,7 +65,7 @@ class Yacback {
   hyphenedLabel[-hyphenedLabel.reverse().indexOf('-')..-1]
  }
 
-HashMap tokenizeUserInput(String line) {
+ArrayList tokenizeUserInput(String line) {
  def argx = line.split(':')
  if ((argx.size() == 1) && (!(argx[0] =~ /^\d/))) {
   a0 = "18"
@@ -79,16 +79,15 @@ HashMap tokenizeUserInput(String line) {
   a0 = argx[0]
   a1 = argx[1]
  }
- [a0:a0, a1:a1]
+
+ [a0, a1]
 }
 
 //A line could come from:
 // stdin
 // a txt file
 void interpretInputLine(line) {
-def temp0 = tokenizeUserInput(line)
-a0 = temp0.a0
-a1 = temp0.a1
+  def (a0, a1) = tokenizeUserInput(line)
 
 if (a0 == '0') {
  println "10: insert s {sentence}"
@@ -113,41 +112,37 @@ if (a0 == '9') {
 
 if (a0 == '10') {
  String sentence = a1.trim()
- step11(sentence)
+ step11_insert_s(sentence)
 }
 
 if (a0 == '12') {
- //println "12: select S where l='has-root-poder' {label} //or 'has-word-cumpleanos' "
+ //has-root-poder, has-word-cumpleanos
  String label = a1
- step12(label)
+ step12_select_S_where_l(label)
 }
 
 if (a0 == '13') {
- //println "13: insert l values hl {hyphenated label} //has-word-cumpleanos,has-root-frasco"
+ //has-word-cumpleanos, has-root-frasco
  String label = a1
- step13(label)
+ step13_insert_l(label)
 }
 
 if (a0 == '15') {
- //println "15: select L where s{}"
- step15(idOfSentenceJustSeen)
+ step15_select_L_where_s(idOfSentenceJustSeen)
 }
 
 if (a0 == '16') {
- //println "16: select S where s"
- step16(idOfSentenceJustSeen)
+ step16_select_S_where_s(idOfSentenceJustSeen)
 }
 
 if (a0 == '17') {
- //println "17: select S where s and r {regexp}"
  String regexp = a1
- step17(idOfSentenceJustSeen, regexp)
+ step17_select_S_where_s_and_r(idOfSentenceJustSeen, regexp)
 }
 
 if (a0 =~ '18') {
- //println "18: select S where s and r limit 1 {regexp}"
  String regexp = a1
- HashMap temp = step18(idOfSentenceJustSeen, regexp)
+ HashMap temp = step18_select_S_where_s_and_r_limit_1(idOfSentenceJustSeen, regexp)
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
   println getOutputline(temp.s, temp.l)
@@ -155,13 +150,11 @@ if (a0 =~ '18') {
 }
 
 if (a0 == '19') {
- //println "19: select S where r"
  String regexp = a1
- step19(regexp)
+ step19_select_S_where_r(regexp)
 }
 
 if (a0 == '20') {
- //println "20: select S where r limit 1"
  String regexp = a1
  HashMap temp = step20_select_S_where_r_limit_1(regexp)
  if (temp.ids > 0) {
@@ -171,24 +164,20 @@ if (a0 == '20') {
 }
 
 if (a0 == '21') {
- //println "21: select s where s"
  step21_select_s_where_s_print(idOfSentenceJustSeen)
 }
 
 if (a0 == '22') {
- //println "22: insert values(s, l) {label}"
  String label = a1
- step22(idOfSentenceJustSeen, label)
+ step22_insert_values_s_l(idOfSentenceJustSeen, label)
 }
 
 if (a0 == '23') {
- //println "23: delete values(l) from s {label}"
  String label = a1
- step23(idOfSentenceJustSeen, label)
+ step23_delete_L_from_s(idOfSentenceJustSeen, label)
 }
 
 if (a0 == '24') {
- println "24: select S where s limit 1"
  HashMap temp = step24_select_S_from_s_limit_1(idOfSentenceJustSeen)
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
@@ -212,239 +201,238 @@ if (a0 == '99') {
   }
  }
 
- void step11(sentence) {
-  String sql1 = "insert into sentences(s) values('$sentence')"
-  def stmt1 = conn.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS)
-  def x1 = stmt1.execute()
-  ResultSet rs1 = stmt1.getGeneratedKeys()
-  rs1.next()
-  def rs1key = rs1.getInt(1) 
+ void step11_insert_s(String sentence) {
+   String q1 = "insert into sentences(s) values('$sentence')"
+   def stmt1 = conn.prepareStatement(q1, Statement.RETURN_GENERATED_KEYS)
+   try {
+     stmt1.execute()
+   }
+   catch (e) {
+     println "insert1 failed"
+     println e
+   }
+   ResultSet rs1 = stmt1.getGeneratedKeys()
+   rs1.next()
+   def rs1key = rs1.getInt(1) 
 
-  def stanford = stanfordStructure(sentence)
-  String sql2 = convertWordListToInsertStatements(rs1key, stanford)
-  def stmt2 = conn.createStatement()
-  try {
-   def x2 = stmt2.execute(sql2)
-  }
-  catch (e) {
-   println "insert failed"
-   println e
-  }
+   def stanford = stanfordStructure(sentence)
+   String q2 = convertWordListToInsertStatements(rs1key, stanford)
+   def stmt2 = conn.createStatement()
+   try {
+     stmt2.execute(q2)
+   }
+   catch (e) {
+     println "insert2 failed"
+     println e
+   }
  }
 
- void step12(String hyphenedLabel) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
-   //Find sentences with a certain label
-   sql4 += 'select s.* '
-   sql4 += 'from sentences s '
-   sql4 += 'join labels l '
-   sql4 += 'on s.id = l.sid '
-   sql4 += "where l = '$hyphenedLabel' "
-  //println sql4
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+ void step12_select_S_where_l(String hyphenedLabel) {
+   String q = ''
+   q += 'select s.* '
+   q += 'from sentences s '
+   q += 'join labels l '
+   q += 'on s.id = l.sid '
+   q += "where l = '$hyphenedLabel' "
 
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String s = rs4.getString("s");
+   def stmt = conn.createStatement();
+   ResultSet rs = stmt.executeQuery(q);
 
-   println "$s"
-  }
+   def i=0
+   while(rs.next() && i++ <= 2000000) {
+     String s = rs.getString("s");
+
+     println s
+   }
  }
 
- void step13(hyphenedLabel) {
+ void step13_insert_l(String hyphenedLabel) {
   String wordInHyphenedLabel =
    getWordInHyphenedLabel(hyphenedLabel)
 
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
+  String q = ''
+  q += "delete from labels where l = '$hyphenedLabel'; "
+  q += 'insert into labels (sid, l) '
+  q += "select id, '$hyphenedLabel' "
+  q += 'from sentences s '
+  q += "where s.s regexp '$wordInHyphenedLabel' "
 
-  sql4 += "delete from labels where l = '$hyphenedLabel'; "
-  sql4 += 'insert into labels (sid, l) '
-  sql4 += "select id, '$hyphenedLabel' "
-  sql4 += 'from sentences s '
-  sql4 += "where s.s regexp '$wordInHyphenedLabel' "
-
-  stmt4.execute(sql4);
+  def stmt = conn.createStatement();
+  stmt.execute(q);
  }
 
- void step15(int idOfSentenceJustSeen) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
+ void step15_select_L_where_s(int idOfSentenceJustSeen) {
+   String q = ''
    //Find labels in a certain sentence
-   sql4 += 'select l.l '
-   sql4 += 'from labels l '
-   sql4 += "where sid = $idOfSentenceJustSeen "
-   sql4 += "and not l.l regexp 'has-word-' "
+   q += 'select l.l '
+   q += 'from labels l '
+   q += "where sid = $idOfSentenceJustSeen "
+   q += "and not l.l regexp 'has-word-' "
 
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+   def stmt = conn.createStatement();
+   ResultSet rs = stmt.executeQuery(q);
 
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String l = rs4.getString("l");
+   def i=0
+   while(rs.next() && i++ <= 2000000) {
+     String l = rs.getString("l");
 
-   println "$l"
-  }
+     println "$l"
+   }
  }
 
- void step16(int idOfSentenceJustSeen) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
+ void step16_select_S_where_s(int idOfSentenceJustSeen) {
+   String q = ''
    //select S where s {}
-   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
-   sql4 += 'from sentences s '
-   sql4 += 'join labels l '
-   sql4 += 'on s.id = l.sid '
-   sql4 += "where s.id <> $idOfSentenceJustSeen "
-   sql4 += 'and l in ( '
-   sql4 += 'select l.l '
-   sql4 += 'from labels l '
-   sql4 += "where sid = $idOfSentenceJustSeen "
-   sql4 += ') '
-   sql4 += 'order by l.l '
-  //println sql4
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+   q += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
+   q += 'from sentences s '
+   q += 'join labels l '
+   q += 'on s.id = l.sid '
+   q += "where s.id <> $idOfSentenceJustSeen "
+   q += 'and l in ( '
+   q += 'select l.l '
+   q += 'from labels l '
+   q += "where sid = $idOfSentenceJustSeen "
+   q += ') '
+   q += 'order by l.l '
+ 
+   def stmt = conn.createStatement();
+   ResultSet rs = stmt.executeQuery(q);
 
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String s   = rs4.getString("s");
-   String l   = rs4.getString("l");
-   println "$l,$s"
-  }
+   def i=0
+   while(rs.next() && i++ <= 2000000) {
+     String s   = rs.getString("s");
+     String l   = rs.getString("l");
+     println "$l,$s"
+   }
  }
 
- void step17(int idOfSentenceJustSeen, String regexp) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
+ void step17_select_S_where_s_and_r(int idOfSentenceJustSeen, String regexp) {
+   String q = ''
    //Find sentences matching a certain sentence
-   sql4 += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
-   sql4 += 'from sentences s '
-   sql4 += 'join labels l '
-   sql4 += 'on s.id = l.sid '
-   sql4 += "where s.id <> $idOfSentenceJustSeen "
-   sql4 += "and s.s regexp '$regexp' "
-   sql4 += 'and l in ( '
-   sql4 += 'select l.l '
-   sql4 += 'from labels l '
-   sql4 += "where sid = $idOfSentenceJustSeen "
-   sql4 += ') '
+   q += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
+   q += 'from sentences s '
+   q += 'join labels l '
+   q += 'on s.id = l.sid '
+   q += "where s.id <> $idOfSentenceJustSeen "
+   q += "and s.s regexp '$regexp' "
+   q += 'and l in ( '
+   q += 'select l.l '
+   q += 'from labels l '
+   q += "where sid = $idOfSentenceJustSeen "
+   q += ') '
 
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+   def stmt = conn.createStatement();
+   ResultSet rs = stmt.executeQuery(q);
 
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   String s   = rs4.getString("s");
-   String l   = rs4.getString("l");
+   def i=0
+   while(rs.next() && i++ <= 2000000) {
+     String s   = rs.getString("s");
+     String l   = rs.getString("l");
 
-   println "$s,$l"
-  }
+     println "$s,$l"
+   }
  }
 
- HashMap step18(int idOfSentenceJustSeen, String regexp) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
+ HashMap step18_select_S_where_s_and_r_limit_1(int idOfSentenceJustSeen, String regexp) {
+   String q = ''
    //18: select S where s and r limit 1
    //Not an optimized query!
-   sql4 += 'select * from (\n'
-   sql4 += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l\n'
-   sql4 += 'from sentences s\n'
-   sql4 += 'join labels l\n'
-   sql4 += 'on s.id = l.sid\n'
-   sql4 += "where s.id <> $idOfSentenceJustSeen\n"
-   sql4 += "and lower(s.s) regexp '$regexp'\n"
-   sql4 += 'and l in (\n'
-   sql4 += 'select l.l\n'
-   sql4 += 'from labels l\n'
-   sql4 += "where sid = $idOfSentenceJustSeen\n"
-   sql4 += ')\n'
-   sql4 += ')\n'
-   sql4 += 'order by rand()\n'
-   sql4 += 'limit 1\n'
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+   q += 'select * from (\n'
+   q += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l\n'
+   q += 'from sentences s\n'
+   q += 'join labels l\n'
+   q += 'on s.id = l.sid\n'
+   q += "where s.id <> $idOfSentenceJustSeen\n"
+   q += "and lower(s.s) regexp '$regexp'\n"
+   q += 'and l in (\n'
+   q += 'select l.l\n'
+   q += 'from labels l\n'
+   q += "where sid = $idOfSentenceJustSeen\n"
+   q += ')\n'
+   q += ')\n'
+   q += 'order by rand()\n'
+   q += 'limit 1\n'
+  def stmt = conn.createStatement();
+  ResultSet rs = stmt.executeQuery(q);
 
   int ids = -1
   String s
   String l
-  while(rs4.next()) {
-   ids = rs4.getInt("ids");
-   s   = rs4.getString("s");
-   l   = rs4.getString("l");
+  while(rs.next()) {
+   ids = rs.getInt("ids");
+   s   = rs.getString("s");
+   l   = rs.getString("l");
   }
   [ids:ids, s:s, l:l]
  }
 
- void step19(String regexp) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
+ void step19_select_S_where_r(String regexp) {
+   String q = ''
    //19: select S where r
    //Not an optimized query!
-   sql4 += 'select * from ( '
-   sql4 += 'select rownum r, s.id ids, s.s '
-   sql4 += 'from sentences s '
-   sql4 += "where s.s regexp '$regexp' "
-   sql4 += ') '
-   sql4 += 'order by rand() '
+   q += 'select * from ( '
+   q += 'select rownum r, s.id ids, s.s '
+   q += 'from sentences s '
+   q += "where s.s regexp '$regexp' "
+   q += ') '
+   q += 'order by rand() '
 
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+   def stmt = conn.createStatement();
+   ResultSet rs4 = stmt.executeQuery(q);
 
-  String r
-  int ids
-  String s
-  String idl
-  String sid
-  String l
-  def i=0
-  while(rs4.next() && i++ <= 2000000) {
-   s   = rs4.getString("s");
-   println "$s"
-  }
+   String s
+   def i=0
+   while(rs4.next() && i++ <= 2000000) {
+    s   = rs4.getString("s");
+    println s
+   }
  }
 
  HashMap step20_select_S_where_r_limit_1(String regexp) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
+   String q = ''
    //20: select S where r limit 1
    //Not an optimized query!
-   sql4 += 'select * from ( '
-   sql4 += 'select rownum r, s.id ids, s.s '
-   sql4 += 'from sentences s '
-   sql4 += "where s.s regexp '$regexp' "
-   sql4 += ') '
-   sql4 += 'order by rand() '
-   sql4 += 'limit 1 '
+   q += 'select * from ( '
+   q += 'select rownum r, s.id ids, s.s '
+   q += 'from sentences s '
+   q += "where s.s regexp '$regexp' "
+   q += ') '
+   q += 'order by rand() '
+   q += 'limit 1 '
 
-  ResultSet rs4 = stmt4.executeQuery(sql4);
+  def stmt = conn.createStatement();
+  ResultSet rs = stmt.executeQuery(q);
 
   int ids = -1
   String s
-  while(rs4.next()) {
-   ids = rs4.getInt("ids");
-   s   = rs4.getString("s");
-  }
+  rs.next() 
+  ids = rs.getInt("ids");
+  s   = rs.getString("s");
 
   [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
  }
 
  void step21_select_s_where_s_print(int idOfSentenceJustSeen) {
-  def stmt4 = conn.createStatement();
-  String sql4 = ''
   //21: select s where s
-  sql4 += 'select s.s '
-  sql4 += 'from sentences s '
-  sql4 += "where s.id = $idOfSentenceJustSeen "
+  String q = ''
+  q += 'select s.s '
+  q += 'from sentences s '
+  q += "where s.id = $idOfSentenceJustSeen "
+  def stmt = conn.createStatement()
+  ResultSet rs = stmt.executeQuery(q)
 
-  ResultSet rs4 = stmt4.executeQuery(sql4);
-
-  rs4.next() 
-  String s = rs4.getString("s");
+  rs.next() 
+  String s = rs.getString("s")
   println "$GREEN$s$NOCOLOR"
  }
 
- void step22(int idOfSentenceJustSeen, String label) {
-  String sql2 = "insert into labels(sid, l) values ($idOfSentenceJustSeen, '$label')"
-  def stmt2 = conn.createStatement()
+ void step22_insert_values_s_l(int idOfSentenceJustSeen, String label) {
+  String q
+  q  = "insert into labels(sid, l) "
+  q += "values ($idOfSentenceJustSeen, '$label')"
+  def stmt = conn.createStatement()
   try {
-   def x2 = stmt2.execute(sql2)
+   stmt.execute(q)
   }
   catch (e) {
    println "insert failed"
@@ -452,14 +440,14 @@ if (a0 == '99') {
   }
  }
 
- void step23(int idOfSentenceJustSeen, String label) {
-  String sql2
-  sql2  = "delete from labels "
-  sql2 += "where sid = $idOfSentenceJustSeen "
-  sql2 += "and l = '$label' "
-  def stmt2 = conn.createStatement()
+ void step23_delete_L_from_s(int idOfSentenceJustSeen, String label) {
+  String q
+  q  = "delete from labels "
+  q += "where sid = $idOfSentenceJustSeen "
+  q += "and l = '$label' "
+  def stmt = conn.createStatement()
   try {
-   def x2 = stmt2.execute(sql2)
+   stmt.execute(q)
   }
   catch (e) {
    println "insert failed"
@@ -469,21 +457,21 @@ if (a0 == '99') {
 
  HashMap step24_select_S_from_s_limit_1(int idOfSentenceJustSeen) {
   def stmt = conn.createStatement();
-  String sql = ''
+  String q = ''
   //select S where s limit 1
-  sql += 'select s.id ids, s.s, l.id idl, l.sid, l.l\n'
-  sql += 'from sentences s\n'
-  sql += 'join labels l\n'
-  sql += 'on s.id = l.sid\n'
-  sql += "where s.id <> $idOfSentenceJustSeen\n"
-  sql += 'and l in (\n'
-  sql += 'select l.l\n'
-  sql += 'from labels l\n'
-  sql += "where sid = $idOfSentenceJustSeen\n"
-  sql += ')\n'
-  sql += 'order by rand() '
-  sql += 'limit 1\n'
-  ResultSet rs = stmt.executeQuery(sql);
+  q += 'select s.id ids, s.s, l.id idl, l.sid, l.l\n'
+  q += 'from sentences s\n'
+  q += 'join labels l\n'
+  q += 'on s.id = l.sid\n'
+  q += "where s.id <> $idOfSentenceJustSeen\n"
+  q += 'and l in (\n'
+  q += 'select l.l\n'
+  q += 'from labels l\n'
+  q += "where sid = $idOfSentenceJustSeen\n"
+  q += ')\n'
+  q += 'order by rand() '
+  q += 'limit 1\n'
+  ResultSet rs = stmt.executeQuery(q);
 
   int ids = -1
   String s
@@ -577,7 +565,7 @@ void runIntegrationTests(Yacback h) {
 
 def testUserInputSequence1(Yacback h) {
   def temp1 = h.step20_select_S_where_r_limit_1('sonrisa.*mundo')
-  def temp2 = h.step18(temp1.ids, 'bellas mujeres') 
+  def temp2 = h.step18_select_S_where_s_and_r_limit_1(temp1.ids, 'bellas mujeres') 
   String answer = "${h.GREEN}Un dia especial para ti y todas las bellas mujeres del ${h.YELLOW}mundo${h.GREEN} ${h.NOCOLOR}"
   String temp3 = h.getOutputline(temp2.s, temp2.l)
   assert temp3 == answer
