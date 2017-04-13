@@ -33,7 +33,9 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 //   upload/upload createFiveKeys <buildKeys> <encryptionKeyId> <encryptionKeyDescription>
 //where <buildKeys> is true or false
 //If <buildKeys> is true, then <encryptionKeyId> is ignored
-//Note: encryptionKeyDescription looks like 'x-y-l2'
+//Note 1: encryptionKeyDescription looks like 'x-y-l2'
+//Note 2: AWS KMS enforces a 7 day waiting period before deletion, so
+// in order to prevent an overabundance of test keys, set to false:
 //
 //To run this code (for the uups method):
 // java -cp $JARS \
@@ -51,7 +53,9 @@ Steps for updating pz-blobstore:
 - uups
 - restage each app that uses pz-blobstore
 */
-    def uups(user, pwd, cfspace, encryptionkey) {
+    def uups(args) {
+	def (dummy, user, pwd, cfspace, encryptionkey) = args
+
         def cfcmd = '/home/ec2-user/groovy/cf'
         def cftarget = 'https://api.devops.geointservices.io'
         def cfskip = '--skip-ssl-validation'
@@ -131,14 +135,14 @@ Steps for updating pz-blobstore:
 	f << "${credentials['secret_access_key']}\n"
 	f << "}\n"
 
-	println "About to uups... (remember, we're in $cfspace)"
+	println "About to uups pz-blobstore in $cfspace..."
         def cmd4 = "$cfcmd uups pz-blobstore -p upload-uups.json"
         def cmdtext4 = cmd4.execute()
 	println cmdtext4.err.text
 	println cmdtext4.text
 
 	appsUsingBlobstore.each {
-	    println "About to restage $it... (remember, we're in $cfspace)"
+	    println "About to restage $cfspace $it"
             def cmd5 = "$cfcmd restage $it"
             def cmdtext5 = cmd5.execute()
 	    println cmdtext5.err.text
@@ -151,7 +155,11 @@ Steps for updating pz-blobstore:
 	println cmdtext2.text
     }
 
-    def createFiveKeys(String createKeys, String encryptionKeyId, String encryptionKeyAlias) {
+    def createFiveKeys(args) {
+	//createKeys e.g. true or false
+        //encryptionKeyId e.g. bcdebfc2-68d1-4473-8675-73da960326e1
+  	//encryptionKeyAlias e.g. alias/piazza-kms-fade
+	def (dummy, createKeys, encryptionKeyId, encryptionKeyAlias) = args
 
 	def spaces = [
 	    'test', 'dev', 'int', 'stage', 'prod'
@@ -159,88 +167,49 @@ Steps for updating pz-blobstore:
 
 	def putKeyPolicy = [:]
 
-	def spaceEncryptionkey = [:]
-	//when loaded will at first look like this:
-        // [
-      	//  'test': 'gsn-iam-test-S3BlobstoreUser-14JQDCWOCNXRU',
-        //  'dev':  'gsn-iam-dev-S3BlobstoreUser-1OM0QYZL8BTEP',
-        //  'int':  'gsn-iam-int-S3BlobstoreUser-W4XRSOXFO9VF',
-        //  'stage':'gsn-iam-stage-S3BlobstoreUser-MIF4H60PGOSX',
-        //  'prod': 'gsp-iam-prod-S3BlobstoreUser-1056HWJ5M3PXS'
-        // ]42de4feb-844f-43d3-bff9-6bde53474aff
-	//then it will eventually look like this (lines are abbreviated):
-        // [
-      	//  'test': 'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-test...',
-        //  'dev':  'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-dev...',
-        //  'int':  'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-int...',
-        //  'stage':'bcdebfc2-68d1-4473-8675-73da960326e1,gsn-iam-stage...',
-        //  'prod': 'bcdebfc2-68d1-4473-8675-73da960326e1,gsp-iam-prod...'
-        // ]
-
+	//s/m: somehow acctuser must be parameterized
+	//s/m: somehow spaces must be parameterized
+	def acctuser = 'arn:aws:iam::539674021708:user'
+	def allPCFBlobstoreUserids =  ''
 	spaces.each {
 	    def s1 = "aws iam list-users --output text".execute() | "grep S3BlobstoreUser".execute() | "grep $it".execute()
 	    def t1 = s1.text.split()
-	    spaceEncryptionkey[it] = t1[5]
+	    def t2 = t1[5] //gsn-iam-dev-S3BlobstoreUser-99Z9ZZZZ9ZZZZ
+	    allPCFBlobstoreUserids += "\"$acctuser/$t2\","
 	}
 
-	def existingKeys = [:]
+	allPCFBlobstoreUserids = allPCFBlobstoreUserids[0..-2] //trailing comma isn't valid json
 
  	if (createKeys == 'true') {
             def s1 = "aws kms create-key --description $encryptionKeyAlias --region us-east-1 --output text".execute()
             def t1 = s1.text.split()
             encryptionKeyId = t1[6] 
-	    spaces.each {
-		existingKeys[it] = encryptionKeyId
-	    }
 	}
-	else {
-	    existingKeys = [
-                'test':   encryptionKeyId, //e.g. 42de4feb-844f-43d3-bff9-6bde53474aff
-                'dev':    encryptionKeyId,
-                'int':    encryptionKeyId,
-                'stage':  encryptionKeyId,
-                'prod':   encryptionKeyId,
-	    ]
-	}
-/* The x,y format isn't used anymore.
-	spaces.each { k ->
-	    spaceEncryptionkey[k] = existingKeys[k] + ',' + spaceEncryptionkey[k]
-	}
-*/
 
-            def keyId = encryptionKeyId //it used to say this: v.split(',')[0]
-            def userid = 'unused' //it is not used anymore: v.split(',')[1] 
-            def alias = encryptionKeyAlias 
+        def keyId = encryptionKeyId
+        def alias = encryptionKeyAlias 
            
-            def s1 = "aws kms create-alias --alias-name alias/$alias --target-key-id $keyId --region us-east-1"
-            def s2 = s1.execute()
-            println ""
-	    println s1
-            println "create-alias err.text: ${s2.err.text}"
-            println "create-alias    .text: ${s2.text}"
-	    def acctuser = 'arn:aws:iam::539674021708:user'
+        def s1 = "aws kms create-alias --alias-name alias/$alias --target-key-id $keyId --region us-east-1"
+        def s2 = s1.execute()
+        println ""
+	println s1
+        println "create-alias err.text: ${s2.err.text}"
+        println "create-alias    .text: ${s2.text}"
 
-	    userid =  ''
-	    spaceEncryptionkey.each { k, v ->
-	      userid += "\"$acctuser/$v\","
-	    }
-	    userid = userid[0..-2] //remove trailing comma
 
-            def s3 = 'aws kms put-key-policy --key-id ' + keyId + ' --region us-east-1 --policy-name default --policy \'{"Version":"2012-10-17","Id":"key-consolepolicy-3","Statement":[{"Sid":"EnableIAMUserPermissions","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:root"},"Action":"kms:*","Resource":"*"},{"Sid":"AllowAccessForKeyAdministrators","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:user/cwong"},"Action":["kms:Create*","kms:Describe*","kms:Enable*","kms:List*","kms:Put*","kms:Update*","kms:Revoke*","kms:Disable*","kms:Get*","kms:Delete*","kms:TagResource","kms:UntagResource","kms:ScheduleKeyDeletion","kms:CancelKeyDeletion"],"Resource":"*"},{"Sid":"AllowUseOfTheKey","Effect":"Allow","Principal":{"AWS":[' + userid + ']},"Action":["kms:Encrypt","kms:Decrypt","kms:ReEncrypt*","kms:GenerateDataKey*","kms:DescribeKey"],"Resource":"*"},{"Sid":"AllowAttachmentOfPersistentResources","Effect":"Allow","Principal":{"AWS":[' + userid + ']},"Action":["kms:CreateGrant","kms:ListGrants","kms:RevokeGrant"],"Resource":"*","Condition":{"Bool":{"kms:GrantIsForAWSResource":"true"}}}]}\' '
-	    //not used anymore: putKeyPolicy[k] = s3
+        def s3 = 'aws kms put-key-policy --key-id ' + keyId + ' --region us-east-1 --policy-name default --policy \'{"Version":"2012-10-17","Id":"key-consolepolicy-3","Statement":[{"Sid":"EnableIAMUserPermissions","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:root"},"Action":"kms:*","Resource":"*"},{"Sid":"AllowAccessForKeyAdministrators","Effect":"Allow","Principal":{"AWS":"arn:aws:iam::539674021708:user/cwong"},"Action":["kms:Create*","kms:Describe*","kms:Enable*","kms:List*","kms:Put*","kms:Update*","kms:Revoke*","kms:Disable*","kms:Get*","kms:Delete*","kms:TagResource","kms:UntagResource","kms:ScheduleKeyDeletion","kms:CancelKeyDeletion"],"Resource":"*"},{"Sid":"AllowUseOfTheKey","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:Encrypt","kms:Decrypt","kms:ReEncrypt*","kms:GenerateDataKey*","kms:DescribeKey"],"Resource":"*"},{"Sid":"AllowAttachmentOfPersistentResources","Effect":"Allow","Principal":{"AWS":[' + allPCFBlobstoreUserids + ']},"Action":["kms:CreateGrant","kms:ListGrants","kms:RevokeGrant"],"Resource":"*","Condition":{"Bool":{"kms:GrantIsForAWSResource":"true"}}}]}\' '
 
         //This script isn't able to submit the put-key-policy command.
         // The problem is probably related to Groovy's handling of embedded
         // whitespace in .execute() command strings.
-	def f = new File('upload-puts')
-/* not used anymore:
-	putKeyPolicy.each { k, v ->
-            f << "${putKeyPolicy[k]}\n"
-	}
-*/
-	f.write "$s3\n"
-        println "\nRun the following manually from the command line:\n"
-	println "./upload-puts"
+	new File('upload-puts').write "$s3\n"
+        //println "\nRun the following manually from the command line:\n"
+	//println "./upload-puts"
+        def s5 = "./upload-puts".execute()
+        println ""
+	println s5
+        println "upload-puts err.text: ${s5.err.text}"
+        println "upload-puts    .text: ${s5.text}"
     }
 
     //This code is borrowed from
@@ -250,12 +219,16 @@ Steps for updating pz-blobstore:
     // to the following code:
     //  aws s3 cp craigdeleteme s3://s3-encryption-dgr
     //   --region us-east-1 --sse-kms-key-id alias/craigkey --sse aws:kms
-    def upload() {
-	//Use BasicAWSCredentials (if you're going to hardcode the password (yuck)):
-	// BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAREDACTED ", "REDACTED")
+    def upload(args) {
+	//Use BasicAWSCredentials 
+	// (if you're going to hardcode the password (yuck)):
+	// BasicAWSCredentials awsCreds = 
+	//  new BasicAWSCredentials("AKIAREDACTED ", "REDACTED")
 
-	//Use SystemPropertiesCredentialsProvider (if you're going to use -D command line parms):
-	def awsCreds = new SystemPropertiesCredentialsProvider().getCredentials() 
+	//Use SystemPropertiesCredentialsProvider 
+	// (if you're going to use -D command line parms):
+	def awsCreds = 
+	  new SystemPropertiesCredentialsProvider().getCredentials() 
 
 	Region usEast1 = Region.getRegion(Regions.US_EAST_1);
 	def bucketName     = "s3-encryption-dgr"
@@ -295,29 +268,4 @@ Steps for updating pz-blobstore:
     }
 }
 
-def u = new UploadObjectSingleOperation()
-
-String cmd = args[0]
-
-if (cmd == 'upload') {
-  u.upload()
-}
-
-if (cmd == 'createFiveKeys') {
-  //AWS KMS enforces a 7 day waiting period before deletion, so
-  // in order to prevent an overabundance of test keys, set to false:
-  String createKeys = args[1]
-  String encryptionKeyId = args[2] //e.g. bcdebfc2-68d1-4473-8675-73da960326e1
-  String encryptionKeyAlias = args[3] //e.g. alias/piazza-kms-fade
-  println "encryptionKeyId is $encryptionKeyId"
-  println "encryptionKeyAlias is $encryptionKeyAlias"
-  u.createFiveKeys(createKeys, encryptionKeyId, encryptionKeyAlias)
-}
-
-if (cmd == 'uups') {
-  String user = args[1]
-  String password = args[2]
-  String space = args[3]
-  String encryptionkey = args[4] //e.g. alias/piazza-kms-fade
-  u.uups(user, password, space, encryptionkey)
-}
+new UploadObjectSingleOperation().{args[0]}(args)
