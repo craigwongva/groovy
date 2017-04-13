@@ -118,7 +118,8 @@ if (a0 == '10') {
 if (a0 == '12') {
  //has-root-poder, has-word-cumpleanos
  String label = a1
- step12_select_S_where_l(label)
+ def a = step12_select_S_where_l(label)
+ step12_print(a)
 }
 
 if (a0 == '13') {
@@ -128,25 +129,27 @@ if (a0 == '13') {
 }
 
 if (a0 == '15') {
- step15_select_L_where_s(idOfSentenceJustSeen)
+ ArrayList a = step15_select_L_where_s(idOfSentenceJustSeen)
+ step15_print(a)
 }
 
 if (a0 == '16') {
- step16_select_S_where_s(idOfSentenceJustSeen)
+ def a = step16_select_S_where_s(idOfSentenceJustSeen)
+ step16_print(a)
 }
 
 if (a0 == '17') {
  String regexp = a1
- step17_select_S_where_s_and_r(idOfSentenceJustSeen, regexp)
+ ArrayList a = step17_select_S_where_s_and_r(idOfSentenceJustSeen, regexp)
+ step17_print(a)
 }
 
 if (a0 =~ '18') {
  String regexp = a1
- HashMap temp = step18_select_S_where_s_and_r_limit_1(idOfSentenceJustSeen, regexp)
- if (temp.ids > 0) {
-  idOfSentenceJustSeen = temp.ids
-  println getOutputline(temp.s, temp.l)
- }
+ HashMap temp = 
+  step18_select_S_where_s_and_r_limit_1(
+   idOfSentenceJustSeen, regexp)
+ step18_print(temp)
 }
 
 if (a0 == '19') {
@@ -160,11 +163,12 @@ if (a0 == '20') {
  if (temp.ids > 0) {
   idOfSentenceJustSeen = temp.ids
  }
- step21_select_s_where_s_print(idOfSentenceJustSeen)
+ step20_print(idOfSentenceJustSeen)
 }
 
 if (a0 == '21') {
- step21_select_s_where_s_print(idOfSentenceJustSeen)
+ String s = step21_select_s_where_s_print(idOfSentenceJustSeen)
+ step21_print(s)
 }
 
 if (a0 == '22') {
@@ -178,11 +182,10 @@ if (a0 == '23') {
 }
 
 if (a0 == '24') {
- HashMap temp = step24_select_S_from_s_limit_1(idOfSentenceJustSeen)
- if (temp.ids > 0) {
-  idOfSentenceJustSeen = temp.ids
-  println getOutputline(temp.s, temp.l)
- }
+ HashMap temp = 
+  step24_select_S_from_s_limit_1(
+   idOfSentenceJustSeen)
+ step24_print(temp)
 }
 
 if (a0 == '25') {
@@ -193,6 +196,38 @@ if (a0 == '99') {
  System.exit(0)
 }
 }
+
+String getOutputline(String sentence, String label) {
+   String templabel = getWordInHyphenedLabel(label)
+
+   sentence += ' ' //enables matching the final word
+
+   int templabelindexof 
+   templabelindexof = sentence.indexOf(" $templabel ")
+
+   String s
+   if (templabelindexof < 1) {
+    s = "$GREEN$sentence$NOCOLOR"
+   }
+   else {
+    s  =   "$GREEN${sentence[0..templabelindexof]}"
+    s +=   "$YELLOW$templabel"
+    s +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
+    s +=   "$NOCOLOR"
+   }
+   s
+ }
+
+ void testGetOutputline() {
+  def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
+  def temp = 'Un dia especial para ti y todas las bellas mujeres del mundo'
+  assert getOutputline(temp, 'has-word-mundo') == answer
+
+  answer = "${GREEN}Felizmente me quedo con ${YELLOW}esta${GREEN} vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo ${NOCOLOR}"
+  assert getOutputline('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo', 'has-word-esta')
+
+  println "testGetOutputline passed"
+ }
 
  void step9_insertSampleSentences() {
   def f = new File('sentences.txt')
@@ -227,7 +262,7 @@ if (a0 == '99') {
    }
  }
 
- void step12_select_S_where_l(String hyphenedLabel) {
+ ArrayList step12_select_S_where_l(String hyphenedLabel) {
    String q = ''
    q += 'select s.* '
    q += 'from sentences s '
@@ -239,11 +274,11 @@ if (a0 == '99') {
    ResultSet rs = stmt.executeQuery(q);
 
    def i=0
+   def a = []
    while(rs.next() && i++ <= 2000000) {
-     String s = rs.getString("s");
-
-     println s
+     a << rs.getString("s");
    }
+   a
  }
 
  void step13_insert_l(String hyphenedLabel) {
@@ -261,9 +296,8 @@ if (a0 == '99') {
   stmt.execute(q);
  }
 
- void step15_select_L_where_s(int idOfSentenceJustSeen) {
+ ArrayList step15_select_L_where_s(int idOfSentenceJustSeen) {
    String q = ''
-   //Find labels in a certain sentence
    q += 'select l.l '
    q += 'from labels l '
    q += "where sid = $idOfSentenceJustSeen "
@@ -273,16 +307,15 @@ if (a0 == '99') {
    ResultSet rs = stmt.executeQuery(q);
 
    def i=0
+   def a = []
    while(rs.next() && i++ <= 2000000) {
-     String l = rs.getString("l");
-
-     println "$l"
+     a << rs.getString("l");
    }
+   a
  }
 
- void step16_select_S_where_s(int idOfSentenceJustSeen) {
+ ArrayList step16_select_S_where_s(int idOfSentenceJustSeen) {
    String q = ''
-   //select S where s {}
    q += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
    q += 'from sentences s '
    q += 'join labels l '
@@ -299,16 +332,17 @@ if (a0 == '99') {
    ResultSet rs = stmt.executeQuery(q);
 
    def i=0
+   def a = []
    while(rs.next() && i++ <= 2000000) {
      String s   = rs.getString("s");
      String l   = rs.getString("l");
-     println "$l,$s"
+     a << [s, l]
    }
+   a
  }
 
- void step17_select_S_where_s_and_r(int idOfSentenceJustSeen, String regexp) {
+ ArrayList step17_select_S_where_s_and_r(int idOfSentenceJustSeen, String regexp) {
    String q = ''
-   //Find sentences matching a certain sentence
    q += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
    q += 'from sentences s '
    q += 'join labels l '
@@ -325,33 +359,35 @@ if (a0 == '99') {
    ResultSet rs = stmt.executeQuery(q);
 
    def i=0
+   def a = []
    while(rs.next() && i++ <= 2000000) {
      String s   = rs.getString("s");
      String l   = rs.getString("l");
-
-     println "$s,$l"
+     a << [s, l]
    }
+   a
  }
 
- HashMap step18_select_S_where_s_and_r_limit_1(int idOfSentenceJustSeen, String regexp) {
+ HashMap step18_select_S_where_s_and_r_limit_1(
+   int idOfSentenceJustSeen, String regexp) {
+
    String q = ''
-   //18: select S where s and r limit 1
    //Not an optimized query!
-   q += 'select * from (\n'
-   q += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l\n'
-   q += 'from sentences s\n'
-   q += 'join labels l\n'
-   q += 'on s.id = l.sid\n'
-   q += "where s.id <> $idOfSentenceJustSeen\n"
-   q += "and lower(s.s) regexp '$regexp'\n"
-   q += 'and l in (\n'
-   q += 'select l.l\n'
-   q += 'from labels l\n'
-   q += "where sid = $idOfSentenceJustSeen\n"
-   q += ')\n'
-   q += ')\n'
-   q += 'order by rand()\n'
-   q += 'limit 1\n'
+   q += 'select * from ( '
+   q += 'select rownum r, s.id ids, s.s, l.id idl, l.sid, l.l '
+   q += 'from sentences s '
+   q += 'join labels l '
+   q += 'on s.id = l.sid '
+   q += "where s.id <> $idOfSentenceJustSeen "
+   q += "and lower(s.s) regexp '$regexp' "
+   q += 'and l in ( '
+   q += 'select l.l '
+   q += 'from labels l '
+   q += "where sid = $idOfSentenceJustSeen "
+   q += ') '
+   q += ') '
+   q += 'order by rand() '
+   q += 'limit 1'
   def stmt = conn.createStatement();
   ResultSet rs = stmt.executeQuery(q);
 
@@ -366,9 +402,8 @@ if (a0 == '99') {
   [ids:ids, s:s, l:l]
  }
 
- void step19_select_S_where_r(String regexp) {
+ ArrayList step19_select_S_where_r(String regexp) {
    String q = ''
-   //19: select S where r
    //Not an optimized query!
    q += 'select * from ( '
    q += 'select rownum r, s.id ids, s.s '
@@ -382,15 +417,16 @@ if (a0 == '99') {
 
    String s
    def i=0
+   def a = []
    while(rs4.next() && i++ <= 2000000) {
     s   = rs4.getString("s");
-    println s
+    a << s
    }
+   a
  }
 
  HashMap step20_select_S_where_r_limit_1(String regexp) {
    String q = ''
-   //20: select S where r limit 1
    //Not an optimized query!
    q += 'select * from ( '
    q += 'select rownum r, s.id ids, s.s '
@@ -412,8 +448,7 @@ if (a0 == '99') {
   [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
  }
 
- void step21_select_s_where_s_print(int idOfSentenceJustSeen) {
-  //21: select s where s
+ String step21_select_s_where_s_print(int idOfSentenceJustSeen) {
   String q = ''
   q += 'select s.s '
   q += 'from sentences s '
@@ -423,7 +458,6 @@ if (a0 == '99') {
 
   rs.next() 
   String s = rs.getString("s")
-  println "$GREEN$s$NOCOLOR"
  }
 
  void step22_insert_values_s_l(int idOfSentenceJustSeen, String label) {
@@ -477,7 +511,7 @@ if (a0 == '99') {
   String s
   String l
   while(rs.next()) {
-   ids        = rs.getInt("ids");
+   ids = rs.getInt("ids");
    s   = rs.getString("s");
    l   = rs.getString("l");
   }
@@ -501,37 +535,74 @@ if (a0 == '99') {
   println "Deleted sentence $idOfSentenceJustSeen"
  }
 
- String getOutputline(String sentence, String label) {
-   String templabel = getWordInHyphenedLabel(label)
-
-   sentence += ' ' //enables matching the final word
-
-   int templabelindexof 
-   templabelindexof = sentence.indexOf(" $templabel ")
-
-   String s
-   if (templabelindexof < 1) {
-    s = "$GREEN$sentence$NOCOLOR"
+  void step12_print(ArrayList a) {
+  if (a.size() == 0) {
+   println "--no results--"
+  }
+  else {
+   a.each {
+    println it
    }
-   else {
-    s  =   "$GREEN${sentence[0..templabelindexof]}"
-    s +=   "$YELLOW$templabel"
-    s +=   "$GREEN${sentence[templabelindexof+templabel.size()+1..-1]}"
-    s +=   "$NOCOLOR"
-   }
-   s
+  }
  }
 
- void testGetOutputline() {
-  def answer = "${GREEN}Un dia especial para ti y todas las bellas mujeres del ${YELLOW}mundo${GREEN} ${NOCOLOR}"
-  def temp = 'Un dia especial para ti y todas las bellas mujeres del mundo'
-  assert getOutputline(temp, 'has-word-mundo') == answer
+ void step15_print(ArrayList a) {
+  step12_print(a)
+ } 
 
-  answer = "${GREEN}Felizmente me quedo con ${YELLOW}esta${GREEN} vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo ${NOCOLOR}"
-  assert getOutputline('Felizmente me quedo con esta vista, con esta paz y tranquilidad que solo ofrece Castel Gandolfo', 'has-word-esta')
+ void step16_print(ArrayList a) {
+  if (a == []) {
+   println "--no results--"
+   return
+  }
 
-  println "testGetOutputline passed"
+  a.each {
+   String s = it[0]
+   String l = it[1]
+   println "$l,$s"
+  }
  }
+
+ void step17_print(ArrayList a) {
+  if (a == []) {
+   println "--no results--"
+   return
+  }
+
+  a.each {
+   String s = it[0]
+   String l = it[1]
+   println "$s,$l"
+  }
+ }
+
+ void step18_print(HashMap h) {
+  if (h.ids > 0) {
+   idOfSentenceJustSeen = h.ids
+   println getOutputline(h.s, h.l)
+  }
+  else {
+   println "--no sentence change--"
+  }
+ }
+
+ void step19_print(ArrayList a) {
+  step12_print(a)
+ } 
+
+ void step20_print(int idOfSentenceJustSeen) {
+  String s = step21_select_s_where_s_print(idOfSentenceJustSeen)
+  step21_print(s)
+ } 
+
+ void step21_print(String s) {
+  println "$GREEN$s$NOCOLOR"
+ }
+
+void step24_print(HashMap h) {
+ step18_print(h)
+}
+
 }
 
 def h = new Yacback()
@@ -576,7 +647,8 @@ def testUserInputSequence1(Yacback h) {
 void getAnInitialSentence(Yacback h) {
  HashMap temp = h.step20_select_S_where_r_limit_1('.*')
  h.idOfSentenceJustSeen = temp.ids
- h.step21_select_s_where_s_print(h.idOfSentenceJustSeen)
+ String s = h.step21_select_s_where_s_print(h.idOfSentenceJustSeen)
+ h.step21_print(s)
 }
 
 void inviteUserInputForever(Yacback h) {
