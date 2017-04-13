@@ -155,132 +155,72 @@ Steps for updating pz-blobstore:
 	println cmdtext2.text
     }
 
-    def createOneEncryptionKeyPerPCFInstance(args) {
+    void createOneEncryptionKeyPerPCFInstance(args) {
 	def (
-	  dummy,		//name of method to invoke
-	  createKey,		//'createKey' or 'false'
+	  ignore,		//name of method to invoke
+	  createKey,		//'createKey' or anything else (e.g. 'false')
 	  encryptionKeyId,	//e.g. zzzzzzz9-99z9-9999-9999-99zz999999z9
+                                // ignored if createKey is 'createKey'
 	  encryptionKeyAlias,   //e.g. projectname-kms-pcfname
-	  pcfspaces,		//omits spaces, e.g. test,dev,int,stage,prod
-	  awsaccount,		//e.g. 999999999999
-	  awsaccountpoweruser	//e.g. deisenhower
+	  pcfSpaces,		//must omit spaces, e.g. test,dev,int,stage,prod
+	  awsAccount,		//e.g. 999999999999
+	  awsAccountPowerUser,	//e.g. deisenhower
+          region                //e.g. us-east-1
 	) = args
 
+	createKeyAndAlias(
+            createKey, encryptionKeyAlias, 
+            encryptionKeyId, region)
+
+        buildAndWriteToFilePutKeyPolicy(
+            pcfSpaces, awsAccount, awsAccountPowerUser, 
+            region, encryptionKeyId)
+
+        executeFromFilePutKeyPolicy()
+    }
+
+    void createKeyAndAlias(
+        String createKey, String encryptionKeyAlias, 
+        String encryptionKeyId, String region) {
+
  	if (createKey == 'createKey') {
-	    encryptionKeyId = createKey(encryptionKeyAlias)
+	    encryptionKeyId = createKey(encryptionKeyAlias, region)
 	}
 
-	createAlias(encryptionKeyAlias, encryptionKeyId)
+        createAlias(encryptionKeyAlias, encryptionKeyId, region)
+    }
+
+    void buildAndWriteToFilePutKeyPolicy(
+        String pcfSpaces, String awsAccount, String awsAccountPowerUser, 
+        String region, String encryptionKeyId) {
 
 	String allPCFBlobstoreUserids = 
-	    getAllPCFBlobstoreUserids(pcfspaces, awsaccount)
+	    getAllPCFBlobstoreUserids(pcfSpaces, awsAccount)
 
-	def policy = """
-{
-  "Version":"2012-10-17",
-  "Id":"key-consolepolicy-3",
-  "Statement":[
-    {
-      "Sid":"EnableIAMUserPermissions",
-      "Effect":"Allow",
-      "Principal":{
-        "AWS":"arn:aws:iam::${awsaccount}:root"
-      },
-      "Action":"kms:*",
-      "Resource":"*"
-    },
-    {
-      "Sid":"AllowAccessForKeyAdministrators",
-      "Effect":"Allow",
-      "Principal":{
-        "AWS":"arn:aws:iam::${awsaccount}:user/${awsaccountpoweruser}"
-      },
-      "Action":[
-        "kms:Create*",
-        "kms:Describe*",
-        "kms:Enable*",
-        "kms:List*",
-        "kms:Put*",
-        "kms:Update*",
-        "kms:Revoke*",
-        "kms:Disable*",
-        "kms:Get*",
-        "kms:Delete*",
-        "kms:TagResource",
-        "kms:UntagResource",
-        "kms:ScheduleKeyDeletion",
-        "kms:CancelKeyDeletion"
-      ],
-      "Resource":"*"
-    },
-    {
-      "Sid":"AllowUseOfTheKey",
-      "Effect":"Allow",
-      "Principal":{
-        "AWS":[
-          "${allPCFBlobstoreUserids}"
-        ]
-      },
-      "Action":[
-        "kms:Encrypt",
-        "kms:Decrypt",
-        "kms:ReEncrypt*",
-        "kms:GenerateDataKey*",
-        "kms:DescribeKey"
-      ],
-      "Resource":"*"
-    },
-    {
-      "Sid":"AllowAttachmentOfPersistentResources",
-      "Effect":"Allow",
-      "Principal":{
-        "AWS":[
-          "${allPCFBlobstoreUserids}"
-        ]
-      },
-      "Action":[
-        "kms:CreateGrant",
-        "kms:ListGrants",
-        "kms:RevokeGrant"
-      ],
-      "Resource":"*",
-      "Condition":{
-        "Bool":{
-          "kms:GrantIsForAWSResource":"true"
-        }
-      }
-    }
-  ]
-}
-"""
-        String s3 = "aws kms put-key-policy --key-id $encryptionKeyId "
-	s3 += "--region us-east-1 --policy-name default "
-	s3 += "--policy '$policy'"
+	String policy = 
+            buildPolicyJSON(
+               awsAccountPowerUser, awsAccount, allPCFBlobstoreUserids)
 
-        //This script isn't able to submit the put-key-policy command.
-        // The problem is probably related to Groovy's handling of embedded
-        // whitespace in .execute() command strings.
-	new File('upload-puts').write "$s3\n"
-        def s5 = "./upload-puts".execute()
-        println ""
-        println "upload-puts err.text: ${s5.err.text}"
-        println "upload-puts    .text: ${s5.text}"
+	writeToFilePutKeyPolicy(region, encryptionKeyId, policy)
     }
 
-    void createKey(String encryptionKeyAlias) {
+    void createKey(String encryptionKeyAlias, String region) {
         String s = 'aws kms create-key '
-        s += '--description $encryptionKeyAlias '
-	s += '--region us-east-1 '
+        s += "--description $encryptionKeyAlias "
+	s += "--region $region "
 	s += '--output text'
 	def sx = s.execute()
         sx.text.split()[6] 
     }
 
-    void createAlias(String encryptionKeyAlias, String encryptionKeyId) {
+    void createAlias(
+        String encryptionKeyAlias, String encryptionKeyId, 
+        String region) {
+
         def s1 = 'aws kms create-alias '
 	s1 += "--alias-name alias/$encryptionKeyAlias "
 	s1 += "--target-key-id $encryptionKeyId "
-	s1 += '--region us-east-1'
+	s1 += "--region $region"
         def s1x = s1.execute()
         println ""
 	println s1
@@ -288,21 +228,54 @@ Steps for updating pz-blobstore:
         println "create-alias    .text: ${s1x.text}"
     }
 
-    String getAllPCFBlobstoreUserids(String pcfspaces, String awsaccount) {
-	def spaces = pcfspaces.split(',')
-	def awsaccountuser = "arn:aws:iam::$awsaccount:user"
+    String buildPolicyJSON(
+        String awsAccountPowerUser, String awsAccount, 
+        String allPCFBlobstoreUserids) {
+
+	String policy = new File('upload.json').text
+        policy = policy.replaceAll('AWSACCOUNTPOWERUSER', awsAccountPowerUser)
+        policy = policy.replaceAll('AWSACCOUNT', awsAccount)
+        policy = policy.replaceAll('ALLPCFBLOBSTOREUSERIDS', allPCFBlobstoreUserids)
+    }
+
+    String getAllPCFBlobstoreUserids(
+        String pcfSpaces, String awsAccount) {
+
+	def spaces = pcfSpaces.split(',')
+	def awsAccountuser = "arn:aws:iam::$awsAccount:user"
 
 	def allPCFBlobstoreUserids =  ''
 	spaces.each {
-	    def s1 = "aws iam list-users --output text".execute() | "grep S3BlobstoreUser".execute() | "grep $it".execute()
+	    def s1 = 
+                "aws iam list-users --output text".execute() | 
+                "grep S3BlobstoreUser".execute() | 
+                "grep $it".execute()
 	    def t1 = s1.text.split()
 	    def t2 = t1[5] //gsn-iam-dev-S3BlobstoreUser-99Z9ZZZZ9ZZZZ
-	    allPCFBlobstoreUserids += "\"$awsaccountuser/$t2\","
+	    allPCFBlobstoreUserids += "\"$awsAccountuser/$t2\","
 	}
 
 	def r1 = allPCFBlobstoreUserids[0..-2] //trailing comma isn't valid json
 	def r2 = r1[1..-2] //leading and trailing double quote aren't needed
 	r2
+    }
+
+    void writeToFilePutKeyPolicy(region, encryptionKeyId, policy) {
+        String s = "aws kms put-key-policy --key-id $encryptionKeyId "
+	s += "--region $region --policy-name default "
+	s += "--policy '$policy'"
+
+        //This script isn't able to submit the put-key-policy command.
+        // The problem is probably related to Groovy's handling of embedded
+        // whitespace in .execute() command strings.
+	new File('upload-puts').write "$s\n"
+    }
+
+    void executeFromFilePutKeyPolicy() {
+        def s = "./upload-puts".execute()
+        println ""
+        println "upload-puts err.text: ${s.err.text}"
+        println "upload-puts    .text: ${s.text}"
     }
 
     //This code is borrowed from
