@@ -187,11 +187,11 @@ public class UploadObjectSingleOperation {
 	appsUsingBlobstore.each {
 	    println "About to restage $cfspace $it"
             def cmd5 = "$cfcmd restage $it"
-/* turn off while refactoring
+// turn off while refactoring
             def cmdtext5 = cmd5.execute()
 	    println cmdtext5.err.text
 	    println cmdtext5.text
-*/
+//
 	}
     }
 
