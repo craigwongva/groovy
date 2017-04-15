@@ -100,50 +100,31 @@ class Yacback {
    println "38: select L where s"
    println "39: select s where s"
    println "40: insert s"
+   println "41: delete s"
+   println "42: insert s, l"
+   println "43: delete s, l"
 
-   println "41: insert l" //what is the use case?
-
-   println "22: insert s, l"
-   println "25: delete s"
-   println "23: delete s, l"
+   println "87: insert l" //what is the use case?
   } 
   
   if (a0 == '9') {
    step9_insertSampleSentences()
   }
-  
-  if (a0 == '40') {
-   String sentence = a1.trim()
-   step40_insert_s(sentence)
-  }
-  
-  if (a0 == '37') {
-   String label = a1
-   def a = step37_select_S_where_l(label)
-   step37_print(a)
-  }
-  
-  if (a0 == '41') {
-   String label = a1
-   step41_insert_l(label)
-  }
-  
-  if (a0 == '38') {
-   ArrayList a = step38_select_L_where_s(idOfSentenceJustSeen)
-   step38_print(a)
-  }
-  
   if (a0 == '31') {
    def a = step31_select_S_where_s(idOfSentenceJustSeen)
    step31_print(a)
   }
-  
+  if (a0 == '32') {
+   HashMap temp = 
+    step32_select_S_from_s_limit_1(
+     idOfSentenceJustSeen)
+   step32_print(temp)
+  }
   if (a0 == '33') {
    String regexp = a1
    ArrayList a = step33_select_S_where_s_and_r(idOfSentenceJustSeen, regexp)
    step33_print(a)
   }
-  
   if (a0 == '34') {
    String regexp = a1
    HashMap temp = 
@@ -151,13 +132,11 @@ class Yacback {
      idOfSentenceJustSeen, regexp)
    step34_print(temp)
   }
-  
   if (a0 == '35') {
    String regexp = a1
    ArrayList temp = step35_select_S_where_r(regexp)
    step35_print(temp)
   }
-  
   if (a0 == '36') {
    String regexp = a1
    HashMap temp = step36_select_S_where_r_limit_1(regexp)
@@ -166,33 +145,38 @@ class Yacback {
    }
    step36_print(idOfSentenceJustSeen)
   }
-  
+  if (a0 == '37') {
+   String label = a1
+   def a = step37_select_S_where_l(label)
+   step37_print(a)
+  }
+  if (a0 == '38') {
+   ArrayList a = step38_select_L_where_s(idOfSentenceJustSeen)
+   step38_print(a)
+  }
   if (a0 == '39') {
    String s = step39_select_s_where_s_print(idOfSentenceJustSeen)
    step39_print(s)
   }
-  
-  if (a0 == '22') {
-   String label = a1
-   step22_insert_s_and_l(idOfSentenceJustSeen, label)
+  if (a0 == '40') {
+   String sentence = a1.trim()
+   step40_insert_s(sentence)
   }
-  
-  if (a0 == '23') {
-   String label = a1
-   step23_delete_s_and_l(idOfSentenceJustSeen, label)
-  }
-  
-  if (a0 == '32') {
-   HashMap temp = 
-    step32_select_S_from_s_limit_1(
-     idOfSentenceJustSeen)
-   step32_print(temp)
-  }
-  
-  if (a0 == '25') {
-   step25_delete_s(idOfSentenceJustSeen) 
+  if (a0 == '41') {
+   step41_delete_s(idOfSentenceJustSeen) 
   } 
-  
+  if (a0 == '42') {
+   String label = a1
+   step42_insert_s_and_l(idOfSentenceJustSeen, label)
+  }
+  if (a0 == '43') {
+   String label = a1
+   step43_delete_s_and_l(idOfSentenceJustSeen, label)
+  }  
+  if (a0 == '87') {
+   String label = a1
+   step87_insert_l(label)
+  }
   if (a0 == '99') {
    System.exit(0)
   }
@@ -237,84 +221,6 @@ class Yacback {
   }
  }
 
- void step40_insert_s(String sentence) {
-  String q1 = "insert into sentences(s) values('$sentence')"
-  def stmt1 = conn.prepareStatement(q1, Statement.RETURN_GENERATED_KEYS)
-  try {
-   stmt1.execute()
-  }
-  catch (e) {
-   println "insert1 failed"
-   println e
-  }
-  ResultSet rs1 = stmt1.getGeneratedKeys()
-  rs1.next()
-  def rs1key = rs1.getInt(1) 
-
-  def stanford = stanfordStructure(sentence)
-  String q2 = convertWordListToInsertStatements(rs1key, stanford)
-  def stmt2 = conn.createStatement()
-  try {
-   stmt2.execute(q2)
-  }
-  catch (e) {
-   println "insert2 failed"
-   println e
-  }
- }
-
- ArrayList step37_select_S_where_l(String hyphenedLabel) {
-  String q = ''
-  q += 'select s.* '
-  q += 'from sentences s '
-  q += 'join labels l '
-  q += 'on s.id = l.sid '
-  q += "where l = '$hyphenedLabel' "
-
-  def stmt = conn.createStatement();
-  ResultSet rs = stmt.executeQuery(q);
-
-  def i=0
-  def a = []
-  while(rs.next() && i++ <= 2000000) {
-    a << rs.getString("s");
-  }
-  a
- }
-
- void step41_insert_l(String hyphenedLabel) {
-  String wordInHyphenedLabel =
-   getWordInHyphenedLabel(hyphenedLabel)
-
-  String q = ''
-  q += "delete from labels where l = '$hyphenedLabel'; "
-  q += 'insert into labels (sid, l) '
-  q += "select id, '$hyphenedLabel' "
-  q += 'from sentences s '
-  q += "where s.s regexp '$wordInHyphenedLabel' "
-
-  def stmt = conn.createStatement();
-  stmt.execute(q);
- }
-
- ArrayList step38_select_L_where_s(int idOfSentenceJustSeen) {
-  String q = ''
-  q += 'select l.l '
-  q += 'from labels l '
-  q += "where sid = $idOfSentenceJustSeen "
-  q += "and not l.l regexp 'has-word-' "
-
-  def stmt = conn.createStatement();
-  ResultSet rs = stmt.executeQuery(q);
-
-  def i=0
-  def a = []
-  while(rs.next() && i++ <= 2000000) {
-    a << rs.getString("l");
-  }
-  a
- }
-
  ArrayList step31_select_S_where_s(int idOfSentenceJustSeen) {
   String q = ''
   q += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
@@ -340,6 +246,34 @@ class Yacback {
     a << [s, l]
   }
   a
+ }
+
+ HashMap step32_select_S_from_s_limit_1(int idOfSentenceJustSeen) {
+  String q = ''
+  q += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
+  q += 'from sentences s '
+  q += 'join labels l '
+  q += 'on s.id = l.sid '
+  q += "where s.id <> $idOfSentenceJustSeen "
+  q += 'and l in ( '
+  q += 'select l.l '
+  q += 'from labels l '
+  q += "where sid = $idOfSentenceJustSeen "
+  q += ') '
+  q += 'order by rand() '
+  q += 'limit 1 '
+
+  def stmt = conn.createStatement();
+  ResultSet rs = stmt.executeQuery(q);
+
+  int ids = -1
+  String s
+  String l
+  rs.next()
+  ids = rs.getInt("ids");
+  s   = rs.getString("s");
+  l   = rs.getString("l");
+  [ids:ids, s:s, l:l]
  }
 
  ArrayList step33_select_S_where_s_and_r(
@@ -451,6 +385,43 @@ class Yacback {
   [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
  }
 
+ ArrayList step37_select_S_where_l(String hyphenedLabel) {
+  String q = ''
+  q += 'select s.* '
+  q += 'from sentences s '
+  q += 'join labels l '
+  q += 'on s.id = l.sid '
+  q += "where l = '$hyphenedLabel' "
+
+  def stmt = conn.createStatement();
+  ResultSet rs = stmt.executeQuery(q);
+
+  def i=0
+  def a = []
+  while(rs.next() && i++ <= 2000000) {
+    a << rs.getString("s");
+  }
+  a
+ }
+
+ ArrayList step38_select_L_where_s(int idOfSentenceJustSeen) {
+  String q = ''
+  q += 'select l.l '
+  q += 'from labels l '
+  q += "where sid = $idOfSentenceJustSeen "
+  q += "and not l.l regexp 'has-word-' "
+
+  def stmt = conn.createStatement();
+  ResultSet rs = stmt.executeQuery(q);
+
+  def i=0
+  def a = []
+  while(rs.next() && i++ <= 2000000) {
+    a << rs.getString("l");
+  }
+  a
+ }
+
  String step39_select_s_where_s_print(int idOfSentenceJustSeen) {
   String q = ''
   q += 'select s.s '
@@ -463,64 +434,33 @@ class Yacback {
   String s = rs.getString("s")
  }
 
- void step22_insert_s_and_l(int idOfSentenceJustSeen, String label) {
-  String q
-  q  = "insert into labels(sid, l) "
-  q += "values ($idOfSentenceJustSeen, '$label')"
-  def stmt = conn.createStatement()
+ void step40_insert_s(String sentence) {
+  String q1 = "insert into sentences(s) values('$sentence')"
+  def stmt1 = conn.prepareStatement(q1, Statement.RETURN_GENERATED_KEYS)
   try {
-   stmt.execute(q)
+   stmt1.execute()
   }
   catch (e) {
-   println "insert failed"
+   println "insert1 failed"
+   println e
+  }
+  ResultSet rs1 = stmt1.getGeneratedKeys()
+  rs1.next()
+  def rs1key = rs1.getInt(1) 
+
+  def stanford = stanfordStructure(sentence)
+  String q2 = convertWordListToInsertStatements(rs1key, stanford)
+  def stmt2 = conn.createStatement()
+  try {
+   stmt2.execute(q2)
+  }
+  catch (e) {
+   println "insert2 failed"
    println e
   }
  }
 
- void step23_delete_s_and_l(int idOfSentenceJustSeen, String label) {
-  String q
-  q  = "delete from labels "
-  q += "where sid = $idOfSentenceJustSeen "
-  q += "and l = '$label' "
-  def stmt = conn.createStatement()
-  try {
-   stmt.execute(q)
-  }
-  catch (e) {
-   println "insert failed"
-   println e
-  }
- }
-
- HashMap step32_select_S_from_s_limit_1(int idOfSentenceJustSeen) {
-  String q = ''
-  q += 'select s.id ids, s.s, l.id idl, l.sid, l.l '
-  q += 'from sentences s '
-  q += 'join labels l '
-  q += 'on s.id = l.sid '
-  q += "where s.id <> $idOfSentenceJustSeen "
-  q += 'and l in ( '
-  q += 'select l.l '
-  q += 'from labels l '
-  q += "where sid = $idOfSentenceJustSeen "
-  q += ') '
-  q += 'order by rand() '
-  q += 'limit 1 '
-
-  def stmt = conn.createStatement();
-  ResultSet rs = stmt.executeQuery(q);
-
-  int ids = -1
-  String s
-  String l
-  rs.next()
-  ids = rs.getInt("ids");
-  s   = rs.getString("s");
-  l   = rs.getString("l");
-  [ids:ids, s:s, l:l]
- }
-
- void step25_delete_s(int idOfSentenceJustSeen) {
+ void step41_delete_s(int idOfSentenceJustSeen) {
   String s
   s  = "delete from labels "
   s += "where sid = $idOfSentenceJustSeen; "
@@ -537,20 +477,50 @@ class Yacback {
   println "--Deleted sentence--"
  }
 
- void step37_print(ArrayList a) {
-  if (a.size() == 0) {
-   println "--no results--"
+ void step42_insert_s_and_l(int idOfSentenceJustSeen, String label) {
+  //bug: allows duplicate insertion of a sentence/label combination
+  String q
+  q  = "insert into labels(sid, l) "
+  q += "values ($idOfSentenceJustSeen, '$label')"
+  def stmt = conn.createStatement()
+  try {
+   stmt.execute(q)
   }
-  else {
-   a.each {
-    println it
-   }
+  catch (e) {
+   println "insert failed"
+   println e
   }
  }
 
- void step38_print(ArrayList a) {
-  step37_print(a)
- } 
+ void step43_delete_s_and_l(int idOfSentenceJustSeen, String label) {
+  String q
+  q  = "delete from labels "
+  q += "where sid = $idOfSentenceJustSeen "
+  q += "and l = '$label' "
+  def stmt = conn.createStatement()
+  try {
+   stmt.execute(q)
+  }
+  catch (e) {
+   println "insert failed"
+   println e
+  }
+ }
+
+ void step87_insert_l(String hyphenedLabel) {
+  String wordInHyphenedLabel =
+   getWordInHyphenedLabel(hyphenedLabel)
+
+  String q = ''
+  q += "delete from labels where l = '$hyphenedLabel'; "
+  q += 'insert into labels (sid, l) '
+  q += "select id, '$hyphenedLabel' "
+  q += 'from sentences s '
+  q += "where s.s regexp '$wordInHyphenedLabel' "
+
+  def stmt = conn.createStatement();
+  stmt.execute(q);
+ }
 
  void step31_print(ArrayList a) {
   if (a == []) {
@@ -563,6 +533,10 @@ class Yacback {
    String l = it[1]
    println "$l,$s"
   }
+ }
+
+ void step32_print(HashMap h) {
+  step34_print(h)
  }
 
  void step33_print(ArrayList a) {
@@ -595,14 +569,25 @@ class Yacback {
  void step36_print(int idOfSentenceJustSeen) {
   String s = step39_select_s_where_s_print(idOfSentenceJustSeen)
   step39_print(s)
+ }
+
+ void step37_print(ArrayList a) {
+  if (a.size() == 0) {
+   println "--no results--"
+  }
+  else {
+   a.each {
+    println it
+   }
+  }
+ }
+
+ void step38_print(ArrayList a) {
+  step37_print(a)
  } 
 
  void step39_print(String s) {
   println "$GREEN$s$NOCOLOR"
- }
-
- void step32_print(HashMap h) {
-  step34_print(h)
  }
 }
 
