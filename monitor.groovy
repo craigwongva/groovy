@@ -27,7 +27,7 @@ int nowfiletime = interpretNameOfCapturedFile('captured', nowfilename)
 println "Now is . . . . . . . . . . . . . . . $nowtimestamp"
 int timediff = nowfiletime - lastfiletime
 println "Elapsed time is ${(timediff/60).toInteger()} minutes ${timediff % 60} seconds"
-if (timediff < 6*60) {
+if (timediff < 36*60) {
  println "status green"
 }
 else {
