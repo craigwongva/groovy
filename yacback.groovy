@@ -115,10 +115,13 @@ class Yacback {
    step31_print(a)
   }
   if (a0 == '32') {
-   HashMap temp = 
+   HashMap h = 
     step32_select_S_from_s_limit_1(
      idOfSentenceJustSeen)
-   step32_print(temp)
+   if (h.ids > 0) {
+    idOfSentenceJustSeen = h.ids
+   }
+   step32_print(h)
   }
   if (a0 == '33') {
    String regexp = a1
@@ -127,27 +130,30 @@ class Yacback {
   }
   if (a0 == '34') {
    String regexp = a1
-   HashMap temp = 
+   HashMap h = 
     step34_select_S_where_s_and_r_limit_1(
      idOfSentenceJustSeen, regexp)
-   step34_print(temp)
+   if (h.ids > 0) {
+    idOfSentenceJustSeen = h.ids
+   }
+   step34_print(h)
   }
   if (a0 == '35') {
    String regexp = a1
-   ArrayList temp = step35_select_S_where_r(regexp)
-   step35_print(temp)
+   ArrayList a = step35_select_S_where_r(regexp)
+   step35_print(a)
   }
   if (a0 == '36') {
    String regexp = a1
-   HashMap temp = step36_select_S_where_r_limit_1(regexp)
-   if (temp.ids > 0) {
-    idOfSentenceJustSeen = temp.ids
+   HashMap h = step36_select_S_where_r_limit_1(regexp)
+   if (h.ids > 0) {
+    idOfSentenceJustSeen = h.ids
    }
    step36_print(idOfSentenceJustSeen)
   }
   if (a0 == '37') {
    String label = a1
-   def a = step37_select_S_where_l(label)
+   ArrayList a = step37_select_S_where_l(label)
    step37_print(a)
   }
   if (a0 == '38') {
@@ -382,7 +388,7 @@ class Yacback {
   ids = rs.getInt("ids");
   s   = rs.getString("s");
 
-  [ids:ids, s:s, l:'we are matching a regexp not the current sentence']
+  [ids:ids, s:s]
  }
 
  ArrayList step37_select_S_where_l(String hyphenedLabel) {
