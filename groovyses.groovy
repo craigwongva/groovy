@@ -31,7 +31,7 @@ if (!(ptext =~ 'status green')) {
  sendEmail(client, monitorEmail, 'latest snapshot', msg)
 }
 
- sleep 1000*(1*60)
+ sleep 1000*(30*60)
 }
 
 def sendEmail(client, String monitorEmail, String subject, String body) {
