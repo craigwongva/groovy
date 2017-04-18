@@ -8,11 +8,15 @@ import groovy.io.FileType
 import java.sql.*
 
 class Orange {
-//xxx def jsonSlurper
  String inputCsvSuffix //02 for Amazon's February usage data csv
  String outputTableSuffix //e.g. "5" to create tables dinhraw$outputTableSuffix and dinh$outputTableSuffix
 
- void step3() {
+ void step3(args) {
+        def (
+          ignore,               //name of method to invoke
+          inputCsvSuffix,       //
+          outputTableSuffix    //
+        ) = args
 
   //blueorange refers to:
   // blue: homegrown code that captures describe-instance data,
@@ -177,12 +181,17 @@ class Orange {
  // than it is to execute the individual batch commands
  // from within Groovy
  // (due to Groovy's weird list syntax to execute()).
- void step4() {
+ void step4(args) {
   def s0 = ['./orangestep4'].execute().text
   println s0
  }
 
- void step5() {
+ void step5(args) {
+        def (
+          ignore1,             //name of method to invoke
+          ignore2,             //
+          outputTableSuffix    //
+        ) = args
 
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
@@ -292,30 +301,12 @@ UPDATE cat.public.orange_dinh$outputTableSuffix set userproject = '' where userp
 
 }
 
-def h = new Orange()
-
 //step3 uploads the csv file into a raw table and into a scrubbed table
-if ((args[0]) == 'step3') {
- h.inputCsvSuffix = args[1]
- h.outputTableSuffix = args[2]
- h.step3()
- //step3 writes to h2
-}
-
 //step4 is a bash script called orangestep4.
 // It associates volumes with instances.
 // It should be run before step5.
-if ((args[0]) == 'step4') {
- h.step4()
-}
-
 //step5 loads helper tables and then updates the scrubbed table with add'l tags
-if ((args[0]) == 'step5') {
- //step5 ignores args[1]
- h.outputTableSuffix = args[2]
- h.step5()
- //step5 writes to h2
-}
+
 //The following statement executes the method 
 // passed in as the args[0] parameter.
-//new Orange().{args[0]}(args)
+new Orange().{args[0]}(args)
