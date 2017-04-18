@@ -8,46 +8,44 @@ import groovy.io.FileType
 import java.sql.*
 
 class Orange {
- def jsonSlurper
+//xxx def jsonSlurper
  String inputCsvSuffix //02 for Amazon's February usage data csv
  String outputTableSuffix //e.g. "5" to create tables dinhraw$outputTableSuffix and dinh$outputTableSuffix
 
- Orange() {
-  jsonSlurper = new JsonSlurper()
- }
-
  void step3() {
 
-  /**
-  * cat is an arbitrary name
-  */
+  //blueorange refers to:
+  // blue: homegrown code that captures describe-instance data,
+  // orange: AWS-provided billing data
+  //cat is an arbitrary name
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
-
-  // Use the default username/password:
-  //  - the data is not sensitive
+  // Use the default username/password and store it publicly because:
+  //  - the data is to be considered private but not sensitive
   //  - the h2 console is restricted by IP
-  //getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
-  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
-  //getConnection("jdbc:h2:~/cat", "sa", "");
+   getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
 
-  def stmt2 = conn.createStatement()
+  //dinh refers to:
+  // the AWS-provided billing data that Dinh analyzed in Excel
+  //Therefore orange_dinh is a redundant name
+  //The outputTableSuffix value is arbitrary.
+  // Recently I have been using '4', then '5', then '6'.
+  def stmt1 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.orange_dinhraw$outputTableSuffix"
-   def x2 = stmt2.execute(sql2)
+   String sql1 = "drop table cat.public.orange_dinhraw$outputTableSuffix"
+   stmt1.execute(sql1)
   }
   catch (e) {
    println "no table cat.public.orange_dinhraw$outputTableSuffix is available to drop"
   }
 
   /**
-  * Use h2's CSVREAD
+  * Use h2's CSVREAD to ingest AWS billing details
   */
-  def stmt3 = conn.createStatement()
-//String temp1 = 'invoiceID,payerAccountId,linkedAccountId,recordType,recordId,productName,rateId,subscriptionId,pricingPlanId,usageType,operation,availabilityZone,reservedInstance,itemDescription,usageStartDateRaw,usageEndDateRaw,usageQuantity,blendedRate,blendedCost,unblendedRate,unblendedCost,resourceId,ignore1,ignore2' 
+  def stmt2 = conn.createStatement()
 
-  String sql3 = '' +
-   "create table cat.public.orange_dinhraw$outputTableSuffix (" +
+  String sql2 = '' +
+"create table cat.public.orange_dinhraw$outputTableSuffix (" +
 
 ' invoiceID varchar(100),' +
 ' payerAccountId varchar(100),' +
@@ -72,35 +70,43 @@ class Orange {
 ' blendedRate varchar(100),' + //decimal
 ' blendedCost varchar(100),' + //decimal
 ' unblendedRate varchar(100),' + //decimal
+
 ' unblendedCost varchar(100),' + //decimal
 ' resourceId varchar(200),' +
 ' awsCreatedBy varchar(100),' +
 ' userProject varchar(100)) as ' +
 " select * " +
-"from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-${inputCsvSuffix}.csv'); " +
-//Yes, the csv does have a header.
-//Here is the syntax to use if you're debugging and
-// removing the header:
-//"from CSVREAD('suspicious3', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " +
+" from CSVREAD('398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-${inputCsvSuffix}.csv'); " +
 "update cat.public.orange_dinhraw$outputTableSuffix set usageQuantity = '0.0' where usageQuantity = ''; " +
 "update cat.public.orange_dinhraw$outputTableSuffix set blendedRate   = '0.0' where blendedRate = ''; " +
 "update cat.public.orange_dinhraw$outputTableSuffix set blendedCost   = '0.0' where blendedCost = ''; " +
 "update cat.public.orange_dinhraw$outputTableSuffix set unblendedRate = '0.0' where unblendedRate = ''; " +
 "update cat.public.orange_dinhraw$outputTableSuffix set unblendedCost = '0.0' where unblendedCost = ''; " +
-"update cat.public.orange_dinhraw$outputTableSuffix set userProject = replace(replace(replace(replace(replace(userProject, '-dev', ''), '-int', ''), '-stage', ''), '-test', ''), '-prod', ''); " +
+"update cat.public.orange_dinhraw$outputTableSuffix set userProject = " +
+" replace(replace(replace(replace(replace(userProject, '-dev', ''), '-int', ''), '-stage', ''), '-test', ''), '-prod', ''); " +
 "delete from cat.public.orange_dinhraw$outputTableSuffix where usageStartDateRaw = ''; " 
 
-  def x3 = stmt3.execute(sql3)
-
-  def stmt5 = conn.createStatement()
   try {
-   String sql5 = "drop table cat.public.orange_dinh$outputTableSuffix"
-   def x5 = stmt5.execute(sql5)
+   stmt2.execute(sql2)
+  }
+  catch (e) {
+   println e
+  }
+
+  def stmt3 = conn.createStatement()
+  try {
+   String sql3 = "drop table cat.public.orange_dinh$outputTableSuffix"
+   stmt3.execute(sql3)
   }
   catch (e) {
    println "no table cat.public.orange_dinh$outputTableSuffix is available to drop"
   }
 
+  /**
+  * Transform the raw data, e.g.
+  * 1. convert to numbers where appropriate
+  * 2. filter where account is 1708
+  */
   def stmt4 = conn.createStatement()
   String sql4 = '' +
    "create table cat.public.orange_dinh$outputTableSuffix (" +
@@ -157,7 +163,12 @@ class Orange {
 "from cat.public.orange_dinhraw$outputTableSuffix " +
 "where linkedaccountid = '539674021708' "
 
-  def x4 = stmt4.execute(sql4)
+  try {
+   stmt4.execute(sql4)
+  }
+  catch (e) {
+   println e
+  }
 
   conn.close();
  }
@@ -173,68 +184,67 @@ class Orange {
 
  void step5() {
 
-  /**
-  * cat is an arbitrary name
-  */
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
-
-  // Use the default username/password:
-  //  - the data is not sensitive
-  //  - the h2 console is restricted by IP
-  //getConnection("jdbc:h2:tcp://localhost/~/cat", "sa", "");
   getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
-  //getConnection("jdbc:h2:~/cat", "sa", "");
 
-  def stmt2 = conn.createStatement()
+  def stmt1 = conn.createStatement()
   try {
-   String sql2 = "drop table cat.public.orange_volumes"
-   def x2 = stmt2.execute(sql2)
+   String sql1 = "drop table cat.public.orange_volumes"
+   stmt1.execute(sql1)
   }
   catch (e) {
    println "no table cat.public.orange_volumes is available to drop"
   }
 
   /**
-  * Use h2's CSVREAD
+  * Use h2's CSVREAD to ingest volumes data.
   */
-  def stmt3 = conn.createStatement()
-  String temp1 = 'volumeid,instanceid'
+  def stmt2 = conn.createStatement()
 
-  //Youl should have run step4 to update describe-volumes-three-regions.csv 
-  String sql3 = '' +
+  //You should have already run step4 to update describe-volumes-three-regions.csv 
+  String sql2 = '' +
    'create table cat.public.orange_volumes (' +
 ' volumeid varchar(100),' +
 ' instanceid varchar(100)) as ' + 
 " select * " +
-" from CSVREAD('describe-volumes-three-regions.csv', '$temp1', 'charset=UTF-8 fieldSeparator=,'); " 
-println "I'm about to execute sql3:\n$sql3"
-  def x3 = stmt3.execute(sql3)
-
-  def stmt4 = conn.createStatement()
+" from CSVREAD('describe-volumes-three-regions.csv', 'volumeid,instanceid', 'charset=UTF-8 fieldSeparator=,'); " 
   try {
-   String sql4 = "drop table cat.public.orange_instanceproject"
-   def x4 = stmt4.execute(sql4)
+   stmt2.execute(sql2)
+  }
+  catch (e) {
+   println e
+  }
+
+  def stmt3 = conn.createStatement()
+  try {
+   String sql3 = "drop table cat.public.orange_instanceproject"
+   stmt3.execute(sql3)
   }
   catch (e) {
    println "no table cat.public.orange_instanceproject is available to drop"
   }
 
-  def stmt5 = conn.createStatement()
+  def stmt4 = conn.createStatement()
 
-  String sql5 = '' +
+  String sql4 = '' +
 'create table cat.public.orange_instanceproject as ( ' +
 ' select distinct resourceid, userproject ' +
 " from cat.public.orange_dinh$outputTableSuffix d " +
 " where resourceid like 'i-%' " +
 " and userproject <> '') "
 
-  def x5 = stmt5.execute(sql5)
+  try {
+   stmt4.execute(sql4)
+  }
+  catch (e) {
+   println e
+  }
 
   def stmt6 = conn.createStatement()
   try {
    String sql6 = "drop table cat.public.orange_volumeproject"
-   def x6 = stmt6.execute(sql6)
+   stmt6.execute(sql6)
   }
   catch (e) {
    println "no table cat.public.orange_volumeproject is available to drop"
@@ -250,7 +260,12 @@ println "I'm about to execute sql3:\n$sql3"
 ' on v.instanceid = i.resourceid ' +
 ')'
 
-  def x7 = stmt7.execute(sql7)
+  try {
+   stmt7.execute(sql7)
+  }
+  catch (e) {
+   println e
+  } 
 
   def stmt8 = conn.createStatement()
 
@@ -265,7 +280,12 @@ UPDATE cat.public.orange_dinh$outputTableSuffix d SET userproject=(SELECT L.user
 -- so change them back to ‘’
 UPDATE cat.public.orange_dinh$outputTableSuffix set userproject = '' where userproject is null;
 """
-  def x8 = stmt8.execute(sql8)
+  try {
+   stmt8.execute(sql8)
+  }
+  catch (e) {
+   println e
+  } 
 
   conn.close();
  }
@@ -296,3 +316,6 @@ if ((args[0]) == 'step5') {
  h.step5()
  //step5 writes to h2
 }
+//The following statement executes the method 
+// passed in as the args[0] parameter.
+//new Orange().{args[0]}(args)
