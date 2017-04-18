@@ -54,16 +54,25 @@ groovyses &
 
 cd .aws
 #populate config and credentials files
+#via the Console, activate the user's access key
 aws s3 --profile=payer sync s3://radiantblue-billing/ .
+#expect to enter the user's MFA
+#via the Console, de-activate the user's access key
+#create a directory so .aws doesn't get cluttered, e.g. mkdir radiantblue-billing-20170418
+#cd to your new directory
 unzip 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv.zip
+#copy the unzipped file into ~/groovy, as a convenience
 #The following 'head' statement isn't done anymore, but I'm not sure how the orange steps3 and steps5 know to ignore the last 13 (or so) lines.
 head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv > suspicious2
 #edit the orange.groovy to read the correct file 
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar orange.groovy
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step3 03    5 #from Amazon ...03.csv, create tables orangeraw5 and orange5
+#In April, the above took 3m33s.
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step4         #./orangestep4
+#In April, the above took less than 5s.
 /usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step5 dummy 5 #update table orange5
-#run orangeAnalysisQueries
+#In April, the above took about 25s.
+#run the queries in file 'orangeAnalysisQueries' (sha 1697ed1) but be sure to change the orange_dinh# table# to get current month results
 
 -- move to Herndon --
 
