@@ -251,13 +251,18 @@ public class UploadObjectSingleOperation {
 	writeToFilePutKeyPolicy(region, encryptionKeyId, policy)
     }
 
-    void createKey(String encryptionKeyAlias, String region) {
+    String createKey(String encryptionKeyAlias, String region) {
         String s = 'aws kms create-key '
         s += "--description $encryptionKeyAlias "
 	s += "--region $region "
 	s += '--output text'
 	def sx = s.execute()
-        sx.text.split()[6] 
+        def rtn = sx.text.split()[6] 
+        println ""
+	println s
+        println "create-key err.text: ${sx.err.text}"
+        println "create-key    .text: ${sx.text}"
+        rtn
     }
 
     void createAlias(
@@ -366,7 +371,7 @@ public class UploadObjectSingleOperation {
             println "Request ID:       " + ase.getRequestId()
         } catch (Exception ace) {
             println "Caught an AmazonClientException, which " +
-            		"means the client encountered " +
+            	    "means the client encountered " +
                     "an internal error while trying to " +
                     "communicate with S3, " +
                     "such as not being able to access the network."
