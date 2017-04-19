@@ -8,14 +8,16 @@ import groovy.io.FileType
 import java.sql.*
 
 class Orange {
+/*
  String inputCsvSuffix //02 for Amazon's February usage data csv
  String outputTableSuffix //e.g. "5" to create tables dinhraw$outputTableSuffix and dinh$outputTableSuffix
-
- void step3(args) {
+*/
+ void step1(args) {
         def (
-          ignore,               //name of method to invoke
-          inputCsvSuffix,       //
-          outputTableSuffix    //
+          ignore,              //name of method to invoke
+          inputCsvSuffix,      //e.g. 02 for Amazon's February usage data csv
+          outputTableSuffix    //e.g. "5" to create tables dinhraw$outputTableSuffix and dinh$outputTableSuffix
+
         ) = args
 
   //blueorange refers to:
@@ -89,7 +91,6 @@ class Orange {
 "update cat.public.orange_dinhraw$outputTableSuffix set userProject = " +
 " replace(replace(replace(replace(replace(userProject, '-dev', ''), '-int', ''), '-stage', ''), '-test', ''), '-prod', ''); " +
 "delete from cat.public.orange_dinhraw$outputTableSuffix where usageStartDateRaw = ''; " 
-
   try {
    stmt2.execute(sql2)
   }
@@ -138,34 +139,34 @@ class Orange {
 ' resourceId varchar(200), ' +
 ' awsCreatedBy varchar(100), ' +
 ' userProject varchar(100)) ' +
-'as ' +
-'select ' +
-'invoiceID,' +
-'payerAccountId,' +
-'linkedAccountId,' +
-'recordType,' +
-'recordId,' +
-'productName,' +
-'rateId,' +
-'subscriptionId,' +
-'pricingPlanId,' +
-'usageType,' +
-'operation,' +
-'availabilityZone,' +
-'reservedInstance,' +
-'itemDescription,' +
-"PARSEDATETIME(usageStartDateRaw, 'yyyy-MM-dd HH:mm:SS', 'en') usageStartDate," +
-"PARSEDATETIME(usageEndDateRaw,   'yyyy-MM-dd HH:mm:SS', 'en') usageEndDate," +
-'convert(usageQuantity, decimal) usageQuantity, ' +
-'convert(blendedRate, decimal) blendedRate, ' +
-'convert(blendedCost, decimal) blendedCost, ' +
-'convert(unblendedRate, decimal) unblendedRate, ' +
-'convert(unblendedCost, decimal) unblendedCost, ' +
-'resourceId, ' +
-'awsCreatedBy, ' +
-'userProject ' +
-"from cat.public.orange_dinhraw$outputTableSuffix " +
-"where linkedaccountid = '539674021708' "
+' as ' +
+' select ' +
+' invoiceID,' +
+' payerAccountId,' +
+' linkedAccountId,' +
+' recordType,' +
+' recordId,' +
+' productName,' +
+' rateId,' +
+' subscriptionId,' +
+' pricingPlanId,' +
+' usageType,' +
+' operation,' +
+' availabilityZone,' +
+' reservedInstance,' +
+' itemDescription,' +
+" PARSEDATETIME(usageStartDateRaw, 'yyyy-MM-dd HH:mm:SS', 'en') usageStartDate," +
+" PARSEDATETIME(usageEndDateRaw,   'yyyy-MM-dd HH:mm:SS', 'en') usageEndDate," +
+' convert(usageQuantity, decimal) usageQuantity, ' +
+' convert(blendedRate, decimal) blendedRate, ' +
+' convert(blendedCost, decimal) blendedCost, ' +
+' convert(unblendedRate, decimal) unblendedRate, ' +
+' convert(unblendedCost, decimal) unblendedCost, ' +
+' resourceId, ' +
+' awsCreatedBy, ' +
+' userProject ' +
+" from cat.public.orange_dinhraw$outputTableSuffix " +
+" where linkedaccountid = '539674021708' "
 
   try {
    stmt4.execute(sql4)
@@ -181,21 +182,23 @@ class Orange {
  // than it is to execute the individual batch commands
  // from within Groovy
  // (due to Groovy's weird list syntax to execute()).
- void step4(args) {
-  def s0 = ['./orangestep4'].execute().text
+ void step2(args) {
+  def s0 = ['./orangestep2'].execute().text
   println s0
  }
 
- void step5(args) {
-        def (
-          ignore1,             //name of method to invoke
-          ignore2,             //
-          outputTableSuffix    //
-        ) = args
+ void step3(args) {
+  def (
+   ignore1,             //name of method to invoke
+   ignore2,             //
+   outputTableSuffix    //e.g. "5" to create tables 
+                        // dinhraw$outputTableSuffix and 
+                        // dinh$outputTableSuffix
+  ) = args
 
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
-  getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
+   getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
 
   def stmt1 = conn.createStatement()
   try {
@@ -211,13 +214,17 @@ class Orange {
   */
   def stmt2 = conn.createStatement()
 
-  //You should have already run step4 to update describe-volumes-three-regions.csv 
+  //You should have already run step2 to 
+  // update describe-volumes-three-regions.csv 
+  String temp1 = 'describe-volumes-three-regions.csv'
+  String temp2 = 'volumeid,instanceid'
+  String temp3 = 'charset=UTF-8 fieldSeparator=,'
   String sql2 = '' +
-   'create table cat.public.orange_volumes (' +
+'create table cat.public.orange_volumes (' +
 ' volumeid varchar(100),' +
 ' instanceid varchar(100)) as ' + 
 " select * " +
-" from CSVREAD('describe-volumes-three-regions.csv', 'volumeid,instanceid', 'charset=UTF-8 fieldSeparator=,'); " 
+" from CSVREAD('$temp1', '$temp2', '$temp3'); " 
   try {
    stmt2.execute(sql2)
   }
@@ -280,14 +287,26 @@ class Orange {
 
   String sql8 = """
 --Update volumes based on their association with a tagged instance
-UPDATE cat.public.orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM cat.public.orange_volumeproject L WHERE L.volumeid=d.resourceid) WHERE resourceId like 'vol-%';
+UPDATE cat.public.orange_dinh$outputTableSuffix d 
+SET userproject=(
+SELECT L.userproject 
+FROM cat.public.orange_volumeproject L 
+WHERE L.volumeid=d.resourceid) 
+WHERE resourceId like 'vol-%';
 
 --Update instances based on their later (chronologically) tagging
-UPDATE cat.public.orange_dinh$outputTableSuffix d SET userproject=(SELECT L.userproject FROM cat.public.orange_instanceproject L WHERE L.resourceid=d.resourceid) WHERE resourceId like 'i-%' and userproject = '';
+UPDATE cat.public.orange_dinh$outputTableSuffix d 
+SET userproject=(
+SELECT L.userproject 
+FROM cat.public.orange_instanceproject L 
+WHERE L.resourceid=d.resourceid) 
+WHERE resourceId like 'i-%' and userproject = '';
 
 --The previous two UPDATE statements set many rows to null, 
 -- so change them back to ‘’
-UPDATE cat.public.orange_dinh$outputTableSuffix set userproject = '' where userproject is null;
+UPDATE cat.public.orange_dinh$outputTableSuffix 
+SET userproject = '' 
+WHERE userproject is null;
 """
   try {
    stmt8.execute(sql8)
@@ -301,11 +320,11 @@ UPDATE cat.public.orange_dinh$outputTableSuffix set userproject = '' where userp
 
 }
 
-//step3 uploads the csv file into a raw table and into a scrubbed table
-//step4 is a bash script called orangestep4.
+//step1 uploads the csv file into a raw table and into a scrubbed table
+//step2 is a bash script called orangestep2.
 // It associates volumes with instances.
-// It should be run before step5.
-//step5 loads helper tables and then updates the scrubbed table with add'l tags
+// It should be run before step3.
+//step3 loads helper tables and then updates the scrubbed table with add'l tags
 
 //The following statement executes the method 
 // passed in as the args[0] parameter.

@@ -66,11 +66,11 @@ unzip 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-
 head -n -13 398274688464-aws-billing-detailed-line-items-with-resources-and-tags-2017-02.csv > suspicious2
 #edit the orange.groovy to read the correct file 
 /home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovyc -cp groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar orange.groovy
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step3 03    5 #from Amazon ...03.csv, create tables orangeraw5 and orange5
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step1 03    5 #from Amazon ...03.csv, create tables orangeraw5 and orange5
 #In April, the above took 3m33s.
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step4         #./orangestep4
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step2         #./orangestep2
 #In April, the above took less than 5s.
-/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step5 dummy 5 #update table orange5
+/usr/bin/java -cp .:./groovy-json-2.4.7.jar:./groovy-2.4.7.jar:h2/bin/h2-1.4.193.jar example/orange step3 dummy 5 #update table orange5
 #In April, the above took about 25s.
 #run the queries in file 'orangeAnalysisQueries' (sha 1697ed1) but be sure to change the orange_dinh# table# to get current month results
 
