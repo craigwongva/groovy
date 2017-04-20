@@ -37,8 +37,9 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 // in order to prevent an overabundance of test keys, set to false.
 //
 //To run this code (for the uups method):
-// java -cp $JARS \
-//   upload/upload <cfuser> <cfpassword> <cfspace> <encryptionKeyAlias>
+// java -cp $JARS12 \
+//   upload/upload uupsPzblobstore <cfuser> <cfpassword> 
+//    <cfspace> <encryptionKeyAlias>
 //Note 1: encryptionKeyAlias must include the prefix 'alias/'
 //Note 2: An empty list of apps is a problem because
 // at least one app is needed to get the pz-blobstore
@@ -48,7 +49,7 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 //To run this code (for the upload+encrypt demo):
 // java -cp $JARS \
 //  -Daws.accessKeyId=REDACTED -Daws.secretKey=REDACTED \
-//   upload/upload
+//   upload/upload upload
 //Note 1: The two redacted values are passed in via
 // -D parameters, not within args[]
 
@@ -188,11 +189,9 @@ public class UploadObjectSingleOperation {
 	appsUsingBlobstore.each {
 	    println "About to restage $cfspace $it"
             def cmd5 = "$cfcmd restage $it"
-// turn off while refactoring
             def cmdtext5 = cmd5.execute()
 	    println cmdtext5.err.text
 	    println cmdtext5.text
-//
 	}
     }
 
