@@ -23,10 +23,11 @@ import com.amazonaws.services.s3.AmazonS3Client.*;
 // JARS4=httpclient-4.3.6.jar:httpcore-4.3.3.jar
 // JARS5=jackson-annotations-2.5.0.jar:jackson-core-2.5.3.jar:jackson-databind-2.5.3.jar
 // JARS6=joda-time-2.8.1.jar
+// JARS12=$JARS1:$JARS2
 // JARS=$JARS1:$JARS2:$JARS3:$JARS4:$JARS5:$JARS6 
 //
 //To run this code (for the createOneEncryptionKeyPerPCFInstance method):
-// java -cp $JARS \
+// java -cp $JARS12 \
 //   upload/upload createOneEncryptionKeyPerPCFInstance 
 //    <buildKeys> <encryptionKeyId> <encryptionKeyDescription>
 //where <buildKeys> is true or false
