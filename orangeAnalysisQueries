@@ -1,12 +1,12 @@
-drop table temp1
+drop table temp1;
 
-create index blue_instanceprojectname_ix on blue_instanceprojectname(instanceid)
+create index blue_instanceprojectname_ix on blue_instanceprojectname(instanceid);
 
-create index orange_volumes_ix on orange_volumes(volumeid)
+create index orange_volumes_ix on orange_volumes(volumeid);
 
 create table temp1 as
 select o.userproject, 'compute' type, b.namevalue, sum(o.blendedcost) blendedcost
-from orange_dinh5 o
+from orange_dinhA o
 join blue_instanceprojectname b
 on o.resourceid = b.instanceid
 group by o.userproject, b.namevalue
@@ -14,27 +14,26 @@ union
 --b.projectvalue contains better project data than o.userProject
 --s/m: inject b.projectvalue into orange_dinh5
 select /*o.userProject*/ b.projectvalue, 'volume' type, b.namevalue, sum(o.blendedcost)
-from orange_dinh5 o
+from orange_dinhA o
 join orange_volumes v
 on o.resourceid = v.volumeid
 join blue_instanceprojectname b
 on v.instanceid = b.instanceid
-group by o.userProject, b.namevalue
+group by o.userProject, b.namevalue;
 
-drop table temp2
+drop table temp2;
 
 create table temp2 as
 select userproject, namevalue, sum(blendedcost) blendedcost
 from temp1
-group by userproject, namevalue
+group by userproject, namevalue;
 
 --which userproject/name costs the most?
 select userproject, namevalue, blendedcost
 from temp2
-order by blendedcost desc
+order by blendedcost desc;
 
 --within userproject/name what is the compute/volume breakdown?
 select userproject, namevalue, type, blendedcost
 from temp1
 order by userproject, blendedcost desc
-
