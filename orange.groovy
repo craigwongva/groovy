@@ -8,11 +8,8 @@ import groovy.io.FileType
 import java.sql.*
 
 class Orange {
-/*
- String inputCsvSuffix //02 for Amazon's February usage data csv
- String outputTableSuffix //e.g. "5" to create tables dinhraw$outputTableSuffix and dinh$outputTableSuffix
-*/
- void step1(args) {
+
+ void step1_upload_AWS_CSV_into_table(args) {
         def (
           ignore,              //name of method to invoke
           inputCsvSuffix,      //e.g. 02 for Amazon's February usage data csv
@@ -38,11 +35,11 @@ class Orange {
   // Recently I have been using '4', then '5', then '6'.
   def stmt1 = conn.createStatement()
   try {
-   String sql1 = "drop table cat.public.orange_dinhraw$outputTableSuffix"
+   String sql1 = "drop table if exists cat.public.orange_dinhraw$outputTableSuffix"
    stmt1.execute(sql1)
   }
   catch (e) {
-   println "no table cat.public.orange_dinhraw$outputTableSuffix is available to drop"
+   println e
   }
 
   /**
@@ -100,11 +97,11 @@ class Orange {
 
   def stmt3 = conn.createStatement()
   try {
-   String sql3 = "drop table cat.public.orange_dinh$outputTableSuffix"
+   String sql3 = "drop table if exists cat.public.orange_dinh$outputTableSuffix"
    stmt3.execute(sql3)
   }
   catch (e) {
-   println "no table cat.public.orange_dinh$outputTableSuffix is available to drop"
+   println e
   }
 
   /**
@@ -182,12 +179,12 @@ class Orange {
  // than it is to execute the individual batch commands
  // from within Groovy
  // (due to Groovy's weird list syntax to execute()).
- void step2(args) {
+ void step2_describe_volumes_three_regions(args) {
   def s0 = ['./orangestep2'].execute().text
   println s0
  }
 
- void step3(args) {
+ void step3_update_table_with_tags(args) {
   def (
    ignore1,             //name of method to invoke
    ignore2,             //
@@ -196,17 +193,19 @@ class Orange {
                         // dinh$outputTableSuffix
   ) = args
 
+  println "step3 100: outputTableSuffix is $outputTableSuffix"
+
   Class.forName("org.h2.Driver");
   Connection conn = DriverManager.
    getConnection("jdbc:h2:tcp://localhost/~/blueorangeh2/cat", "sa", "");
 
   def stmt1 = conn.createStatement()
   try {
-   String sql1 = "drop table cat.public.orange_volumes"
+   String sql1 = "drop table if exists cat.public.orange_volumes"
    stmt1.execute(sql1)
   }
   catch (e) {
-   println "no table cat.public.orange_volumes is available to drop"
+   println e
   }
 
   /**
@@ -234,11 +233,11 @@ class Orange {
 
   def stmt3 = conn.createStatement()
   try {
-   String sql3 = "drop table cat.public.orange_instanceproject"
+   String sql3 = "drop table if exists cat.public.orange_instanceproject"
    stmt3.execute(sql3)
   }
   catch (e) {
-   println "no table cat.public.orange_instanceproject is available to drop"
+   println e
   }
 
   def stmt4 = conn.createStatement()
@@ -259,11 +258,11 @@ class Orange {
 
   def stmt6 = conn.createStatement()
   try {
-   String sql6 = "drop table cat.public.orange_volumeproject"
+   String sql6 = "drop table if exists cat.public.orange_volumeproject"
    stmt6.execute(sql6)
   }
   catch (e) {
-   println "no table cat.public.orange_volumeproject is available to drop"
+   println e
   }
 
   def stmt7 = conn.createStatement()
@@ -317,15 +316,9 @@ WHERE userproject is null;
 
   conn.close();
  }
-
 }
 
-//step1 uploads the csv file into a raw table and into a scrubbed table
-//step2 is a bash script called orangestep2.
-// It associates volumes with instances.
-// It should be run before step3.
-//step3 loads helper tables and then updates the scrubbed table with add'l tags
-
-//The following statement executes the method 
-// passed in as the args[0] parameter.
-new Orange().{args[0]}(args)
+def r = new Orange()
+//r.step1_upload_AWS_CSV_into_table(args)
+//r.step2_describe_volumes_three_regions(args)
+r.step3_update_table_with_tags(args)
