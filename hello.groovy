@@ -1,4 +1,5 @@
 import groovy.json.*
+import java.text.*
 
 void interpretEC2jsonAndPrint(f, t) {
    //The interpreted json values are printed here as a convenience
@@ -148,7 +149,7 @@ def f = """
 """
 
    //groovy: I'm unable to get a filter pattern with an embedded space to work:
-   def w = "aws logs filter-log-events --log-group-name microcero-catalina --region us-east-1 --filter-pattern running"
+   def w = "aws logs filter-log-events --log-group-name microcero-catalina --region us-east-1 --filter-pattern candlestick"
    def x = w.execute().text
 
    def fObject = jsonSlurper.parseText(x) //(f)
@@ -156,3 +157,10 @@ def f = """
    for (int i=0; i<events.size(); i++) {
        println events[i].message
    }
+/*
+   def d = new Date()
+   SimpleDateFormat format=new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
+   println d
+   println format.format(d)
+*/
+   
