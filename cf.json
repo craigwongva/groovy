@@ -32,10 +32,11 @@
     "UserData": {"Fn::Base64": {"Fn::Join": ["",
      [
 "#!/bin/bash -ex\n",
-"echo `whoami` > /tmp/one\n",
 "yum install git -y\n",
 "sudo -u ec2-user bash -c 'cd /home/ec2-user; git clone https://github.com/craigwongva/groovy.git > /tmp/u01 2>&1 '\n",
-"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata-groovy > /tmp/u03 2>&1'\n"
+"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-java'\n",
+"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-groovy'\n",
+"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-hello'\n"
      ]
     ]}}
    }

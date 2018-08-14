@@ -1,0 +1,7 @@
+export TMP=/tmp/groovy
+
+cd /home/ec2-user              &> $TMP-1000
+aws s3 cp s3://redf4rth-groovy/dotsdkman.zip /home/ec2-user &> $TMP-1100
+
+unzip dotsdkman.zip            &> $TMP-1200
+
