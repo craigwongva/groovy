@@ -34,9 +34,9 @@
 "#!/bin/bash -ex\n",
 "yum install git -y\n",
 "sudo -u ec2-user bash -c 'cd /home/ec2-user; git clone https://github.com/craigwongva/groovy.git > /tmp/u01 2>&1 '\n",
-"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-java'\n",
-"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-groovy'\n",
-"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-hello'\n"
+"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-java/install'\n",
+"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-groovy/install'\n",
+"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/userdata-hello/install'\n"
      ]
     ]}}
    }
