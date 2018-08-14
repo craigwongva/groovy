@@ -1,19 +1,19 @@
-| 1 | 2 | 3 | 4 |
-|--- | --- | --- | --- |
-| CloudFormation
- | calls S3 redf4rth-groovy cf-groovy.json | | 
-S3 redf4rth-groovy | | | 
- | cf-groovy.json | | 
- | | is same as github groovy cf-groovy.json | 
- | dotsdkman.zip | | 
- | | is called by userdata-groovy | 
-github groovy | | | 
- | groovy | | 
- | | cf-groovy.json | 
- | | | uses security group
- | | | calls userdata-groovy
- | | hello.groovy | 
- | | | is called by userdata-groovy
- | | userdata-groovy | 
- | | | is called by cf-groovy.json
- | | | calls hello.groovy
+### Purpose
+
+Stand up a Groovy for any lab usage.
+
+### Usage
+```
+# From your c9 instance:
+cd ~/environment
+git clone https://github.com/cwva/groovy
+cd groovy
+./launch groovy1
+```
+
+### Test
+* Look at the last /tmp/hello-xxxx file. It will contain a stack
+trace. This is due to the code looking for a particular Cloud
+Watch item, which no longer exists.
+* But the fact that the Groovy executes proves that Groovy is
+available.
