@@ -36,7 +36,7 @@
 "sudo -u ec2-user bash -c 'cd /home/ec2-user; git clone https://github.com/craigwongva/groovy.git > /tmp/u01 2>&1 '\n",
 "sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/java/install'\n",
 "sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/groovy/install'\n",
-"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/hello/install'\n"
+"sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/hello/install'\n",
 "sudo -u ec2-user bash -c '/home/ec2-user/groovy/userdata/statefair/install'\n"
      ]
     ]}}
