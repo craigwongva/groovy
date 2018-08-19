@@ -1,0 +1,11 @@
+export TMP=/tmp/statefair
+
+cd /home/ec2-user/groovy &> $TMP-1000
+
+# The following two lines are completed by userdata/hello/install
+#  and are included here for completeness.
+#cp /home/ec2-user/.sdkman/candidates/groovy/2.4.7/lib/groovy-2.4.7.jar .   &> $TMP-1100
+#cp /home/ec2-user/.sdkman/candidates/groovy/2.4.7/lib/groovy-json-2.4.7.jar . &> $TMP-1200
+
+# Intentionally omit output redirect
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovy -l 8111 statefair.groovy   &> $TMP-1300
