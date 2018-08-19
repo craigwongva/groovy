@@ -1,10 +1,6 @@
 export stackname=$1
-#export githubpassword=$2
 
 aws cloudformation create-stack --stack-name $stackname \
    --template-body file://cf.json \
    --region us-west-2 # \
-#   --capabilities CAPABILITY_NAMED_IAM # \
-#   --parameter ParameterKey=githubpassword,ParameterValue=$githubpassword
 
-#aws cloudformation validate-template --template-body file://cf.yml
