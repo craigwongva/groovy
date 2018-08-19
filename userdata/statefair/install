@@ -8,4 +8,4 @@ cd /home/ec2-user/groovy &> $TMP-1000
 #cp /home/ec2-user/.sdkman/candidates/groovy/2.4.7/lib/groovy-json-2.4.7.jar . &> $TMP-1200
 
 # Intentionally omit output redirect
-/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovy -l 8111 statefair.groovy   &> $TMP-1300
+/home/ec2-user/.sdkman/candidates/groovy/2.4.7/bin/groovy -l 8111 statefair.groovy &
